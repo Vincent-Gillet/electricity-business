@@ -1,0 +1,11 @@
+### Ignore Tout les fichiers et dossiers de configuration de Jenkins
+.jenkins_home/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
