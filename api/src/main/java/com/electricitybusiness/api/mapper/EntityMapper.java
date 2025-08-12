@@ -320,6 +320,32 @@ public class EntityMapper {
         serviceSup.setDescriptionOption(dto.getDescriptionOption());
         return serviceSup;
     }
-    
+
+    // === booking ===
+    public BookingDTO toDTO(Booking booking) {
+        if (booking == null) return null;
+        return new BookingDTO(
+                booking.getNumberBooking(),
+                booking.getStartingDate(),
+                booking.getEndingDate(),
+                booking.getStatusBooking(),
+                booking.getTotalAmount(),
+                booking.getPaymentDate(),
+                booking.getUser() != null ? booking.getUser().getIdUser() : null,
+                booking.getTerminal() != null ? booking.getTerminal().getIdTerminal() : null,
+                booking.getCar() != null ? booking.getCar().getIdCar() : null,
+                booking.getOption() != null ? booking.getOption().getIdOption() : null
+        );
+    }
+
+    public Booking toEntity(BookingDTO dto) {
+        if (dto == null) return null;
+        Booking booking = new Booking();
+        booking.setStartingDate(dto.getStartingDate());
+        booking.setEndingDate(dto.getEndingDate());
+        booking.setStatusBooking(dto.getStatusBooking());
+        booking.setTotalAmount(dto.getTotalAmount());
+        return booking;
+    }
     
 }
