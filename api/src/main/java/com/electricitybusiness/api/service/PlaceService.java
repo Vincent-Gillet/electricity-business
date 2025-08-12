@@ -1,6 +1,7 @@
 package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.model.Place;
+import com.electricitybusiness.api.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

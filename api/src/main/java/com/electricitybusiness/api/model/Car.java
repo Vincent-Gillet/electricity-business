@@ -26,7 +26,7 @@ public class Car {
     @Column(name = "id_car")
     private Long idCar;
 
-    @NotBlank(message = "L'adresse email est obligatoire")
+    @NotBlank(message = "La plaque d'immatriculation est obligatoire")
     @Length(min = 7, max = 7)
     private String licensePlate;
 

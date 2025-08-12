@@ -59,21 +59,21 @@ public class Terminal {
     @Column(name = "instruction_terminal", columnDefinition = "TEXT")
     private String instructionTerminal;
 
-    @Column(name = "sur_pied", nullable = false)
-    private Boolean surPied;
+    @Column(name = "standing", nullable = false)
+    private Boolean standing;
 
-    @Column(name = "etat_borne", nullable = false)
+    @Column(name = "status_terminal", nullable = false)
     @Enumerated(EnumType.STRING)
     private TerminalStatus statusTerminal;
 
-    @Column(name = "occupee", nullable = false)
-    private Boolean occupee = false;
+    @Column(name = "occupied", nullable = false)
+    private Boolean occupied = false;
 
     @Column(name = "date_creation", nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
-    @Column(name = "derniere_maintenance")
-    private LocalDateTime derniereMaintenance;
+    @Column(name = "last_maintenance")
+    private LocalDateTime lastMaintenance;
 
     @ManyToOne
     @JoinColumn(name = "id_user")
