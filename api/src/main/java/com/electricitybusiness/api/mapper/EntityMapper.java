@@ -347,5 +347,24 @@ public class EntityMapper {
         booking.setTotalAmount(dto.getTotalAmount());
         return booking;
     }
+
+
+    // === REPARATEUR ===
+
+    public RepairerDTO toDTO(Repairer repairer) {
+        if (repairer == null) return null;
+        return new RepairerDTO(
+                repairer.getNameRepairer(),
+                repairer.getEmailRepairer()
+        );
+    }
+
+    public Repairer toEntity(RepairerDTO dto) {
+        if (dto == null) return null;
+        Repairer repairer = new Repairer();
+        repairer.setNameRepairer(dto.getNameRepairer());
+        repairer.setEmailRepairer(dto.getEmailRepairer());
+        return repairer;
+    }
     
 }
