@@ -49,6 +49,7 @@ public class MediaService {
      * @param media Le media avec les nouvelles informations
      * @return Le media mis à jour
      */
+    @Transactional
     public Media updateMedia(Long id, Media media) {
         media.setIdMedia(id);
         return mediaRepository.save(media);

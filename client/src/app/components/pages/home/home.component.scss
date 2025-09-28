@@ -1,0 +1,147 @@
+#hero-banner {
+  background-image: linear-gradient(90deg, rgba(0,0,0,1), rgba(0, 0, 0, 0.3)), url("/assets/images/hero_banner.webp");
+  background-size: auto,cover;
+
+  background-repeat: no-repeat;
+  background-position: center;
+
+  height: 100%;
+
+  color: white;
+  max-height: max-content;
+
+
+  .container{
+    height: 100%;
+
+
+    >div {
+      height: 100%;
+
+      >div {
+        padding-top: 100px;
+        padding-bottom: 100px;
+
+        row-gap: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        a {
+          width: fit-content;
+        }
+      }
+    }
+  }
+
+
+}
+
+
+
+
+#arguments {
+
+  .col-text {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+
+
+    .element-arguments {
+      display: flex;
+      align-items: center;
+
+      column-gap: 5px;
+      font-size: 18px;
+
+      p {
+        margin: 0;
+      }
+
+      .number {
+
+        height: min-content;
+        padding: 2px 10px;
+        background-color: var(--blue);
+        color: var(--yellow);
+        border-radius: 5px;
+
+      }
+    }
+  }
+
+
+  img {
+    width: 100%;
+    max-width: 250px;
+    border-radius: 20px;
+  }
+}
+
+#section-icon {
+  background-color: var(--yellow);
+  .row-cards-icon{
+    display: flex;
+    gap: 6px 0px;
+    justify-content: space-evenly;
+
+    .card-icon {
+      padding: 10px 10px;
+      box-sizing: border-box;
+      background-color: var(--blue);
+      border-radius: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /*
+      justify-content: center;
+      */
+      width: 180px;
+      row-gap: 10px;
+
+      img {
+        height: 70px;
+      }
+
+      p {
+        text-align: center;
+        margin: 0;
+      }
+    }
+
+  }
+}
+
+.rent {
+  img {
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    max-height: 500px;
+    border-radius: 20px;
+  }
+
+}
+
+
+
+#faq {
+  .accordion-button[aria-expanded="true"] {
+    color: white;
+    background-color: #233B6E;
+
+  }
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+}
+
+.section-subcription {
+  background-image: linear-gradient(90deg, rgba(0,0,0,0.3), rgba(0, 0, 0, 0.3)), url("/assets/images/electric_cars_charge_station_woman.webp");
+  background-size: auto,cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}

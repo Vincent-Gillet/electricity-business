@@ -1,0 +1,54 @@
+<section id="reservation-requests">
+  <div class="container table-blue">
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <h2>Demandes de réservations</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col container-table">
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th scope="col">Date et heure début</th>
+            <th scope="col">Date et heure fin</th>
+            <th scope="col">Utilisateur</th>
+            <th scope="col">Borne ; Lieu</th>
+            <th scope="col">Montant réglé</th>
+            <th scope="col">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let info of informations | slice: (page-1) * pageSize : page * pageSize;">
+            <td>{{info.date_debut}}</td>
+            <td>{{info.date_fin}}</td>
+            <td>{{info.nom}} {{info.prenom}}</td>
+            <td>Borne {{info.numero_borne}}; {{info.adresse}}</td>
+            <td>{{info.prix}} €</td>
+            <td class="case-button">
+              <a class="button-secondary-style" href="#">Accepté</a>
+              <a class="button-secondary-style" href="#">Refuser</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--
+    Pagination
+-->
+
+    <ngb-pagination [(page)]="page"
+                    [pageSize]="pageSize"
+                    [collectionSize]="numElement"
+                    (pageChange)="done()">
+      <ng-template ngbPaginationFirst>First</ng-template>
+      <ng-template ngbPaginationLast>Last</ng-template>
+      <ng-template ngbPaginationPrevious>Prev</ng-template>
+      <ng-template ngbPaginationNext>Next</ng-template>
+      <ng-template ngbPaginationEllipsis>...</ng-template>
+      <ng-template ngbPaginationNumber let-page>{{ page }}</ng-template>
+    </ngb-pagination>
+  </div>
+</section>
+

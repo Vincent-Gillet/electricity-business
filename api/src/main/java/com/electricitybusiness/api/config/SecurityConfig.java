@@ -2,6 +2,7 @@ package com.electricitybusiness.api.config;
 
 import com.electricitybusiness.api.repository.UserRepository;
 import com.electricitybusiness.api.service.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,15 +41,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/login",
-                                "/api/utilisateurs/**",
-                                "/api/bornes/**",
+                                "/api/users/**",
+                                "/api/terminals/**",
                                 "/api/options/**",
-                                "/api/reservations/**"
+                                "/api/bookings/**",
+                                "/api/medias/**",
+                                "/api/cars/**"
+
+
                         ).permitAll()
                         .requestMatchers(
-                                "/api/lieux/**",
-                                "/api/vehicules/**",
-                                "/api/medias/**"
+                                "/api/places/**"
+
                         ).authenticated()
                         .requestMatchers(
                                 "/api/user/**",
@@ -56,7 +60,7 @@ public class SecurityConfig {
                         ).hasAnyAuthority("UTILISATEUR")
                         .requestMatchers(
                                 "/api/admin/**",
-                                "/api/reparateurs/**"
+                                "/api/repairers/**"
                         ).hasAnyAuthority("ADMINISTRATEUR")
 
 
@@ -65,6 +69,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .exceptionHandling(exh -> exh.authenticationEntryPoint(
+                (request, response, exception) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());
+                }));
 
         return http.build();
     }

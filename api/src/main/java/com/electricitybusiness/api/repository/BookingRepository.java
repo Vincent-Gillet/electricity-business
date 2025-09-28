@@ -15,10 +15,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByTerminal(Terminal terminal);
 
-    List<Booking> findByStatus(BookingStatus status);
+    List<Booking> findByStatusBooking(BookingStatus status);
 
-    List<Booking> findByUserAndStatus(User user, BookingStatus status);
+    List<Booking> findByUserAndStatusBooking(User user, BookingStatus status);
 
-    List<Booking> findByTerminalAndStatus(Terminal terminal, BookingStatus status);
+    List<Booking> findByTerminalAndStatusBooking(Terminal terminal, BookingStatus status);
 
 }

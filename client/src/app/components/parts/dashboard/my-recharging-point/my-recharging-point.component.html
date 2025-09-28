@@ -1,0 +1,32 @@
+<div class="col-12 text-dark">
+  <div class="place-card bg-white text-dark">
+    <div class="row text-center">
+      <div class="col">
+        <h3>8 Rue Mozat</h3>
+      </div>
+    </div>
+    <div *ngFor="let terminal of terminals" class="row borne-cards gy-3 text-white justify-content-center">
+      <!--
+      Borne
+-->
+
+      <app-electrical-charge-port [terminal]="terminal"></app-electrical-charge-port>
+<!--
+      <app-electrical-charge-port></app-electrical-charge-port>
+-->
+
+      <div class="row justify-content-center p-2">
+        <div class="col text-center">
+          <a class="btn button-style" href="#">Ajouter une borne</a>
+        </div>
+        <div class="col text-center">
+          <a class="btn button-style" href="#">Modifier</a>
+        </div>
+      </div>
+      <!--
+      Button ajout / modifica tion borne
+-->
+    </div>
+
+  </div>
+</div>

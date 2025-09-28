@@ -13,7 +13,7 @@ import java.time.Year;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CarCreateDTO {
-    @JsonProperty("plaqueImmatriculation")
+    @JsonProperty("licensePlate")
     @NotBlank(message = "La plaque d'immatriculation est obligatoire")
     @Length(min = 7, max = 7)
     private String licensePlate;
@@ -24,13 +24,12 @@ public class CarCreateDTO {
     @NotBlank(message = "Le modèle est obligatoire")
     private String model;
 
-    @Past(message = "L'année de fabrication doit être dans le passé")
-    private Year year;
+    private Integer year;
 
-    @DecimalMin(value = "15", message = "La capacité de la batterie doit être comprise entre 15 et 100")
-    @DecimalMax(value = "100", message = "La capacité de la batterie doit être comprise entre 15 et 100")
+    @Min(value = 15, message = "La capacité de la batterie doit être comprise entre 15 et 100")
+    @Max(value = 100, message = "La capacité de la batterie doit être comprise entre 15 et 100")
     @NotNull(message = "La capacité de la batterie est obligatoire")
-    private int batteryCapacity; // en kWh
+    private Integer batteryCapacity; // en kWh
 
     private Long idUser;
 }

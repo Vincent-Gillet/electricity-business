@@ -1,0 +1,33 @@
+<mgl-map
+  [style]="styleMap"
+  [zoom]="[12]"
+  [minZoom]="8"
+  [maxZoom]="20"
+  [maxPitch]="70"
+  [maxBounds]="[[-5.0, 42.0], [9.0, 51.0]]"
+  [center]="[long, lat]"
+  (mapLoad)="onMapLoad($event)"
+>
+  @for (terminal of terminals; track terminals.indexOf(terminal); let index = $index) {
+    <mgl-marker #myMarker [lngLat]="[terminal.longitude, terminal.latitude]">
+      <div
+        class="marker"
+        [ngStyle]="{ cursor: 'pointer' }"
+        (click)="openedPopupIndex = index"
+      >
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+      @if (openedPopupIndex === index) {
+        <mgl-popup
+          [marker]="myMarker"
+          (close)="openedPopupIndex = null"
+        >
+          <h3>{{ terminal.nameTerminal | titlecase }}</h3>
+          <p>Tarif: {{ terminal.price | currency:'EUR' }}</p>
+          <p>Puissance: {{ terminal.power }} kW</p>
+          <button (click)="modalReservation()" class="btn button-style">Réserver</button>
+        </mgl-popup>
+      }
+    </mgl-marker>
+  }
+</mgl-map>

@@ -1,0 +1,10 @@
+mgl-map {
+  height: 500px;
+  overflow: hidden;
+  border-radius: 30px;
+
+  .marker i, .fa-location-dot, .fa-solid {
+    color: var(--blue);
+    font-size: 32px;
+  }
+}

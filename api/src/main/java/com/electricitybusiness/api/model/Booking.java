@@ -44,7 +44,7 @@ public class Booking {
     private Terminal terminal;
 
     @ManyToOne
-    @JoinColumn(name = "option")
+    @JoinColumn(name = "option_id")
     @JsonBackReference
     private Option option;
 

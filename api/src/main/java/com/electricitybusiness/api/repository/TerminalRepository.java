@@ -26,16 +26,16 @@ public interface TerminalRepository extends JpaRepository<Terminal,Long>, Termin
     List<Terminal> findByPlaceAndStatusTerminal(Place place, Terminal statusTerminal);
 
     // Récupérer toutes les Terminals disponibles (occupieds = 0)
-    @Query(value = "SELECT DISTINCT b.* FROM Terminals b " +
-            "WHERE b.occupied = 0 ",
+    @Query(value = "SELECT DISTINCT t.* FROM terminals t " +
+            "WHERE t.occupied = 0 ",
             nativeQuery = true)
     List<Terminal> findAvailableTerminals();
 
     // Récupérer toutes les Terminals dans le rayon
-    @Query(value = "SELECT * FROM Terminals b " +
-            "WHERE b.occupied = :occupied " +
-            "AND (6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(b.latitude) - RADIANS(:latitude)) / 2), 2) " +
-            "+ COS(RADIANS(:latitude)) * COS(RADIANS(b.latitude)) * POWER(SIN((RADIANS(b.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius",
+    @Query(value = "SELECT * FROM terminals t " +
+            "WHERE t.occupied = :occupied " +
+            "AND (6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(t.latitude) - RADIANS(:latitude)) / 2), 2) " +
+            "+ COS(RADIANS(:latitude)) * COS(RADIANS(t.latitude)) * POWER(SIN((RADIANS(t.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius",
             nativeQuery = true)
     List<Terminal> findTerminalsInRadius(
             @Param("longitude") BigDecimal longitude,
@@ -45,13 +45,13 @@ public interface TerminalRepository extends JpaRepository<Terminal,Long>, Termin
     );
 
     // Rechercher fonctionne non modulaire
-    @Query(value = "SELECT DISTINCT b.* FROM Terminals b " +
-            "WHERE b.occupied = :occupied " +
+    @Query(value = "SELECT DISTINCT t.* FROM terminals t " +
+            "WHERE t.occupied = :occupied " +
             "AND NOT EXISTS (" +
-            "    SELECT 1 FROM reservations r " +
-            "    WHERE r.id_Terminal = b.id_Terminal " +
-            "    AND r.ending_date > :startingDate " +
-            "    AND r.starting_date < :endingDate" +
+            "    SELECT 1 FROM bookings b " +
+            "    WHERE b.id_terminal = t.id_terminal " +
+            "    AND b.ending_date > :startingDate " +
+            "    AND b.starting_date < :endingDate" +
             ")",
             nativeQuery = true)
     List<Terminal> findTerminalsAvailableInPeriod(
@@ -60,15 +60,15 @@ public interface TerminalRepository extends JpaRepository<Terminal,Long>, Termin
             @Param("endingDate") LocalDateTime endingDate);
 
     // Rechercher fonctionne non modulaire
-    @Query(value = "SELECT DISTINCT b.* FROM Terminals b " +
-            "WHERE b.occupied = :occupied " +
-            "AND (6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(b.latitude) - RADIANS(:latitude)) / 2), 2) " +
-            "+ COS(RADIANS(:latitude)) * COS(RADIANS(b.latitude)) * POWER(SIN((RADIANS(b.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius " +
+    @Query(value = "SELECT DISTINCT t.* FROM terminals t " +
+            "WHERE t.occupied = :occupied " +
+            "AND (6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(t.latitude) - RADIANS(:latitude)) / 2), 2) " +
+            "+ COS(RADIANS(:latitude)) * COS(RADIANS(t.latitude)) * POWER(SIN((RADIANS(t.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius " +
             "AND NOT EXISTS (" +
-            "    SELECT 1 FROM reservations r " +
-            "    WHERE r.id_Terminal = b.id_Terminal " +
-            "    AND r.ending_date > :startingDate " +
-            "    AND r.starting_date < :endingDate" +
+            "    SELECT 1 FROM bookings b " +
+            "    WHERE b.id_terminal = t.id_terminal " +
+            "    AND b.ending_date > :startingDate " +
+            "    AND b.starting_date < :endingDate" +
             ")",
             nativeQuery = true)
     List<Terminal> findTerminalsAvailableInRadiusAndPeriod(
@@ -85,16 +85,16 @@ public interface TerminalRepository extends JpaRepository<Terminal,Long>, Termin
 
 
 
-    @Query("SELECT b FROM Terminal b " +
-            "WHERE (:occupied IS NULL OR b.occupied = :occupied) " +
+    @Query("SELECT t FROM Terminal t " +
+            "WHERE (:occupied IS NULL OR t.occupied = :occupied) " +
             "AND (:latitude IS NULL OR :longitude IS NULL OR :radius IS NULL OR " +
-            "(6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(b.latitude) - RADIANS(:latitude)) / 2), 2) " +
-            "+ COS(RADIANS(:latitude)) * COS(RADIANS(b.latitude)) * POWER(SIN((RADIANS(b.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius) " +
+            "(6371 * 2 * ASIN(SQRT(POWER(SIN((RADIANS(t.latitude) - RADIANS(:latitude)) / 2), 2) " +
+            "+ COS(RADIANS(:latitude)) * COS(RADIANS(t.latitude)) * POWER(SIN((RADIANS(t.longitude) - RADIANS(:longitude)) / 2), 2)))) <= :radius) " +
             "AND (:startingDate IS NULL OR :endingDate IS NULL OR NOT EXISTS (" +
-            "    SELECT 1 FROM Reservation r " +
-            "    WHERE r.Terminal = b " +
-            "    AND r.endingDate > :startingDate " +
-            "    AND r.startingDate < :endingDate))")
+            "    SELECT 1 FROM Booking b " +
+            "    WHERE b.terminal = t " +
+            "    AND b.endingDate > :startingDate " +
+            "    AND b.startingDate < :endingDate))")
     List<Terminal> searchTerminals(
             @Param("longitude") BigDecimal longitude,
             @Param("latitude") BigDecimal latitude,

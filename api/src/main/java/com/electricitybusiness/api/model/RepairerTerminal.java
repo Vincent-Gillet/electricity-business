@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "bornes_reparateurs")
+@Table(name = "terminals_repairers")
 @NoArgsConstructor
 @AllArgsConstructor
 public class RepairerTerminal {
@@ -23,11 +23,11 @@ public class RepairerTerminal {
     private RepairerTerminalId id = new RepairerTerminalId();
 
     @ManyToOne
-    @JoinColumn(name = "idRepairer", referencedColumnName = "id_reparateur", insertable= false, updatable = false)
+    @JoinColumn(name = "idRepairer", referencedColumnName = "id_repairer", insertable= false, updatable = false)
     private Repairer repairer;
 
     @ManyToOne
-    @JoinColumn(name = "idTerminal", referencedColumnName = "id_borne", insertable= false, updatable = false)
+    @JoinColumn(name = "idTerminal", referencedColumnName = "id_terminal", insertable= false, updatable = false)
     private Terminal terminal;
 
     @Column(name = "reference", length = 100, nullable = false)

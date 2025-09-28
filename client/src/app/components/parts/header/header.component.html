@@ -1,0 +1,51 @@
+<header class="">
+    <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+      <div class="container-fluid">
+      <app-logo></app-logo>
+        @if (authInitialized) {
+          @if (user) {
+            <button id="burger" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarScroll">
+              <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                @for (link of links; track link) {
+                  <li class="nav-item">
+                    <a class="nav-link" [routerLink]="[link.path]" routerLinkActive="active-menu" [routerLinkActiveOptions]="{ exact: true }">{{ link.name }}</a>
+                  </li>
+                }
+
+                <!--            <div class="profil-menu-mobile dropdown text-end">
+                              <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                              </a>
+                              <ul class="dropdown-menu text-small">
+                                <li><a class="dropdown-item" routerLink="/tableau-de-bord/mes-demandes-de-reservation" routerLinkActive="active-menu">Profile</a></li>
+                                <li><a class="dropdown-item" routerLink="/tableau-de-bord/mes-demandes-de-reservation" routerLinkActive="active-menu">Contact</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+                              </ul>
+                            </div>-->
+              </ul>
+              <div class="profil-menu-desktop dropdown text-end">
+                <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small">
+                  <li><p class="dropdown-item"><b>Bonjour,<br>{{ user.firstName }}</b></p></li>
+                  <li><a class="dropdown-item" routerLink="/tableau-de-bord/mes-demandes-de-reservation" routerLinkActive="active-menu">Profile</a></li>
+                  <li><a class="dropdown-item" routerLink="/tableau-de-bord/mes-demandes-de-reservation" routerLinkActive="active-menu">Contact</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
+                </ul>
+              </div>
+            </div>
+          }
+          @else {
+            <button class="btn button-style" [routerLink]="['/connexion']">Connexion</button>
+          }
+        }
+
+      </div>
+    </nav>
+</header>

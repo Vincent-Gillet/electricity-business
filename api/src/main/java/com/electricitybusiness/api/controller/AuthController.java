@@ -35,10 +35,10 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> authenticate(@RequestBody AuthRequest request) {
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.utilisateurEmail(), request.utilisateurMotDePasse())
+                new UsernamePasswordAuthenticationToken(request.emailUser(), request.passwordUser())
         );
 
-        final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.utilisateurEmail());
+        final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.emailUser());
 
         final String jwt = jwtService.generateAccessToken(userDetails.getUsername());
 
@@ -53,7 +53,7 @@ public class AuthController {
     }
 
 
-    record AuthRequest (String utilisateurEmail, String utilisateurMotDePasse) {}
+    record AuthRequest (String emailUser, String passwordUser) {}
 
 /*
     @PostMapping("/refresh")

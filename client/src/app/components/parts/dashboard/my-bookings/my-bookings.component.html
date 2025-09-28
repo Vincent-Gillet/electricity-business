@@ -1,0 +1,106 @@
+<section id="my-reservations">
+  <div class="container table-blue">
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <h2>Mes réservations</h2>
+      </div>
+    </div>
+    <div class="row row-md-3 d-flex align-items-center justify-content-center gy-2">
+      <div class="col-xl-4 col-sm-12 justify-content-center">
+        <p class="m-0 text-center">Filter <i class="fa-solid fa-filter"></i></p>
+      </div>
+      <div class="col-xl-4 col-sm-12 d-flex flex-column align-items-center justify-content-center">
+        <div class="row">
+          <label for="date_start">Date de début</label></div>
+        <div class="row">
+          <input type="date" name="date_start" id="date_start">
+        </div>
+      </div>
+      <div class="col-xl-4 col-sm-12 d-flex flex-column align-items-center justify-content-center">
+        <div class="row"><label for="date_end">Date de début</label></div>
+        <div class="row">
+          <input type="date" name="date_end" id="date_end">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col container-table">
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th scope="col">Date et heure début</th>
+            <th scope="col">Date et heure fin</th>
+            <th scope="col">Borne ; Lieu ; Ville ; Utilisateur</th>
+            <th scope="col">Montant réglé</th>
+            <th scope="col">Statut</th>
+            <th scope="col">Reçu</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (booking of bookings.slice((page-1) * pageSize, page * pageSize); track booking.id ) {
+              <tr>
+                <td>{{booking.date_debut}}</td>
+                <td>{{booking.date_fin}}</td>
+                <td>Borne {{booking.numero_borne}}; {{booking.adresse}}; {{booking.ville}}; {{booking.nom}} {{booking.prenom}}; </td>
+                <td>{{booking.prix}}€</td>
+                <td>{{booking.statut}}</td>
+                <td class="case-button">
+                  <a class="button-secondary-style" href="#">PDF</a>
+                </td>
+              </tr>
+            }
+          <!--
+                      <tr *ngFor="let reservation of reservations | slice: (page-1) * pageSize : page * pageSize;">
+          -->
+          <!--              <td>{{reservation.date_debut}}</td>
+                        <td>{{reservation.date_fin}}</td>
+                        <td>Borne {{reservation.numero_borne}}; {{reservation.adresse}}; {{reservation.ville}}; {{reservation.nom}} {{reservation.prenom}}; </td>
+                        <td>{{reservation.prix}}€</td>
+                        <td>{{reservation.statut}}</td>
+                        <td class="case-button">
+                          <a class="button-secondary-style" href="#">PDF</a>
+                        </td>-->
+          <!--
+                      </tr>
+          -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row justify-content-center gy-1">
+      <div class="col-12 col-sm-6 text-center">
+        <a class="btn button-style" href="#">Effectuer une réservation</a>
+      </div>
+      <div class="col-12 col-sm-6 text-center">
+        <a class="btn button-style" href="#">Tout Exporter (format Excel)</a>
+      </div>
+    </div>
+    <!--
+                            Pagination
+    -->
+
+
+    <!--    <ngb-pagination [(page)]="page"
+                        [pageSize]="pageSize"
+                        [collectionSize]="numElement"
+                        (pageChange)="done()">
+          <ng-template ngbPaginationFirst>First</ng-template>
+          <ng-template ngbPaginationLast>Last</ng-template>
+          <ng-template ngbPaginationPrevious>Prev</ng-template>
+          <ng-template ngbPaginationNext>Next</ng-template>
+          <ng-template ngbPaginationEllipsis>...</ng-template>
+          <ng-template ngbPaginationNumber let-page>{{ page }}</ng-template>
+        </ngb-pagination>-->
+
+    <!--    <div class="d-flex justify-content-between p-2">
+          <ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
+          </ngb-pagination>
+
+          <select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="service.pageSize">
+            <option [ngValue]="2">2 items per page</option>
+            <option [ngValue]="4">4 items per page</option>
+            <option [ngValue]="6">6 items per page</option>
+          </select>
+        </div>-->
+  </div>
+</section>

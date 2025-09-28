@@ -174,7 +174,7 @@ public class BookingController {
      */
     @GetMapping("/{status}")
     public ResponseEntity<List<BookingDTO>> getBookingsBystatus(@PathVariable BookingStatus status) {
-        List<Booking> bookings = bookingService.findByStatus(status);
+        List<Booking> bookings = bookingService.findByStatusBooking(status);
         List<BookingDTO> bookingDTO = bookings.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -190,7 +190,7 @@ public class BookingController {
      */
     @GetMapping("/{user}/{status}")
     public ResponseEntity<List<BookingDTO>> getBookingsByUtilisateurAndstatus(@PathVariable User user, BookingStatus status) {
-        List<Booking> bookings = bookingService.findByUserAndStatus(user, status);
+        List<Booking> bookings = bookingService.findByUserAndStatusBooking(user, status);
         List<BookingDTO> bookingDTO = bookings.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -206,7 +206,7 @@ public class BookingController {
      */
     @GetMapping("/{borne}/{status}")
     public ResponseEntity<List<BookingDTO>> getBookingsByBorneAndstatus(@PathVariable Terminal terminal, BookingStatus status) {
-        List<Booking> Bookings = bookingService.findByTerminalAndStatus(terminal, status);
+        List<Booking> Bookings = bookingService.findByTerminalAndStatusBooking(terminal, status);
         List<BookingDTO> BookingDTO = Bookings.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());

@@ -1,0 +1,23 @@
+#navbar-special {
+  width: 150px;
+  #navbar-example3 {
+    background-color: var(--blue);
+    position: sticky;
+    top: 200px;
+    border-radius: 30px;
+
+    .navbar-brand {
+      color: white;
+    }
+
+    .nav-link {
+      color: white;
+    }
+
+    .nav-pills .nav-link.active-menu {
+      background-color: var(--yellow);
+      color: var(--blue);
+    }
+  }
+
+}

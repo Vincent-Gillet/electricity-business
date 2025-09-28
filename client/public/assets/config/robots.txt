@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /assets/
+Disallow: /assets/favicon.ico
+Disallow: /assets/config/robots.txt
+
+# Bloque les fichiers sensibles ou inutiles à l'indexation
+Disallow: /assets/config/sitemap.xml
+
+# Autorise tout le reste
+Allow: /
+
+# Optionnel : lien vers le sitemap
+Sitemap: https://electricity-buisness-front-latest.onrender.com/sitemap.xml
+

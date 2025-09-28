@@ -40,13 +40,13 @@ public class Car {
     private Year year;
 
     @Column(name = "battery_capacity")
-    @DecimalMin(value = "15", message = "La capacité de la batterie doit être comprise entre 15 et 100")
-    @DecimalMax(value = "100", message = "La capacité de la batterie doit être comprise entre 15 et 100")
+    @Min(value = 15, message = "La capacité de la batterie doit être comprise entre 15 et 100")
+    @Max(value = 100, message = "La capacité de la batterie doit être comprise entre 15 et 100")
     @NotNull(message = "La capacité de la batterie est obligatoire")
     private int batteryCapacity; // en kWh
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user", nullable = false)
     @JsonBackReference
     private User user;
 

@@ -1,0 +1,321 @@
+### Récupérer la page d'accueil
+GET http://localhost:8080/
+
+### Utilisateur - Connexion d'un utilisateur existant
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "emailUser": "paul@gmail.com",
+  "passwordUser": "azerty"
+}
+
+### Utilisateur - Actualiser l'access token avec le refresh token dans le body
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MTM2NjEzLCJleHAiOjE3NTQxMzcyMTN9.fhv-wuYsPdZrthP9nmwl5po1sVDkuHKvEaTGJnI0LBk",
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MTM2NjEzLCJleHAiOjE3NTQ3NDE0MTN9.xlGMtQzvoiKDGXD62gHalUkS67j225-ep9VrHRxmrQk"
+}
+
+### Utilisateur - V2 Actualiser l'access token avec le refresh token dans le header
+GET http://localhost:8080/api/auth/refresh
+X-Refresh-Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MTM3MzA4LCJleHAiOjE3NTQ3NDIxMDh9.KC7gCYG1okd5qZm5OPi-3u9LxTOwTrSX55hhIp9TseU
+
+
+### Utilisateur - Récupérer la liste des utilisateurs
+GET http://localhost:8080/api/users
+
+### Utilisateur - Récupérer un utilisateur par son ID
+GET http://localhost:8080/api/users/1
+
+### Utilisateur - Créer un nouvel utilisateur avec valeur par défaut
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "surnameUser": "Martin",
+  "firstName": "Jean",
+  "username": "johnnnn",
+  "passwordUser": "azerty",
+  "emailUser": "paul@gmail.com",
+  "dateOfBirth": "2008-03-06",
+  "phone": "0123456789"
+}
+
+### Utilisateur - Mettre à jour un utilisateur par son ID
+PUT http://localhost:8080/api/users/1
+Content-Type: application/json
+
+{
+  "surnameUser": "Doe",
+  "firstName": "John",
+  "username": "johndeo_updated",
+  "emailUser": "johndeo@gmail.com",
+  "passwordUser": "new_password",
+  "dateOfBirth": "2002-01-01",
+  "phone": "0987654321",
+  "iban": "FR7612345678901234567890123"
+}
+
+### Utilisateur - Supprimer un utilisateur par son ID
+DELETE http://127.0.0.1:8080/api/users/1
+
+### Borne - Récupérer la liste des bornes
+
+GET http://localhost:8080/api/terminals
+
+### Borne - Récupérer une borne par son ID
+GET http://localhost:8080/api/terminals/1
+
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point
+GET http://localhost:8080/api/terminals/2.287592/48.862525/50
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point et disponibiles
+GET http://localhost:8080/api/terminals/2.287592/48.862525/50/false
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&occupee=false&dateDebut=2023-07-23T21:02:44&dateFin=2026-07-23T21:02:48
+
+
+### Borne - V2 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&dateDebut=2023-07-23T21:02:44&dateFin=2026-07-23T21:02:48
+
+### Borne - V3 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/non-occupees
+
+### Borne - V4 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche-terminals-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=50
+
+### Borne - V4 test Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche-terminals-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=50&occupee=false
+
+### Borne - V4 test 2 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche-terminals-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=50&occupee=true
+
+### Borne - V6 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites?occupee=false&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+
+
+### Borne - V5 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=5000&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+
+
+### Borne - V10 test1 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000
+### Borne - V10 test2 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000&occupee=true
+### Borne - V10 test3 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000&occupee=true&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+
+
+
+
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50000
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+
+
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/2.287592/48.862525/50/false/2033-07-23T21:02:44/2033-07-23T21:02:48
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/2.287592/48.862525/50/false/2033-07-23T21%3A02%3A44/2033-07-23T21%3A02%3A48
+
+
+### Borne - Récupérer la liste des bornes à proximité d'un point
+POST http://localhost:8080/api/terminals/search
+Content-Type: application/json
+
+{
+  "longitude": 2.287592,
+  "latitude": 48.862525,
+  "radius": 50,
+  "occupied": false,
+  "startingDate": "2023-07-23T21:02:44",
+  "endingDate": "2023-07-23T21:02:48"
+}
+
+### Authentification - Récupérer le profil de l'utilisateur connecté
+GET http://localhost:8080/api/auth/me/eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzUzODA2Mjc2LCJleHAiOjE3NTQ0MTEwNzZ9.w2206QtqrmMKX8ZxhuoDcVovup4XHGQGMm1vM0Ul3MQ
+
+### Authentification - Récupérer le profil de l'utilisateur connecté refresh token
+GET http://localhost:8080/api/auth/me-refresh
+X-Refresh-Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzUzODA1MjUxLCJleHAiOjE3NTQ0MTAwNTF9.KOXTlmezOCc5PEkWEwk3WWFS4C4ZWs3MY6tbRW7SD7E
+
+### Authentification - Récupérer le profil de l'utilisateur connecté access token
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzUzODExNTkwLCJleHAiOjE3NTM4MTIxOTB9.5t5WVMwcjWfZBy8RKZTxRL3DVCtN7czdycdMPt_wVoQ
+
+
+
+
+### Authentification - Tester le profil
+GET http://localhost:8080/api/auth/test-dto
+
+
+
+### Réservation - Récupérer la liste de toutes les réservations
+GET http://localhost:8080/api/reservations/all
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+
+
+
+### Réservation - Récupérer la liste des réservations d'un utilisateur
+GET http://localhost:8080/api/reservations/search?dateDebutReservation=2022-07-23T21:02:44&dateFinReservation=2027-07-23T21:02:48
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MDYyNDc1LCJleHAiOjE3NTQwNjMwNzV9.NydCq2U4384gdVwDqlo716h-vY2uMFN4KB7fOm_Y-lA
+
+### Réservation - Récupérer la liste de toutes les réservations
+POST http://localhost:8080/api/reservations
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+Content-Type: application/json
+
+{
+  "numberReservation": "RES-123456",
+  "startingDate": "2023-07-23T21:02:44",
+  "endingDate": "2023-07-23T21:02:48",
+  "statusBooking": "ACCEPTEE",
+  "totalAmount": 50.00,
+  "paymentDate": "2023-07-23T21:02:44",
+  "idUser": 3,
+  "idTerminal": 8,
+  "idCar": 1,
+  "idOption": 1
+}
+
+
+
+### Véhcule - Récupérer la liste de toutes les voitures
+GET http://localhost:8080/api/cars
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE4Mzk3MCwiZXhwIjoxNzU1MTg0NTcwfQ.uZh63chEvc_m7Ir8hLiBFvmNfKt0fGGlv8Beu9GYob8
+
+### Véhcule - Récupérer d'unee voiture
+GET http://localhost:8080/api/cars/1
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+
+### Véhcule - Création d'une voiture
+POST http://localhost:8080/api/cars
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE4Njk2MiwiZXhwIjoxNzU1MTg3NTYyfQ.jZpE0DzkGtMA3Trc8NA1CBQ0D1YZ9k-wdfxAcdjOWQY
+Content-Type: application/json
+
+{
+  "licensePlate": "AB123CD",
+  "brand": "Renault",
+  "model": "Megane",
+  "year": 2020,
+  "batteryCapacity": 70
+}
+
+### Véhcule - Modification d'une voiture
+PUT http://localhost:8080/api/cars/1
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE3OTU3NywiZXhwIjoxNzU1MTgwMTc3fQ.6ZBBCSjwqKg8y5RHsem6axDTxVxObHxN00NoUxZTBYA
+Content-Type: application/json
+
+{
+  "licensePlate": "ZY123WX",
+  "brand": "Renault",
+  "model": "Zoe",
+  "year": "2010",
+  "batteryCapacity": 80,
+  "idUser": 3
+}
+
+### Véhcule - Supprimer une voiture
+DELETE http://localhost:8080/api/cars/11
+
+
+
+### Option - Récupérer la liste de toutes les options
+GET http://localhost:8080/api/options
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+
+### Option - Récupérer la liste d'une option
+GET http://localhost:8080/api/options/1
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+
+### Option - Création d'une option
+POST http://localhost:8080/api/options
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+Content-Type: application/json
+
+{
+  "nameOption": "Option Test",
+  "priceOption": 3.00,
+  "descriptionOption": "Ceci est une option de test"
+}
+
+### Option - Création d'une option
+PUT http://localhost:8080/api/options/1
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+Content-Type: application/json
+
+{
+  "nameOption": "Update Option Test",
+  "priceOption": 10.00,
+  "descriptionOption": "Update Ceci est une option de test"
+}
+
+### Option - Supprimer une option
+DELETE http://localhost:8080/api/options/3
+
+
+### Media - Récupérer la liste de tous les médias
+GET http://localhost:8080/api/medias
+
+### Media - Récupérer un média par son ID
+GET http://localhost:8080/api/medias/1
+
+### Media - Créer un média
+POST http://localhost:8080/api/medias
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
+Content-Type: application/json
+
+{
+  "nameMedia": "image10.jpg",
+  "type": "image/jpg",
+  "url": "https://cdn.pixabay.com/photo/2019/04/02/16/11/cat-4098058_1280.jpg",
+  "descriptionMedia": "Ceci est une image de chat",
+  "size": "99456 Mo",
+  "dateCreation": "2023-07-23T21:02:44"
+}
+
+### Media - Créer un média
+POST http://localhost:8080/api/medias/profil
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE5Mzk5MiwiZXhwIjoxNzU1MTk0NTkyfQ.w9ir_YwkU9PVmuKi2WQsq2cQ-sQf5PTq7ur-A3-X4v8
+Content-Type: application/json
+
+{
+  "nameMedia": "image10.jpg",
+  "type": "image/jpg",
+  "url": "https://cdn.pixabay.com/photo/2019/04/02/16/11/cat-4098058_1280.jpg",
+  "descriptionMedia": "Ceci est une image de chat",
+  "size": "99456 Mo",
+  "dateCreation": "2023-07-23T21:02:44"
+}
+
+### Media - Créer un média
+PUT http://localhost:8080/api/medias/profil/update/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE5NzM2OCwiZXhwIjoxNzU1MTk3OTY4fQ.WCwI3mEu03gUUzpAELbtpTOvVtph6xlqHKJu5S-wpcI
+Content-Type: application/json
+
+{
+  "nameMedia": "image10.jpg",
+  "type": "image/jpg",
+  "url": "https://cdn.pixabay.com/photo/2019/04/02/16/11/cat-4098058_1280.jpg",
+  "descriptionMedia": "Update Ceci est une image de chat",
+  "size": "99456 Mo",
+  "dateCreation": "2023-07-23T21:02:44"
+}

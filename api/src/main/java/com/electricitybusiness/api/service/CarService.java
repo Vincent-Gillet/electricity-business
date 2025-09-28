@@ -44,8 +44,15 @@ public class CarService {
      * @param car Le Car à enregistrer
      * @return Le Car enregistré
      */
+    @Transactional
     public Car saveCar(Car car) {
-        return carRepository.save(car);
+/*        return carRepository.save(car);*/
+        System.out.println("=== About to save Car === " + car);
+        System.out.println("Car ID before save: " + car.getIdCar());
+
+        Car saved = carRepository.save(car);
+        System.out.println("=== Saved Car === " + saved);
+        return saved;
     }
 
 

@@ -8,13 +8,17 @@ import com.electricitybusiness.api.service.CarService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.electricitybusiness.api.model.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -63,21 +67,30 @@ public class CarController {
      * @param carDTO Le véhicule à créer
      * @return Le véhicule créé avec un statut HTTP 201 Created
      */
-/*    @PostMapping
+    @PostMapping
     public ResponseEntity<CarDTO> saveCar(@Valid @RequestBody CarCreateDTO carDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        Long idUser = userService.getIdByEmailUser(currentPrincipalName);
-        CarDTO.setIdUser(idUser);
+        System.out.println("=== saveCar() CALLED ===");
 
-        Car Car = mapper.toEntityCreate(carDTO, idUser);
-        System.out.println("Car: " + Car);
-        Car savedCar = carService.saveCar(Car);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Long idUser = userService.getIdByEmailUser(email);
+        carDTO.setIdUser(idUser);
+
+        System.out.println("Authentication: " + authentication);
+        System.out.println("Email: " + email);
+
+        System.out.println("ID User: " + idUser);
+        System.out.println("CarCreateDTO: " + carDTO);
+
+        Car car = mapper.toEntityCreate(carDTO, idUser);
+        System.out.println("Car: " + car);
+        Car savedCar = carService.saveCar(car);
         System.out.println("Saving Car: " + savedCar);
         CarDTO savedDTO = mapper.toDTO(savedCar);
         System.out.println("Saving savedDTO: " + savedDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
-    }*/
+    }
 
     /**
      * Met à jour une voiture existante.

@@ -95,7 +95,7 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Car> car = new ArrayList<>();
 
-    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @ToString.Exclude
     private List<RefreshToken> refreshTokens = new ArrayList<>();

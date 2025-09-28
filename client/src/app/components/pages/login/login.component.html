@@ -1,0 +1,29 @@
+<h1>Connexion</h1>
+<section class="form-login-subcription">
+  <div class="container">
+    <div class="table-blue">
+      <form class="row g-3 needs-validation" novalidate [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="col-md-12">
+          <label for="emailLogin" class="form-label">Email *</label>
+          <input type="email" class="form-control" id="emailLogin" formControlName="emailUser" placeholder="adresse@gmail.com" required>
+          <app-error-from [fieldName]="'emailUser'" [nameFormGroup]="loginForm" [isSubmitted]="isSubmitted"></app-error-from>
+        </div>
+        <div class="col-md-12">
+          <label for="passwordLogin" class="form-label">Mot de passe *</label>
+          <input type="password" class="form-control" id="passwordLogin" formControlName="passwordUser" placeholder="mot de passe" required>
+          <app-error-from [fieldName]="'passwordUser'" [nameFormGroup]="loginForm" [isSubmitted]="isSubmitted"></app-error-from>
+        </div>
+        <div class="col-12 div-center">
+          <button class="btn button-style" type="submit">Se connecter</button>
+        </div>
+        <div class="col-12 div-center">
+          <div class="">Vous n’avez pas de compte ?</div>
+        </div>
+        <div class="col-12 div-center">
+          <a class="" routerLink="/inscription">S'incrire</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+

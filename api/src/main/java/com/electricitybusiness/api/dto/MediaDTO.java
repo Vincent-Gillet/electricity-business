@@ -1,6 +1,8 @@
 package com.electricitybusiness.api.dto;
 
+import com.electricitybusiness.api.model.User;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,8 @@ public class MediaDTO {
     private String descriptionMedia;
     private String size;
 
-    @NotBlank(message = "La date de création est obligatoire")
+    @NotNull(message = "La date de création est obligatoire")
     private LocalDateTime dateCreation;
+
+    private Long idUser;
 }

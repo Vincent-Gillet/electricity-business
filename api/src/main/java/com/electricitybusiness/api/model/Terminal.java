@@ -80,7 +80,7 @@ public class Terminal {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "borne")
+    @OneToMany(mappedBy = "terminal")
     private Set<Media> medias = new HashSet<>();
 
     @ManyToOne
@@ -89,6 +89,6 @@ public class Terminal {
     private Place place;
 
     @ManyToMany
-    private Set<Repairer> reparateurs = new HashSet<>();
+    private Set<Repairer> repairers = new HashSet<>();
 
 }

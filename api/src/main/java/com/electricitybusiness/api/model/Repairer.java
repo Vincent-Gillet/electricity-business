@@ -31,7 +31,7 @@ public class Repairer implements UserDetails {
     private Long idRepairer;
 
     @NotBlank
-    @Column(name = "name_reparateur")
+    @Column(name = "name_repairer")
     private String nameRepairer;
 
     @NotBlank

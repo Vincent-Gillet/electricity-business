@@ -1,0 +1,89 @@
+<h1>Inscription</h1>
+<section class="form-login-subcription" [formGroup]="subscirbeForm" (ngSubmit)="onSubmit()">
+  <div class="container table-blue">
+    <form class="row g-3 needs-validation" novalidate>
+      <div class="col-md-6">
+        <label for="firstNameSubscription" class="form-label">Prénom *</label>
+        <input type="text" class="form-control" id="firstNameSubscription" formControlName="firstName" value="" placeholder="Prénom" required>
+        <app-error-from [fieldName]="'firstName'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="surnameUserSubscription" class="form-label">Nom *</label>
+        <input type="text" class="form-control" id="surnameUserSubscription" formControlName="surnameUser" value="" placeholder="Nom" required>
+        <app-error-from [fieldName]="'surnameUser'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="usernameSubscription" class="form-label">Pseudo *</label>
+        <input type="text" class="form-control" id="usernameSubscription" formControlName="username" value="" placeholder="Pseudo" required>
+        <app-error-from [fieldName]="'username'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="dateOfBirthSubscription" class="form-label">Date de naissance *</label>
+        <input type="date" class="form-control" id="dateOfBirthSubscription" formControlName="dateOfBirth" required>
+        <app-error-from [fieldName]="'dateOfBirth'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="phoneSubscription" class="form-label">Téléphone *</label>
+        <input type="tel" class="form-control" id="phoneSubscription" formControlName="phone" value="" placeholder="01 23 45 67 89" required>
+        <app-error-from [fieldName]="'phone'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="emailUserSubscription" class="form-label">Email *</label>
+        <input type="email" class="form-control" id="emailUserSubscription" formControlName="emailUser" placeholder="adresse@gmail.com" required>
+        <app-error-from [fieldName]="'emailUser'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+  <!--      <div class="col-md-6">
+          <label for="validationCustom06" class="form-label">Adresse *</label>
+          <input type="text" class="form-control" id="validationCustom06" placeholder="10 Rue Philippe Marcombes" required>
+          <div class="invalid-feedback">
+            Veuillez entrer une adresse valide.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="validationCustom07" class="form-label">Code postal *</label>
+          <input type="number" class="form-control" id="validationCustom07" placeholder="63100" required>
+          <div class="invalid-feedback">
+            Veuillez entrer un code postal valide.
+        </div>
+        </div>
+        <div class="col-md-6">
+          <label for="validationCustom08" class="form-label">Ville *</label>
+          <input type="text" class="form-control" id="validationCustom08" placeholder="Clermont-Ferrand" required>
+          <div class="invalid-feedback">
+            Veuillez entrer une ville valide.
+          </div>
+        </div>-->
+      <div class="col-md-6">
+        <label for="passwordUserSubscription" class="form-label">Mot de passe *</label>
+        <input type="password" class="form-control" id="passwordUserSubscription" formControlName="passwordUser" placeholder="mot de passe" required>
+        <app-error-from [fieldName]="'passwordUser'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-md-6">
+        <label for="passwordUserValidationSubscription" class="form-label">Confirmation de Mot de passe *</label>
+        <input type="password" class="form-control" id="passwordUserValidationSubscription" formControlName="passwordUserValidation" placeholder="mot de passe" required>
+        <app-error-from [fieldName]="'passwordUserValidation'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+      <div class="col-12 div-center">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="invalidCheck" formControlName="termsOfUse" required>
+          <label class="form-check-label" for="invalidCheck">
+            Accepté les conditions d’utilisations *
+          </label>
+          <app-error-from [fieldName]="'termsOfUse'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+          <div class="invalid-feedback">
+            Vous devez accepté les conditions d'utilisations.
+          </div>
+        </div>
+      </div>
+      <div class="col-12 div-center">
+        <button class="btn button-style" type="submit" [disabled]="!subscirbeForm.valid">S'incrire</button>
+      </div>
+      <div class="col-12 div-center">
+        <div class="">Vous avez déjà un compte ?</div>
+      </div>
+      <div class="col-12 div-center">
+        <a class="" [routerLink]="['/connexion']">Se connecter</a>
+      </div>
+    </form>
+  </div>
+</section>

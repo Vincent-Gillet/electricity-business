@@ -3,12 +3,15 @@ package com.electricitybusiness.api.controller;
 import com.electricitybusiness.api.dto.MediaDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Media;
+import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.service.MediaService;
+import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,6 +67,21 @@ public class MediaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
+    private final UserService userService;
+
+    @PostMapping("/profil")
+    public ResponseEntity<MediaDTO> createMedia(@RequestBody MediaDTO mediaDTO, Principal principal) {
+        String email = principal.getName(); // Get email from JWT
+        User user = userService.findByUserEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found")); // Extract User
+        mediaDTO.setIdUser(user.getIdUser()); // Associate media with user
+        Media media = mapper.toEntity(mediaDTO); // Convert DTO to entity
+        media.setUser(user); // Associate with user
+        Media savedMedia = mediaService.saveMedia(media); // Save entity
+        MediaDTO responseDTO = mapper.toDTO(savedMedia); // Convert back to DTO for response
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
     /**
      * Met à jour un média existant.
      * PUT /api/medias/{id}
@@ -80,6 +98,20 @@ public class MediaController {
         Media updatedMedia = mediaService.updateMedia(id, media);
         MediaDTO updatedDTO = mapper.toDTO(updatedMedia);
         return ResponseEntity.ok(updatedDTO);
+    }
+
+    @PutMapping("/profil/update/{id}")
+    public ResponseEntity<MediaDTO> updateMedia(@PathVariable Long id, @RequestBody MediaDTO mediaDTO, Principal principal) {
+        String email = principal.getName();
+        userService.findByUserEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Media existingMedia = mediaService.getMediaById(id)
+                .orElseThrow(() -> new RuntimeException("Media not found"));
+        Media updatedMediaEntity = mapper.toEntity(mediaDTO, existingMedia);
+        // Do NOT set updatedMediaEntity.setUser(user);
+        Media updatedMedia = mediaService.updateMedia(id, updatedMediaEntity);
+        MediaDTO responseDTO = mapper.toDTO(updatedMedia);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**

@@ -8,6 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.Year;
+
 /**
  * Mapper pour convertir entre entités JPA et DTOs
  * Évite les références circulaires en contrôlant la sérialisation
@@ -193,7 +195,8 @@ public class EntityMapper {
                 media.getUrl(),
                 media.getDescriptionMedia(),
                 media.getSize(),
-                media.getDateCreation()
+                media.getDateCreation(),
+                media.getUser() != null ? media.getUser().getIdUser() : null
         );
     }
 
@@ -206,62 +209,87 @@ public class EntityMapper {
         media.setDescriptionMedia(dto.getDescriptionMedia());
         media.setSize(dto.getSize());
         media.setDateCreation(dto.getDateCreation());
+        media.setUser(dto.getIdUser() != null ? userRepository.getReferenceById(dto.getIdUser()) : null);
 
         return media;
+    }
+
+    public Media toEntity(MediaDTO dto, Media existing) {
+        existing.setNameMedia(dto.getNameMedia());
+        existing.setType(dto.getType());
+        existing.setUrl(dto.getUrl());
+        existing.setDescriptionMedia(dto.getDescriptionMedia());
+        existing.setSize(dto.getSize());
+        existing.setDateCreation(dto.getDateCreation());
+
+        return existing;
     }
 
 
     // === Car ===
 
-    public CarDTO toDTO(Car Car) {
-        if (Car == null) return null;
+    public CarDTO toDTO(Car car) {
+        if (car == null) return null;
         return new CarDTO(
-                Car.getLicensePlate(),
-                Car.getBrand(),
-                Car.getModel(),
-                Car.getYear(),
-                Car.getBatteryCapacity()
+                car.getLicensePlate(),
+                car.getBrand(),
+                car.getModel(),
+                car.getYear().getValue(),
+                car.getBatteryCapacity(),
+                car.getUser()
         );
     }
 
     public Car toEntity(CarDTO dto) {
         if (dto == null) return null;
-        Car Car = new Car();
-        Car.setLicensePlate(dto.getLicensePlate());
-        Car.setBrand(dto.getBrand());
-        Car.setModel(dto.getModel());
-        Car.setYear(dto.getYear());
-        Car.setBatteryCapacity(dto.getBatteryCapacity());
-        return Car;
+        Car car = new Car();
+        car.setLicensePlate(dto.getLicensePlate());
+        car.setBrand(dto.getBrand());
+        car.setModel(dto.getModel());
+        car.setYear(Year.of(dto.getYear()));
+        car.setBatteryCapacity(dto.getBatteryCapacity());
+        car.setUser(dto.getUser());
+        return car;
     }
 
-    public CarCreateDTO toDTOCreate(Car Car) {
-        if (Car == null) return null;
+    public CarCreateDTO toDTOCreate(Car car) {
+        if (car == null) return null;
         return new CarCreateDTO(
-                Car.getLicensePlate(),
-                Car.getBrand(),
-                Car.getModel(),
-                Car.getYear(),
-                Car.getBatteryCapacity(),
-                Car.getUser() != null ? Car.getUser().getIdUser() : null
+                car.getLicensePlate(),
+                car.getBrand(),
+                car.getModel(),
+                car.getYear().getValue(),
+                car.getBatteryCapacity(),
+                car.getUser() != null ? car.getUser().getIdUser() : null
         );
     }
 
     public Car toEntityCreate(CarCreateDTO dto, Long idUser) {
         if (dto == null) return null;
-        Car Car = new Car();
-        Car.setLicensePlate(dto.getLicensePlate());
-        Car.setBrand(dto.getBrand());
-        Car.setModel(dto.getModel());
-        Car.setYear(dto.getYear());
-        Car.setBatteryCapacity(dto.getBatteryCapacity());
+        Car car = new Car();
+        car.setLicensePlate(dto.getLicensePlate());
+        car.setBrand(dto.getBrand());
+        car.setModel(dto.getModel());
+        car.setYear(dto.getYear() != null ? Year.of(dto.getYear()) : null);
+
+/*
+        car.setYear(Year.of(dto.getYear()));
+*/
+        car.setBatteryCapacity(dto.getBatteryCapacity());
 
         // Set the user directly using the ID
-        User User = new User();
-        User.setIdUser(idUser);
-        Car.setUser(User);
+/*        User user = new User();
+        user.setIdUser(idUser);
+        car.setUser(user);*/
 
-        return Car;
+        User user = userRepository.getReferenceById(idUser);
+        car.setUser(user);
+
+/*        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+        car.setUser(user);*/
+
+        return car;
     }
 
 

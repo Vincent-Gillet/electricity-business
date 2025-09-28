@@ -1,0 +1,46 @@
+#rechercher_borne {
+  height: 100%;
+  width: 100%;
+
+
+  .container {
+    max-width: none;
+
+
+
+    .form-switch .form-check-input, .form-switch .form-check-input:focus, .form-check-input:checked {
+      --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23233B6E'/%3e%3c/svg%3e");
+    }
+
+    .form-switch {
+      padding: 0px 8px 0px 48px;
+    }
+
+    #map {
+      height: 500px;
+      border-radius: 20px;
+
+      .custom-map-control-button {
+        background-color: #fff;
+        border: 0;
+        border-radius: 2px;
+        box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+        margin: 10px;
+        padding: 0 0.5em;
+        font: 400 18px Roboto, Arial, sans-serif;
+        overflow: hidden;
+        height: 40px;
+        cursor: pointer;
+      }
+      .custom-map-control-button:hover {
+        background: rgb(235, 235, 235);
+      }
+
+
+    }
+
+  }
+}
+
+
+

@@ -1,0 +1,19 @@
+.place-card {
+  border-radius: 30px;
+
+  .borne-cards {
+
+    display: flex;
+    gap-row: 10px;
+    column-gap: 10px;
+    margin: 0;
+
+
+    app-electrical-charge-port {
+      width: max-content;
+      padding: 0;
+    }
+  }
+
+
+}

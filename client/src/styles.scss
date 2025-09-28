@@ -1,1 +1,329 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --blue: #233B6E;
+  --yellow :#FEE900;
+}
+
+body {
+  color: black;
+  padding: 0;
+  margin: 0;
+  app-root {
+    .main {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+
+      app-header, app-footer {
+        width: 100%;
+
+      }
+    }
+  }
+
+}
+
+app-home {
+  display: flex;
+  flex-direction: column;
+  row-gap: 30px;
+}
+
+
+/* Assets */
+
+app-root, .main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: space-between;
+}
+
+.main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+app-find-terminal, app-subscription {
+  margin: 30px 0px;
+}
+
+header, footer {
+  min-height: 15vh;
+}
+
+router-outlet {
+  display: none;
+  min-height: 70vh;
+  height: 100%;
+}
+
+/*a:not([href]):not([tabindex]) {
+  color: var(--blue);
+}*/
+
+a, form a, footer a, header a {
+  color: #FFF;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--yellow);
+  text-decoration: none;
+}
+
+h1 {
+  text-align: center;
+}
+
+
+
+.form-login-subcription {
+
+  .form-check-input:checked {
+    background-color: var(--yellow);
+    border-color: var(--yellow);
+  }
+
+  .form-check-input:checked[type=checkbox] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23233B6E' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+  }
+
+  .container {
+    max-width: 650px;
+    form {
+      .div-center {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+main{
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0px;
+}
+
+.pagination {
+  display: flex;
+  column-gap: 10px;
+  justify-content: center;
+  .page-item {
+
+    .page-link {
+      background-color: var(--blue);
+      color: var(--yellow);
+      border: var(--yellow) 1px solid;
+      border-radius: 50%;
+      height: 38px;
+      width: 38px;
+      display: flex;
+      justify-content: center;
+      padding-top: 8px;
+
+    }
+
+    &.active .page-link {
+      background-color: var(--yellow);
+      color: var(--blue);
+    }
+
+    &:hover .page-link {
+      background-color: var(--yellow);
+      color: var(--blue);
+    }
+
+    &:last-child .page-link, &:first-child .page-link {
+      background: none;
+      color: var(--yellow);
+      border: none;
+    }
+  }
+}
+
+
+
+/*Style Button*/
+
+.btn.button-style, .btn.button-secondary-style {
+  background-color: var(--yellow);
+  color: var(--blue);
+  border: 2px var(--yellow) solid;
+}
+
+.btn.button-style {
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 50px;
+}
+
+.btn.button-secondary-style {
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+
+/*
+a:not([href]):not([tabindex]):hover,
+*/
+.btn.button-style:hover {
+  background-color: var(--blue);
+  color: var(--yellow);
+  text-decoration: none;
+  border: 2px var(--yellow) solid;
+}
+
+header, footer {
+  background-color: var(--blue);
+  padding: 30px 80px;
+
+  .link-logo {
+    border: none;
+    width: max-content;
+    height: max-content;
+  }
+
+  img {
+    max-height: 100px;
+    min-width: 50px;
+    height: 100%;
+    color: white;
+  }
+
+  p, h2 {
+    color: white;
+  }
+}
+
+
+
+.container-table {
+  overflow: scroll;
+  width: 100%;
+}
+
+.table-blue {
+  background-color: var(--blue);
+  padding: 20px;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+
+  box-sizing: border-box;
+
+  color: white;
+
+  table {
+    min-width: 680px;
+  }
+
+  input {
+    /*
+    width: 300px;
+    */
+    border-radius: 10px;
+  }
+
+  .form-check-input {
+    width: 16px;
+  }
+
+  th, td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .case-button a:first-child {
+    margin-right: 4px;
+  }
+}
+
+
+
+
+
+
+/* Style overlay suppression borne dans lieux de recharge */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* Fond semi-transparent */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;  /* S'assurer que l'overlay se trouve au-dessus des autres éléments */
+}
+
+.delete_box {
+  height: max-content;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  >div {
+    width: -webkit-fill-available;
+    display: flex;
+    justify-content: space-evenly;
+  }
+}
+
+
+/* Importing Bootstrap SCSS file. */
+@import 'bootstrap/scss/bootstrap';
+
+
+#box-section {
+  display: flex;
+  flex-direction: column;
+  row-gap: 30px;
+  padding: 30px 0px;
+
+  .container {
+    width: max-content;
+    max-width: none;
+  }
+}
+
+
+
+/* Map */
+
+.maplibregl-popup-content,
+.maplibregl-popup-tip {
+  background-color: var(--blue) !important;
+  border-top-color: var(--blue) !important;
+  border-bottom-color:  var(--blue) !important;
+  border-left-color:  var(--blue) !important;
+  border-right-color:  var(--blue) !important;
+}
+.maplibregl-popup-close-button {
+  color: var(--yellow) !important;
+  font-size: 20px !important;
+}
+
+
+/*Modal*/
+
+
+.mat-mdc-dialog-surface {
+  background-color: transparent !important;
+  border-radius: 30px !important;
+  max-width: 750px !important;
+}

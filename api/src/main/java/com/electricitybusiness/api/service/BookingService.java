@@ -104,8 +104,8 @@ public class BookingService {
      * @return Une liste de réservations correspondant au statut
      */
     @Transactional(readOnly = true)
-    public List<Booking> findByStatus(BookingStatus status) {
-        return bookingRepository.findByStatus(status);
+    public List<Booking> findByStatusBooking(BookingStatus status) {
+        return bookingRepository.findByStatusBooking(status);
     }
 
     /**
@@ -115,8 +115,8 @@ public class BookingService {
      * @return Une liste de réservations correspondant à l'utilisateur et au statut
      */
     @Transactional(readOnly = true)
-    public List<Booking> findByUserAndStatus(User user, BookingStatus status) {
-        return bookingRepository.findByUserAndStatus(user, status);
+    public List<Booking> findByUserAndStatusBooking(User user, BookingStatus status) {
+        return bookingRepository.findByUserAndStatusBooking(user, status);
     }
 
     /**
@@ -126,8 +126,8 @@ public class BookingService {
      * @return Une liste de réservations correspondant à la borne et au statut
      */
     @Transactional(readOnly = true)
-    public List<Booking> findByTerminalAndStatus(Terminal terminal, BookingStatus status) {
-        return bookingRepository.findByTerminalAndStatus(terminal, status);
+    public List<Booking> findByTerminalAndStatusBooking(Terminal terminal, BookingStatus status) {
+        return bookingRepository.findByTerminalAndStatusBooking(terminal, status);
     }
 
     /**

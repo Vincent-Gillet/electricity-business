@@ -33,7 +33,7 @@ public class Place {
 
     @ManyToMany
     @JoinTable(
-            name = "place_media",
+            name = "places_medias",
             joinColumns = @JoinColumn(name = "id_place"),
             inverseJoinColumns = @JoinColumn(name = "id_media")
     )
