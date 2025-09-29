@@ -1,7 +1,7 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY api/pom.xml .
-COPY api/src ./src
+COPY pom.xml .
+COPY src ./src
 RUN mvn clean package -DskipTests --no-transfer-progress
 
 FROM eclipse-temurin:21-jre-jammy
