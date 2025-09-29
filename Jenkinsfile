@@ -15,7 +15,7 @@ pipeline {
         DOCKER_REGISTRY_CREDENTIALS = credentials('docker-hub-credentials')
 
         RENDER_API_TOKEN = credentials('render-api-token')
-        RENDER_SERVICE_ID_ANGULAR = 'render-service-id-angular'
+        RENDER_SERVICE_ID_ANGULAR = credentials('render-service-id-angular')
         RENDER_SERVICE_ID_SPRING = credentials('render-service-id-spring')
     }
     stages {
