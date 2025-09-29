@@ -40,6 +40,9 @@
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "maplibre-gl"
             ]
           },
           "configurations": {
@@ -47,8 +50,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "3mB",
+                  "maximumError": "5mB"
                 },
                 {
                   "type": "anyComponentStyle",

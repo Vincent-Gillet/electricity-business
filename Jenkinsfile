@@ -5,17 +5,17 @@ pipeline {
         maven 'mvn'
     }
     environment {
-        SONAR_PROJECT_KEY = credentials('sonar-project-key')
-        SONAR_ORGANIZATION = credentials('sonar-organization')
-        SONAR_HOST_URL = credentials('sonar-url')
+        SONAR_PROJECT_KEY = 'Vincent-Gillet_electricity-business'
+        SONAR_ORGANIZATION = 'critik-sonar'
+        SONAR_HOST_URL = 'https://sonarcloud.io'
         SONAR_LOGIN = credentials('sonar-token')
 
-        DOCKER_REGISTRY = credentials('docker-hub-username')
-        DOCKER_REGISTRY_IMAGE = credentials('docker-hub-imageUrl')
+        DOCKER_REGISTRY = 'vincentgillet12'
+        DOCKER_REGISTRY_IMAGE = 'docker.io/vincentgillet12'
         DOCKER_REGISTRY_CREDENTIALS = credentials('docker-hub-credentials')
 
         RENDER_API_TOKEN = credentials('render-api-token')
-        RENDER_SERVICE_ID_ANGULAR = credentials('render-service-id-angular')
+        RENDER_SERVICE_ID_ANGULAR = 'render-service-id-angular'
         RENDER_SERVICE_ID_SPRING = credentials('render-service-id-spring')
     }
     stages {
@@ -46,7 +46,7 @@ pipeline {
         }
         stage('Docker Login') {
             steps {
-                sh 'echo $DOCKER_REGISTRY_CREDENTIALS_PSW | docker login docker.io -u $DOCKER_REGISTRY_CREDENTIALS_USR --password-stdin'
+                sh 'docker login docker.io -u ${DOCKER_REGISTRY} -p ${DOCKER_REGISTRY_CREDENTIALS}'
             }
         }
         stage('Build and Push Docker Images') {
@@ -89,7 +89,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline succeeded! Angular: https://electricity-business-angular-app-4eyi.onrender.com/, Spring: https://electricity-business-spring-app-254.onrender.com/'
+            echo 'Pipeline succeeded! Angular: https://electricity-business-angular-app-4eyi.onrender.com/, Spring: https://electricity-business-spring-app.onrender.com/'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'
