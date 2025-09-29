@@ -9,7 +9,7 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-ENV JAVA_OPTS="-Xmx320m -Xms128m -XX:+UseSerialGC -Dspring.profiles.active=render"
+ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
 
 EXPOSE 8080
 
