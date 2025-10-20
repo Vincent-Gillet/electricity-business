@@ -231,12 +231,13 @@ public class EntityMapper {
     public CarDTO toDTO(Car car) {
         if (car == null) return null;
         return new CarDTO(
+                car.getPublicId(),
                 car.getLicensePlate(),
                 car.getBrand(),
                 car.getModel(),
                 car.getYear().getValue(),
                 car.getBatteryCapacity(),
-                car.getUser()
+                car.getUser() != null ? car.getUser().getIdUser() : null
         );
     }
 
@@ -248,7 +249,7 @@ public class EntityMapper {
         car.setModel(dto.getModel());
         car.setYear(Year.of(dto.getYear()));
         car.setBatteryCapacity(dto.getBatteryCapacity());
-        car.setUser(dto.getUser());
+        car.setUser(dto.getIdUser() != null ? userRepository.getReferenceById(dto.getIdUser()) : null);
         return car;
     }
 
@@ -282,8 +283,15 @@ public class EntityMapper {
         user.setIdUser(idUser);
         car.setUser(user);*/
 
+/*
         User user = userRepository.getReferenceById(idUser);
+*/
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + idUser));
         car.setUser(user);
+
+        System.out.println("[DEBUG] Car before save -> " + car);
+        System.out.println("[DEBUG] User linked -> " + user.getIdUser());
 
 /*        User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));

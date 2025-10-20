@@ -120,8 +120,16 @@ public class UserService {
      * @param emailUser L'adresse email de l'User
      * @return L'identifiant de l'User si trouvé, sinon null
      */
-    @Transactional(readOnly = true)
+/*    @Transactional(readOnly = true)
     public Long getIdByEmailUser(String emailUser) {
         return userRepository.findIdByEmailUser(emailUser);
+    }*/
+
+    @Transactional(readOnly = true)
+    public Long getIdByEmailUser(String emailUser) {
+        return userRepository.findByEmailUser(emailUser)
+                .map(User::getIdUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + emailUser));
     }
+
 }

@@ -117,7 +117,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             String accessToken = authHeader.substring(7);
-            Optional<UserDTO> userDTO = jwtService.getUserByAccessToken(accessToken);
+            Optional<UserDTO> userDTO = jwtService.getUserDTOByAccessToken(accessToken);
 
             if (userDTO.isPresent()) {
                 return ResponseEntity.ok(userDTO.get());

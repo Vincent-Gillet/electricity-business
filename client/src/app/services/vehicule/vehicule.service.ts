@@ -8,7 +8,7 @@ import {environment} from '../../../environments/environment';
 })
 export class VehiculeService {
 
-  private apiUrl: string = environment.apiUrl + '/vehicules';
+  private apiUrl: string = environment.apiUrl + '/cars';
 
 // 1️⃣ INJECTION HttpClient
   constructor(private http: HttpClient) {}

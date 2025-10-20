@@ -150,4 +150,8 @@ public class RefreshTokenService {
 
         return result;
     }
+
+    public void deleteRefreshToken(String token) {
+        refreshTokenRepository.deleteById(token);
+    }
 }

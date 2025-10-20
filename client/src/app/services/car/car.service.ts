@@ -10,30 +10,85 @@ export class CarService {
 
   private apiUrl: string = environment.apiUrl + '/cars';
 
-// 1️⃣ INJECTION HttpClient
+  // Injecter HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+  // Récupérer toutes les voitures
   getCars(): Observable<any> {
     let cars = this.http.get(this.apiUrl)
-    console.log(cars);
     return cars;
-// ↳ Retourne un Observable
   }
 
+  // Récupérer une voiture par son ID
   getCar(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
   createCar(car: any): Observable<any> {
-    return this.http.post(this.apiUrl, car);
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+/*
+    const accessToken = token.access_token;
+*/
+    return this.http.post(this.apiUrl, car,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 
-  updateCar(id: number, car: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, car);
+  // Mettre à jour une voiture
+  updateCar(publicId: string, car: any): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, car,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 
+  // Supprimer une voiture
   deleteCar(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  // Supprimer une voiture
+  deleteCarPublicId(publicId: string): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  // Récupérer les voitures d'un utilisateur spécifique
+  getCarsByUser(): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    let cars = this.http.get(`${this.apiUrl}/user`,
+      {
+        headers: {
+          accept: 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+      }
+    )
+    return cars;
   }
 }

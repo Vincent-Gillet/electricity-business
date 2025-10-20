@@ -202,13 +202,17 @@ Content-Type: application/json
 GET http://localhost:8080/api/cars
 //Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE4Mzk3MCwiZXhwIjoxNzU1MTg0NTcwfQ.uZh63chEvc_m7Ir8hLiBFvmNfKt0fGGlv8Beu9GYob8
 
+### Véhcule - Récupérer la liste de toutes les voitures d'un utilisateur
+GET http://localhost:8080/api/cars/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MDg4NzE3OSwiZXhwIjoxNzYwOTczNTc5fQ.ik4miTEn3rqAnBY8-mVrwTyqpjtCcJ-6M4XkE0zOWNw
+
 ### Véhcule - Récupérer d'unee voiture
 GET http://localhost:8080/api/cars/1
 //Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MjA1NDYzLCJleHAiOjE3NTQyMDYwNjN9.OjIdFkdw5XQrluBMN6olzD4pou-p1tOPu2271Bdj2Hw
 
 ### Véhcule - Création d'une voiture
 POST http://localhost:8080/api/cars
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc1NTE4Njk2MiwiZXhwIjoxNzU1MTg3NTYyfQ.jZpE0DzkGtMA3Trc8NA1CBQ0D1YZ9k-wdfxAcdjOWQY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MDg2NjE1MywiZXhwIjoxNzYwOTUyNTUzfQ.NlZFribQvm6_J8G3A3wlDIcWKb2yLGabuhN8TnFApDU
 Content-Type: application/json
 
 {
@@ -231,6 +235,21 @@ Content-Type: application/json
   "year": "2010",
   "batteryCapacity": 80,
   "idUser": 3
+}
+
+### Véhcule - Modification d'une voiture avec publicId
+PUT http://localhost:8080/api/cars/publicId/8713ef26-6fd9-4b14-a765-3a9b2e9d312b
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MDk1MzEyMSwiZXhwIjoxNzYxMDM5NTIxfQ.Kw-bw8h2QBG0D1rz3WzxdzaHJbdl6nZrD3rICF_ei8o
+Content-Type: application/json
+
+{
+  "publicId": "8713ef26-6fd9-4b14-a765-3a9b2e9d312b",
+  "licensePlate": "ZY123WX",
+  "brand": "Renault",
+  "model": "Zoe",
+  "year": "2010",
+  "batteryCapacity": 80,
+  "idUser": 1
 }
 
 ### Véhcule - Supprimer une voiture

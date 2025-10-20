@@ -1,4 +1,9 @@
-import {Component, Input} from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
+import {CarService} from '../../../../services/car/car.service';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {CarFormComponent} from '../car-form/car-form.component';
+import {Car} from '../../../../models/car';
 
 @Component({
   selector: 'app-car',
@@ -8,14 +13,19 @@ import {Component, Input} from '@angular/core';
   styleUrl: './car.component.scss'
 })
 export class CarComponent {
+  carService: CarService = inject(CarService);
   @Input() car: any;
+  private router: Router
+  private dialog: MatDialog = inject(MatDialog);
 
   clickSeeMore(){
 
   }
 
-  clickUpdate(){
-
+  clickUpdate(car: Car) {
+    this.dialog.open(CarFormComponent, {
+      data: car
+    })
   }
 
   overlay = document.createElement("div");
@@ -27,10 +37,10 @@ export class CarComponent {
 
     this.overlay.innerHTML =
       "<div class='delete_box'>" +
-      "<p>Êtes-vous sûr de vouloir supprimer votre borne ?</p>" +
+      `<p>Êtes-vous sûr de vouloir supprimer votre voiture imatriculé ${this.car.licensePlate} ?</p>` +
       "<div>" +
-      "<button (click)='confirmRemove()' id='yes' class='button-style'>Oui</button>" +
-      "<button (click)='cancelRemove()' id='no' class='button-style'>Non</button>" +
+      "<button (click)='confirmRemove()' id='yes' class='btn button-style'>Oui</button>" +
+      "<button (click)='cancelRemove()' id='no' class='btn button-style'>Non</button>" +
       "</div>" +
       "</div>";
 
@@ -41,7 +51,14 @@ export class CarComponent {
 
     yes?.addEventListener("click", () => {
       console.log("J'ai appuyer sur oui");
+      console.log(this.car)
+
+      console.log('publicId de la voiture à supprimer :', this.car.publicId);
+      this.carService.deleteCarPublicId(this.car.publicId).subscribe();
       this.overlay.remove();
+      this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['./tableau-de-bord/mes-voitures']);
+      });
     })
 
     no?.addEventListener("click", () => {

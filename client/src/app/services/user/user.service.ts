@@ -8,7 +8,7 @@ import {environment} from '../../../environments/environment';
 })
 export class UserService {
 
-  private apiUrl: string = environment.apiUrl + '/utilisateurs';
+  private apiUrl: string = environment.apiUrl + '/users';
 
 // 1️⃣ INJECTION HttpClient
   constructor(private http: HttpClient) {}

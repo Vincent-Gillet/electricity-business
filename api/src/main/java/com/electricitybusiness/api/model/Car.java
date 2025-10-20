@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.Year;
+import java.util.UUID;
 
 /**
  * Entité représentant une voiture dans le système.
@@ -25,6 +26,9 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_car")
     private Long idCar;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
 
     @NotBlank(message = "La plaque d'immatriculation est obligatoire")
     @Length(min = 7, max = 7)

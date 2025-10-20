@@ -1,9 +1,11 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, Inject, inject, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {ErrorFromComponent} from '../../error-from/error-from.component';
 import {CarService} from '../../../../services/car/car.service';
-import {MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {AuthService} from '../../../../services/auth/auth.service';
+import {Car} from '../../../../models/car';
 
 @Component({
   selector: 'app-car-form',
@@ -24,27 +26,30 @@ export class CarFormComponent {
     this.dialogRef.close();
   }
 
-
-
   carService: CarService = inject(CarService);
+/*
+  authService: AuthService = inject(AuthService);
+*/
 
   // Propriété représentant le formulaire
   postCarForm: FormGroup;
   // Booléens d'état
   isSubmitted = false;
   isLoading = false;
+  private updateCar = false;
 
-
-  constructor(private fb: FormBuilder, private router: Router) {
-    //Création du form
+  constructor(private fb: FormBuilder, private router: Router, @Inject(MAT_DIALOG_DATA) public car: Car) {
     this.postCarForm = this.fb.group({
-
-      licensePlate: ['', [Validators.required]],
-      brand: ['', [Validators.required]],
-      model: ['', [Validators.required]],
-      year: ['', [Validators.required]],
-      batteryCapacity: ['', [Validators.required]]
+      publicId: [this.car?.publicId || ''],
+      licensePlate: [this.car?.licensePlate || '', [Validators.required]],
+      brand: [this.car?.brand || '', [Validators.required]],
+      model: [this.car?.model || '', [Validators.required]],
+      year: [this.car?.year || '', [Validators.required]],
+      batteryCapacity: [this.car?.batteryCapacity || '', [Validators.required]]
     });
+    if (this.car) {
+      this.updateCar = true;
+    }
   }
 
   onSubmit():void {
@@ -75,19 +80,55 @@ export class CarFormComponent {
       // (Dans un vrai projet, ça serait un appel HTTP)
       setTimeout(() => {
 
-        this.carService.createCar(carData).subscribe(
+/*        this.authService.getUserWithToken(carData.accessToken).subscribe(
           {
             next: (response) => {
-              console.log('Voiture créée:', response);
-              this.router.navigate(['./tableau-de-bord/mes-voitures']);
-            },
+              console.log('Utilisateur récupéré avec le token:', response);
+              if (response && response.id) {
+                carData.userId = response.id; // Ajouter l'ID utilisateur aux données de la voiture
+              } else {
+                console.error('Réponse utilisateur invalide:', response);
+              }
+          },
             error: (error) => {
-              console.error('Erreur lors de la création d\'une voiture:', error);
+              console.error('Erreur lors de la récupération de l\'utilisateur avec le token:', error);
             }
           }
-        );
+        )*/
 
-      }, 2000);
+        if (this.updateCar) {
+          this.carService.updateCar(this.car.publicId, carData).subscribe(
+            {
+              next: (response) => {
+                console.log('Voiture mise à jour:', response);
+                this.dialogRef.close();
+                this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
+                  this.router.navigate(['./tableau-de-bord/mes-voitures']);
+                });
+              },
+              error: (error) => {
+                console.error('Erreur lors de la mise à jour de la voiture:', error);
+              }
+            }
+          );
+          return;
+        } else {
+          this.carService.createCar(carData).subscribe(
+            {
+              next: (response) => {
+                console.log('Voiture créée:', response);
+                this.dialogRef.close();
+                this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
+                  this.router.navigate(['./tableau-de-bord/mes-voitures']);
+                });
+              },
+              error: (error) => {
+                console.error('Erreur lors de la création d\'une voiture:', error);
+              }
+            }
+          );
+        }
+      }, 1000);
 
     }
 

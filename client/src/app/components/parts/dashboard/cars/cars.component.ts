@@ -22,9 +22,10 @@ export class CarsComponent implements OnInit{
   carService: CarService = inject(CarService);
 
   ngOnInit(): void {
-    this.carService.getCars().subscribe({
+    this.carService.getCarsByUser().subscribe({
       next: data => {
         this.cars = data;
+        console.log(this.cars);
       },
       error: err => {
         console.error("Erreur lors de la récupération des voitures :", err);

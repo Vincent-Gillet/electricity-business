@@ -22,7 +22,10 @@ public class JwtService {
     @Value("${jwt.secret-key-access-token}")
     private String secretKey;
 
+/*
     private static final long EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
+*/
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours juste pour les tests
 
     public String generateAccessToken(String username) {
         return Jwts.builder()
@@ -106,7 +109,7 @@ public class JwtService {
     @Autowired
     private UserService userService;
 
-    public Optional<UserDTO> getUserByAccessToken(String accessToken) {
+    public Optional<UserDTO> getUserDTOByAccessToken(String accessToken) {
         try {
             String username = extractUsername(accessToken);
 
@@ -126,6 +129,22 @@ public class JwtService {
                             u.getBanished()
                     );
                 });
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<User> getUserByAccessToken(String accessToken) {
+        try {
+            String username = extractUsername(accessToken);
+
+            if (username != null) {
+                Optional<User> user = userService.findByUserEmail(username);
+
+                return user;
             }
             return Optional.empty();
         } catch (Exception e) {

@@ -2,9 +2,11 @@ package com.electricitybusiness.api.controller;
 
 import com.electricitybusiness.api.dto.CarCreateDTO;
 import com.electricitybusiness.api.dto.CarDTO;
+import com.electricitybusiness.api.dto.UserDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.service.CarService;
+import com.electricitybusiness.api.service.JwtService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +35,7 @@ public class CarController {
     private final CarService carService;
     private final EntityMapper mapper;
     private final UserService userService;
-
+    private final JwtService jwtService;
 
     /**
      * Récupère tous les Cars.
@@ -69,27 +72,22 @@ public class CarController {
      */
     @PostMapping
     public ResponseEntity<CarDTO> saveCar(@Valid @RequestBody CarCreateDTO carDTO) {
-        System.out.println("=== saveCar() CALLED ===");
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            Long idUser = userService.getIdByEmailUser(email);
 
+            Car car = mapper.toEntityCreate(carDTO, idUser);
+            Car savedCar = carService.saveCar(car);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        Long idUser = userService.getIdByEmailUser(email);
-        carDTO.setIdUser(idUser);
+            CarDTO savedDTO = mapper.toDTO(savedCar);
 
-        System.out.println("Authentication: " + authentication);
-        System.out.println("Email: " + email);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
-        System.out.println("ID User: " + idUser);
-        System.out.println("CarCreateDTO: " + carDTO);
-
-        Car car = mapper.toEntityCreate(carDTO, idUser);
-        System.out.println("Car: " + car);
-        Car savedCar = carService.saveCar(car);
-        System.out.println("Saving Car: " + savedCar);
-        CarDTO savedDTO = mapper.toDTO(savedCar);
-        System.out.println("Saving savedDTO: " + savedDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
     /**
@@ -104,10 +102,11 @@ public class CarController {
         if (!carService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        Car Car = mapper.toEntityCreate(carDTO, null);
-        Car updatedCar = carService.updateCar(id, Car);
+        Car car = mapper.toEntityCreate(carDTO, null);
+        Car updatedCar = carService.updateCar(id, car);
         CarDTO updatedDTO = mapper.toDTO(updatedCar);
-        return ResponseEntity.ok(updatedDTO);    }
+        return ResponseEntity.ok(updatedDTO);
+    }
 
 
     /**
@@ -123,5 +122,72 @@ public class CarController {
         }
         carService.deleteCarById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Récupère tous les Cars d'un utilisateur.
+     * GET /api/cars/user/{idUser}
+     * @return Une liste de tous les véhicules
+     */
+    @GetMapping("/user")
+    public ResponseEntity<List<CarDTO>> getAllCarsByUser(@RequestHeader("Authorization") String id) {
+        String token = id.replace("Bearer ", "");
+        User user = jwtService.getUserByAccessToken(token)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Car> cars = carService.getCarsByUser(user);
+        List<CarDTO> CarsDTO = cars.stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(CarsDTO);
+    }
+
+    /**
+     * Supprime un Car.
+     * DELETE /api/cars/{id}
+     * @param publicId L'identifiant de la voiture à supprimer
+     * @return Une réponse vide avec le statut 204 No Content si la voiture a été supprimé, ou 404 Not Found si le véhicule n'existe pas
+     */
+    @DeleteMapping("publicId/{publicId}")
+    public ResponseEntity<Void> deleteCar(@PathVariable UUID publicId) {
+        if (!carService.existsByPublicId(publicId)) {
+            return ResponseEntity.notFound().build();
+        }
+        carService.deleteCarByPublicId(publicId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Met à jour une voiture existante.
+     * PUT /api/cars/{id}
+     * @param publicId L'identifiant de la voiture à mettre à jour
+     * @param carDTO La voiture avec les nouvelles informations
+     * @return La voiture mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
+     */
+    @PutMapping("/publicId/{publicId}")
+    public ResponseEntity<CarDTO> updateCar(@RequestHeader("Authorization") String id, @PathVariable UUID publicId, @Valid @RequestBody CarCreateDTO carDTO) {
+        System.out.println("= Public ID to update === " + publicId);
+        System.out.println("=== qsdfqsdf ID to update === " + publicId);
+        System.out.println("=== Public ID to qsdfqsdfqsd === " + publicId);
+
+        if (!carService.existsByPublicId(publicId)) {
+            System.out.println("=== Car with Public ID not found === " + publicId);
+            return ResponseEntity.notFound().build();
+        }
+        System.out.println("=== Car with Public ID found === " + publicId);
+
+        String token = id.replace("Bearer ", "");
+        User user = jwtService.getUserByAccessToken(token)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long idUser = user.getIdUser();
+        Car car = mapper.toEntityCreate(carDTO, idUser);
+
+        System.out.println("=== Car to update === " + car);
+        Car updatedCar = carService.updateCar(publicId, car);
+
+        System.out.println("=== Car to update === " + updatedCar);
+        CarDTO updatedDTO = mapper.toDTO(updatedCar);
+
+        System.out.println("=== Car to update === " + updatedDTO);
+        return ResponseEntity.ok(updatedDTO);
     }
 }

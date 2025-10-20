@@ -1,6 +1,8 @@
 package com.electricitybusiness.api.service;
 
+import com.electricitybusiness.api.dto.CarDTO;
 import com.electricitybusiness.api.model.Car;
+import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service pour gérer les opérations liées aux voitures.
@@ -47,11 +50,15 @@ public class CarService {
     @Transactional
     public Car saveCar(Car car) {
 /*        return carRepository.save(car);*/
+/*
         System.out.println("=== About to save Car === " + car);
         System.out.println("Car ID before save: " + car.getIdCar());
+*/
 
         Car saved = carRepository.save(car);
+/*
         System.out.println("=== Saved Car === " + saved);
+*/
         return saved;
     }
 
@@ -84,4 +91,46 @@ public class CarService {
     public boolean existsById(Long id) {
         return carRepository.existsById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<Car> getCarsByUser(User user) { return carRepository.findCarsByUser(user); }
+
+    /**
+     * Supprime une voiture.
+     * @param publicId L'identifiant de la voiture à supprimer
+     */
+    public void deleteCarByPublicId(UUID publicId) {
+        carRepository.deleteCarByPublicId(publicId);
+    }
+
+    /**
+     * Vérifie si une voiture existe.
+     * @param publicId L'identifiant de la voiture à vérifier
+     * @return true si la voiture existe, sinon false
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByPublicId(UUID publicId) {
+        return carRepository.findByPublicId(publicId).isPresent();
+    }
+
+    /**
+     * Met à jour une voiture existant.
+     * @param publicId L'identifiant de la voiture à mettre à jour
+     * @param car La voiture avec les nouvelles informations
+     * @return La voiture mis à jour
+     */
+    public Car updateCar(UUID publicId, Car car) {
+        Car existing = carRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Car with publicId not found: " + publicId));
+
+        car.setIdCar(existing.getIdCar());
+        car.setPublicId(existing.getPublicId());
+
+        User existingUser = existing.getUser();
+        if (car.getUser() == null) {
+            car.setUser(existingUser);
+        }
+        return carRepository.save(car);
+    }
+
 }
