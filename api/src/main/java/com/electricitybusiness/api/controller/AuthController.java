@@ -136,7 +136,7 @@ public class AuthController {
         UserDTO test = new UserDTO();
         test.setSurnameUser("Test");
         test.setFirstName("Test");
-        test.setUsername("TestUser");
+        test.setPseudo("TestUser");
         test.setRole(UserRole.USER);
         test.setDateOfBirth(LocalDate.of(2000,1, 1));
         test.setPhone("0123456789");

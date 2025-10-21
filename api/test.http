@@ -37,7 +37,7 @@ Content-Type: application/json
 {
   "surnameUser": "Martin",
   "firstName": "Jean",
-  "username": "johnnnn",
+  "pseudo": "paul",
   "passwordUser": "azerty",
   "emailUser": "paul@gmail.com",
   "dateOfBirth": "2008-03-06",
@@ -53,10 +53,33 @@ Content-Type: application/json
   "firstName": "John",
   "username": "johndeo_updated",
   "emailUser": "johndeo@gmail.com",
-  "passwordUser": "new_password",
   "dateOfBirth": "2002-01-01",
   "phone": "0987654321",
   "iban": "FR7612345678901234567890123"
+}
+
+### Utilisateur - Mettre à jour un utilisateur par son token
+PUT http://localhost:8080/api/users/token
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTAzOTQwMywiZXhwIjoxNzYxMTI1ODAzfQ.DYRk-jSgkFEM0DWHCs3SYSgwYAgLFYylnIx6L3nPZMY
+Content-Type: application/json
+
+{
+  "surnameUser": "Doe",
+  "firstName": "John",
+  "pseudo": "johndeo_updated",
+  "emailUser": "johndeo@gmail.com",
+  "dateOfBirth": "1990-01-01",
+  "phone": "0987654321",
+  "iban": "FR7612345678901234567890123"
+}
+
+### Utilisateur - Mettre à jour du mot de passe un utilisateur par son token
+PUT http://localhost:8080/api/users/password
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTAzOTQwMywiZXhwIjoxNzYxMTI1ODAzfQ.DYRk-jSgkFEM0DWHCs3SYSgwYAgLFYylnIx6L3nPZMY
+Content-Type: application/json
+
+{
+  "passwordUser": "azertyuiop"
 }
 
 ### Utilisateur - Supprimer un utilisateur par son ID

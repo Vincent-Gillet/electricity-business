@@ -3,6 +3,7 @@ package com.electricitybusiness.api.controller;
 import com.electricitybusiness.api.dto.*;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.User;
+import com.electricitybusiness.api.service.JwtService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
     private final EntityMapper mapper;
+    private final JwtService jwtService;
 
     /**
      * Récupère tous les utilisateurs.
@@ -159,13 +162,13 @@ public class UserController {
 
     /**
      * Récupère un utilisateur par son pseudo.
-     * GET /api/users/username/{username}
-     * @param username Le pseudo de l'utilisateur à récupérer
+     * GET /api/users/pseudo/{pseudo}
+     * @param pseudo Le pseudo de l'utilisateur à récupérer
      * @return L'utilisateur correspondant au pseudo, ou un statut HTTP 404 Not Found si non trouvé
      */
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
-        return userService.findByUsername(username)
+    @GetMapping("/pseudo/{pseudo}")
+    public ResponseEntity<UserDTO> getUserByPseudo(@PathVariable String pseudo) {
+        return userService.findByPseudo(pseudo)
                 .map(user -> ResponseEntity.ok(mapper.toDTO(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -181,5 +184,61 @@ public class UserController {
         return userService.findByUserEmail(email)
                 .map(user -> ResponseEntity.ok(mapper.toDTO(user)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Met à jour un utilisateur existant.
+     * PUT /api/users/{id}
+     * @param token L'identifiant de l'utilisateur à mettre à jour
+     * @param userUpdateDTO Les nouvelles informations de l'utilisateur
+     * @return L'utilisateur mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
+     */
+    @PutMapping("/token")
+    public ResponseEntity<UserDTO> updateUser(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO
+    ) {
+        String rawToken = token.replace("Bearer ", "");
+        Optional<User> userOpt = jwtService.getUserByAccessToken(rawToken);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User existing = userOpt.get();
+        User incoming = mapper.toEntity(userUpdateDTO, existing);
+
+        try {
+            User updated = userService.updateUserToken(existing.getIdUser(), incoming);
+            return ResponseEntity.ok(mapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    /**
+     * Met à jour le mot de passe d'un utilisateur.
+     * PUT /api/users/password/{id}
+     * @param token L'identifiant de l'utilisateur dont le mot de passe doit être mis à jour
+     * @param userUpdatePasswordDTO Les nouvelles informations de mot de passe
+     * @return L'utilisateur mis à jour avec le nouveau mot de passe, ou un statut HTTP 404 Not Found si l'ID n'existe pas
+     */
+    @PutMapping("/password")
+    public ResponseEntity<UserDTO> updateUserPassword(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody UserUpdatePasswordDTO userUpdatePasswordDTO
+    ) {
+        String rawToken = token.replace("Bearer ", "");
+        Optional<User> userOpt = jwtService.getUserByAccessToken(rawToken);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User existing = userOpt.get();
+        User incoming = mapper.toEntityPassword(userUpdatePasswordDTO, existing);
+
+        try {
+            User updated = userService.updateUserToken(existing.getIdUser(), incoming);
+            return ResponseEntity.ok(mapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }

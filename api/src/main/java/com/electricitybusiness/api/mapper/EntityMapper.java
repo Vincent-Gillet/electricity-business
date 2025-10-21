@@ -31,7 +31,7 @@ public class EntityMapper {
         return new UserDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getRole(),
                 user.getDateOfBirth(),
@@ -46,7 +46,7 @@ public class EntityMapper {
         User user = new User();
         user.setSurnameUser(dto.getSurnameUser());
         user.setFirstName(dto.getFirstName());
-        user.setUsername(dto.getUsername());
+        user.setPseudo(dto.getPseudo());
         user.setRole(dto.getRole());
         user.setEmailUser(dto.getEmailUser());
         user.setDateOfBirth(dto.getDateOfBirth());
@@ -63,7 +63,7 @@ public class EntityMapper {
         return new UserCreateDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getPasswordUser(),
                 user.getDateOfBirth(),
@@ -76,7 +76,7 @@ public class EntityMapper {
         User user = new User();
         user.setSurnameUser(dto.getSurnameUser());
         user.setFirstName(dto.getFirstName());
-        user.setUsername(dto.getUsername());
+        user.setPseudo(dto.getPseudo());
         user.setRole(UserRole.USER);
         user.setPasswordUser(passwordEncoder.encode(dto.getPasswordUser()));
         user.setEmailUser(dto.getEmailUser());
@@ -93,7 +93,7 @@ public class EntityMapper {
     public User toEntity(UserUpdateDTO dto, User existing) {
         existing.setSurnameUser(dto.getSurnameUser());
         existing.setFirstName(dto.getFirstName());
-        existing.setUsername(dto.getUsername());
+        existing.setPseudo(dto.getPseudo());
         existing.setEmailUser(dto.getEmailUser());
         existing.setDateOfBirth(dto.getDateOfBirth());
         existing.setPhone(dto.getPhone());
@@ -106,7 +106,7 @@ public class EntityMapper {
         return new UserUpdateDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getDateOfBirth(),
                 user.getPhone(),

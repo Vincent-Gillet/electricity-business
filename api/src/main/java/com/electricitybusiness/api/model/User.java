@@ -47,7 +47,7 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     @NotNull(message = "Le pseudo est obligatoire")
-    private String username;
+    private String pseudo;
 
     @Column(unique = true)
     @Email(message = "L'adresse email doit être valide")

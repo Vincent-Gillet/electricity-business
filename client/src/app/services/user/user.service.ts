@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
+import {User} from '../../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,32 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  updateUserByToken(user: User): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.put(`${this.apiUrl}/token`, user,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  updatePasswordByToken(user: User): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.put(`${this.apiUrl}/password`, user,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
 
 }

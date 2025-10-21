@@ -165,29 +165,17 @@ public class CarController {
      */
     @PutMapping("/publicId/{publicId}")
     public ResponseEntity<CarDTO> updateCar(@RequestHeader("Authorization") String id, @PathVariable UUID publicId, @Valid @RequestBody CarCreateDTO carDTO) {
-        System.out.println("= Public ID to update === " + publicId);
-        System.out.println("=== qsdfqsdf ID to update === " + publicId);
-        System.out.println("=== Public ID to qsdfqsdfqsd === " + publicId);
-
         if (!carService.existsByPublicId(publicId)) {
             System.out.println("=== Car with Public ID not found === " + publicId);
             return ResponseEntity.notFound().build();
         }
-        System.out.println("=== Car with Public ID found === " + publicId);
-
         String token = id.replace("Bearer ", "");
         User user = jwtService.getUserByAccessToken(token)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Long idUser = user.getIdUser();
         Car car = mapper.toEntityCreate(carDTO, idUser);
-
-        System.out.println("=== Car to update === " + car);
         Car updatedCar = carService.updateCar(publicId, car);
-
-        System.out.println("=== Car to update === " + updatedCar);
         CarDTO updatedDTO = mapper.toDTO(updatedCar);
-
-        System.out.println("=== Car to update === " + updatedDTO);
         return ResponseEntity.ok(updatedDTO);
     }
 }

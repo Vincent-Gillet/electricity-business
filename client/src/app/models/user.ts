@@ -7,7 +7,7 @@ export interface User {
   readonly idUser?: number;
   surnameUser: string;
   firstName: string;
-  username: string;
+  pseudo: string;
   emailUser: string;
   passwordUser: string;
   role?: string;
