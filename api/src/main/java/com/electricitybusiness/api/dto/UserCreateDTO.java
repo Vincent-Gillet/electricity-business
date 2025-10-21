@@ -23,7 +23,7 @@ public class UserCreateDTO {
     private String firstName;
 
     @NotBlank(message = "Le pseudo est obligatoire")
-    private String username;
+    private String pseudo;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String passwordUser;

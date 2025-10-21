@@ -79,23 +79,6 @@ export class CarFormComponent {
       // 5. Simuler un appel API avec setTimeout
       // (Dans un vrai projet, ça serait un appel HTTP)
       setTimeout(() => {
-
-/*        this.authService.getUserWithToken(carData.accessToken).subscribe(
-          {
-            next: (response) => {
-              console.log('Utilisateur récupéré avec le token:', response);
-              if (response && response.id) {
-                carData.userId = response.id; // Ajouter l'ID utilisateur aux données de la voiture
-              } else {
-                console.error('Réponse utilisateur invalide:', response);
-              }
-          },
-            error: (error) => {
-              console.error('Erreur lors de la récupération de l\'utilisateur avec le token:', error);
-            }
-          }
-        )*/
-
         if (this.updateCar) {
           this.carService.updateCar(this.car.publicId, carData).subscribe(
             {

@@ -27,7 +27,7 @@ public class UserDTO {
     private String firstName;
 
     @NotBlank(message = "Le pseudo est obligatoire")
-    private String username;
+    private String pseudo;
 
     @NotBlank(message = "L'adresse email est obligatoire")
     @Email(message = "L'adresse email doit être valide")

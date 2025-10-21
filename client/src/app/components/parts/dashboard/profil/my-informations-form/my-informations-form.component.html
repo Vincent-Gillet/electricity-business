@@ -1,0 +1,43 @@
+<div class="table-blue">
+  <form class="row g-3 needs-validation" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="pseudoUpdateUser" class="form-label">Pseudo *</label>
+      <input [value]="user.pseudo" type="text" class="form-control" id="pseudoUpdateUser" formControlName="pseudo" placeholder="John123" required>
+      <app-error-from [fieldName]="'pseudo'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="surnameUserUpdateUser" class="form-label">Prénom *</label>
+      <input [value]="user.surnameUser" type="text" class="form-control" id="surnameUserUpdate" formControlName="surnameUser" placeholder="John" required>
+      <app-error-from [fieldName]="'surnameUser'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="firstNameUpdate" class="form-label">Nom *</label>
+      <input [value]="user.firstName" type="text" class="form-control" id="firstNameUpdateUser" formControlName="firstName" placeholder="Doe" required>
+      <app-error-from [fieldName]="'firstName'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="emailUserUpdateUser" class="form-label">Email *</label>
+      <input [value]="user.emailUser" type="email" class="form-control" id="emailUserUpdateUser" formControlName="emailUser" placeholder="johndeo@gmail.com" required>
+      <app-error-from [fieldName]="'emailUser'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="dateOfBirthUpdateUser" class="form-label">Date de naissance *</label>
+      <input [value]="user.dateOfBirth" type="date" class="form-control" id="dateOfBirthUpdateUser" formControlName="dateOfBirth" placeholder="22" required>
+      <app-error-from [fieldName]="'dateOfBirth'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="phoneUpdateUser" class="form-label">Numéro de téléphone *</label>
+      <input [value]="user.phone" type="tel" class="form-control" id="phoneUpdateUser" formControlName="phone" placeholder="0123456789" required>
+      <app-error-from [fieldName]="'phone'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="ibanUpdateUser" class="form-label">Iban *</label>
+      <input [value]="user.iban" type="text" class="form-control" id="ibanUpdateUser" formControlName="iban" placeholder="FR1111111111111111111111111" required>
+      <app-error-from [fieldName]="'iban'" [nameFormGroup]="updateUserForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="col-12 d-flex justify-content-around">
+      <button class="btn button-style" type="submit">Valider</button>
+      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+    </div>
+  </form>
+</div>

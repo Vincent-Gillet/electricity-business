@@ -12,6 +12,7 @@ import {LegalNoticesComponent} from './components/pages/legal-notices/legal-noti
 import {MyBookingsComponent} from './components/parts/dashboard/my-bookings/my-bookings.component';
 import {BookingRequestsComponent} from './components/parts/dashboard/booking-requests/booking-requests.component';
 import {CarFormComponent} from './components/parts/dashboard/car-form/car-form.component';
+import {MyInformationsComponent} from './components/parts/dashboard/profil/my-informations/my-informations.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -31,6 +32,7 @@ export const routes: Routes = [
           path: 'nouvelle-voiture', component: CarFormComponent
         }]
       },
+      { path: 'mes-informations', component: MyInformationsComponent },
     ]
   },
   /*

@@ -67,12 +67,12 @@ public class UserService {
 
     /**
      * Récupère un User par son pseudo.
-     * @param username Le pseudo de l'User à récupérer
+     * @param pseudo Le pseudo de l'User à récupérer
      * @return Un Optional contenant l'User si trouvé, sinon vide
      */
     @Transactional(readOnly = true)
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<User> findByPseudo(String pseudo) {
+        return userRepository.findByPseudo(pseudo);
     }
 
     /**
@@ -97,12 +97,12 @@ public class UserService {
 
     /**
      * Vérifie si un pseudo est déjà utilisé par un User.
-     * @param username Le pseudo à vérifier
+     * @param pseudo Le pseudo à vérifier
      * @return true si le pseudo existe, sinon false
      */
     @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
+    public boolean existsByPseudo(String pseudo) {
+        return userRepository.existsByPseudo(pseudo);
     }
 
     /**
@@ -132,4 +132,30 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + emailUser));
     }
 
+    @Transactional
+    public User updateUserToken(Long id, User incoming) {
+        User existing = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (incoming.getSurnameUser() != null) existing.setSurnameUser(incoming.getSurnameUser());
+        if (incoming.getFirstName() != null) existing.setFirstName(incoming.getFirstName());
+        if (incoming.getPseudo() != null) existing.setPseudo(incoming.getPseudo());
+        if (incoming.getDateOfBirth() != null) existing.setDateOfBirth(incoming.getDateOfBirth());
+        if (incoming.getPhone() != null) existing.setPhone(incoming.getPhone());
+        if (incoming.getIban() != null) existing.setIban(incoming.getIban());
+
+        String newEmail = incoming.getEmailUser();
+        if (newEmail != null && !newEmail.equals(existing.getEmailUser())) {
+            if (userRepository.existsByEmailUser(newEmail)) {
+                throw new IllegalArgumentException("Email already in use");
+            }
+            existing.setEmailUser(newEmail);
+        }
+
+        if (incoming.getPasswordUser() != null && !incoming.getPasswordUser().isBlank()) {
+            existing.setPasswordUser(incoming.getPasswordUser());
+        }
+
+        return userRepository.save(existing);
+    }
 }
