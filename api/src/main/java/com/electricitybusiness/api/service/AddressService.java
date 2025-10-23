@@ -1,6 +1,8 @@
 package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.model.Address;
+import com.electricitybusiness.api.model.Car;
+import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service pour gérer les opérations liées aux addresss.
@@ -74,5 +77,51 @@ public class AddressService {
     @Transactional(readOnly = true)
     public boolean existsById(Long id) {
         return addressRepository.existsById(id);
+    }
+
+    /**
+     * Récupère toutes les adresses d'un utilisateur.
+     * @param user L'utilisateur dont on veut récupérer les adresses
+     * @return Une liste des adresses associées à l'utilisateur
+     */
+    @Transactional(readOnly = true)
+    public List<Address> getAddressesByUser(User user) { return addressRepository.findAddressesByUser(user); }
+
+    /**
+     * Supprime une adresse.
+     * @param publicId L'identifiant de la adresse à supprimer
+     */
+    public void deleteAddressByPublicId(UUID publicId) {
+        addressRepository.deleteAddressByPublicId(publicId);
+    }
+
+    /**
+     * Vérifie si une adresse existe.
+     * @param publicId L'identifiant de la adresse à vérifier
+     * @return true si la adresse existe, sinon false
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByPublicId(UUID publicId) {
+        return addressRepository.findByPublicId(publicId).isPresent();
+    }
+
+    /**
+     * Met à jour une voiture existant.
+     * @param publicId L'identifiant de la voiture à mettre à jour
+     * @param address La voiture avec les nouvelles informations
+     * @return La voiture mis à jour
+     */
+    public Address updateAddress(UUID publicId, Address address) {
+        Address existing = addressRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Address with publicId not found: " + publicId));
+
+        address.setIdAddress(existing.getIdAddress());
+        address.setPublicId(existing.getPublicId());
+
+        User existingUser = existing.getUser();
+        if (address.getUser() == null) {
+            address.setUser(existingUser);
+        }
+        return addressRepository.save(address);
     }
 }

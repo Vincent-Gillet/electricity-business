@@ -26,7 +26,15 @@ export class AddressService {
   }
 
   createAddress(address: any): Observable<any> {
-    return this.http.post(this.apiUrl, address);
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.post(this.apiUrl, address, {
+      headers: {
+        accept: 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
   }
 
   updateAddress(id: number, address: any): Observable<any> {
@@ -35,5 +43,51 @@ export class AddressService {
 
   deleteAddress(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  // Mettre à jour une voiture
+  updateAddressPublicId(publicId: string, address: any): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, address,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  // Supprimer une adresse par son publicId
+  deleteAddressPublicId(publicId: string): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  // Récupérer les adresses d'un utilisateur spécifique
+  getAddresssByUser(): Observable<any> {
+    const token = localStorage.getItem('tokenStorage');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    let addresses = this.http.get(`${this.apiUrl}/user`,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    return addresses;
   }
 }

@@ -361,3 +361,15 @@ Content-Type: application/json
   "size": "99456 Mo",
   "dateCreation": "2023-07-23T21:02:44"
 }
+
+### Adresse - Récupérer la liste de toutes les adresses
+GET http://localhost:8080/api/addresses
+
+### Adresse - Récupérer une adresse par son token
+GET http://localhost:8080/api/addresses/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MTEyNDEzNSwiZXhwIjoxNzYxMjEwNTM1fQ.j-ErGwWzlc-tUhZNu7eisBi7bd_uHKY7UrTAJNHiJMU
+
+### Adresse - Créer une adresse
+POST http://localhost:8080/api/addresses
+Authorization: Bearer
+

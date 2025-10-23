@@ -130,10 +130,15 @@ public class CarController {
      * @return Une liste de tous les véhicules
      */
     @GetMapping("/user")
-    public ResponseEntity<List<CarDTO>> getAllCarsByUser(@RequestHeader("Authorization") String id) {
-        String token = id.replace("Bearer ", "");
-        User user = jwtService.getUserByAccessToken(token)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<List<CarDTO>> getAllCarsByUser() {
+        // Récupérer l'utilisateur authentifié
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Long idUser = userService.getIdByEmailUser(email);
+        User user = userService.getUserById(idUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Récupérer les voitures de l'utilisateur
         List<Car> cars = carService.getCarsByUser(user);
         List<CarDTO> CarsDTO = cars.stream()
                 .map(mapper::toDTO)
@@ -164,15 +169,19 @@ public class CarController {
      * @return La voiture mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/publicId/{publicId}")
-    public ResponseEntity<CarDTO> updateCar(@RequestHeader("Authorization") String id, @PathVariable UUID publicId, @Valid @RequestBody CarCreateDTO carDTO) {
+    public ResponseEntity<CarDTO> updateCar(
+            @PathVariable UUID publicId,
+            @Valid @RequestBody CarCreateDTO carDTO
+    ) {
         if (!carService.existsByPublicId(publicId)) {
-            System.out.println("=== Car with Public ID not found === " + publicId);
             return ResponseEntity.notFound().build();
         }
-        String token = id.replace("Bearer ", "");
-        User user = jwtService.getUserByAccessToken(token)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Long idUser = user.getIdUser();
+        // Récupérer l'utilisateur authentifié
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Long idUser = userService.getIdByEmailUser(email);
+
+        // Mettre à jour la voiture
         Car car = mapper.toEntityCreate(carDTO, idUser);
         Car updatedCar = carService.updateCar(publicId, car);
         CarDTO updatedDTO = mapper.toDTO(updatedCar);

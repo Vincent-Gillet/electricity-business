@@ -26,7 +26,7 @@ import java.util.List;
  * Un utilisateur peut effectuer des réservations et appartient à un lieu.
  */
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

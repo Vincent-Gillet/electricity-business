@@ -46,7 +46,9 @@ public class SecurityConfig {
                                 "/api/options/**",
                                 "/api/bookings/**",
                                 "/api/medias/**",
-                                "/api/cars/**"
+                                "/api/cars/**",
+                                "/api/addresses/**"
+
 
 
                         ).permitAll()
@@ -55,8 +57,10 @@ public class SecurityConfig {
 
                         ).authenticated()
                         .requestMatchers(
-                                "/api/user/**",
-                                "/api/adresses/**"
+                                "/api/user/**"
+/*
+                                "/api/addresses/**"
+*/
                         ).hasAnyAuthority("UTILISATEUR")
                         .requestMatchers(
                                 "/api/admin/**",

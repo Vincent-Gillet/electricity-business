@@ -1,24 +1,16 @@
 package com.electricitybusiness.api.dto;
 
+import com.electricitybusiness.api.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
-/**
- * DTO pour l'entité Adresse
- * Inclut une référence simple au lieu sans relations circulaires
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddressDTO {
-
-    private UUID publicId;
-
+public class AddressCreateDTO {
     @NotBlank(message = "Le nom de l'adresse est obligatoire")
     private String nameAddress;
 
@@ -39,4 +31,5 @@ public class AddressDTO {
     private String complement;
     private String floor;
     private PlaceDTO place;
+    private Long idUser;
 }
