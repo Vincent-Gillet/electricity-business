@@ -142,7 +142,8 @@ public class EntityMapper {
     public AddressDTO toDTO(Address address) {
         if (address == null) return null;
         return new AddressDTO(
-                address.getNameAdress(),
+                address.getPublicId(),
+                address.getNameAddress(),
                 address.getAddress(),
                 address.getPostCode(),
                 address.getCity(),
@@ -158,7 +159,7 @@ public class EntityMapper {
     public Address toEntity(AddressDTO dto) {
         if (dto == null) return null;
         Address address = new Address();
-        address.setNameAdress(dto.getNameAdress());
+        address.setNameAddress(dto.getNameAddress());
         address.setAddress(dto.getAddress());
         address.setPostCode(dto.getPostCode());
         address.setCity(dto.getCity());
@@ -169,6 +170,39 @@ public class EntityMapper {
         address.setPlace(toEntity(dto.getPlace()));
         return address;
     }
+
+    public Address toEntityCreate(AddressCreateDTO dto, Long idUser) {
+        if (dto == null) return null;
+        Address address = new Address();
+        address.setNameAddress(dto.getNameAddress());
+        address.setAddress(dto.getAddress());
+        address.setPostCode(dto.getPostCode());
+        address.setCity(dto.getCity());
+        address.setCountry(dto.getCountry());
+        address.setRegion(dto.getRegion());
+        address.setComplement(dto.getComplement());
+        address.setFloor(dto.getFloor());
+        address.setPlace(toEntity(dto.getPlace()));
+        System.out.println("Long idUser : " + idUser);
+        address.setUser(idUser != null ? userRepository.getReferenceById(idUser) : null);
+        return address;
+    }
+
+/*    public Car toEntityCreate(CarCreateDTO dto, Long idUser) {
+        if (dto == null) return null;
+        Car car = new Car();
+        car.setLicensePlate(dto.getLicensePlate());
+        car.setBrand(dto.getBrand());
+        car.setModel(dto.getModel());
+        car.setYear(dto.getYear() != null ? Year.of(dto.getYear()) : null);
+        car.setBatteryCapacity(dto.getBatteryCapacity());
+
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + idUser));
+        car.setUser(user);
+
+        return car;
+    }*/
 
 
     // === LIEU ===
@@ -272,30 +306,11 @@ public class EntityMapper {
         car.setBrand(dto.getBrand());
         car.setModel(dto.getModel());
         car.setYear(dto.getYear() != null ? Year.of(dto.getYear()) : null);
-
-/*
-        car.setYear(Year.of(dto.getYear()));
-*/
         car.setBatteryCapacity(dto.getBatteryCapacity());
 
-        // Set the user directly using the ID
-/*        User user = new User();
-        user.setIdUser(idUser);
-        car.setUser(user);*/
-
-/*
-        User user = userRepository.getReferenceById(idUser);
-*/
         User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + idUser));
         car.setUser(user);
-
-        System.out.println("[DEBUG] Car before save -> " + car);
-        System.out.println("[DEBUG] User linked -> " + user.getIdUser());
-
-/*        User user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        car.setUser(user);*/
 
         return car;
     }

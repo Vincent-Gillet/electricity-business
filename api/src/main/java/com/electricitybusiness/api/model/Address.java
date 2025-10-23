@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * Entité représentant une adresse dans le système.
  * Une adresse peut être associée à un utilisateur et à un lieu.
@@ -21,9 +23,12 @@ public class Address {
     @Column(name = "id_address")
     private Long idAddress;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
+
     @Column(name = "name_adress")
     @NotBlank(message = "Le nom est obligatoire")
-    private String nameAdress;
+    private String nameAddress;
 
     @Column(name = "address", length = 200, nullable = false)
     @NotBlank(message = "L'adresse est obligatoire")

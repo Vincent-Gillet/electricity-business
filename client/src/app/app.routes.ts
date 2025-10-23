@@ -13,6 +13,7 @@ import {MyBookingsComponent} from './components/parts/dashboard/my-bookings/my-b
 import {BookingRequestsComponent} from './components/parts/dashboard/booking-requests/booking-requests.component';
 import {CarFormComponent} from './components/parts/dashboard/car-form/car-form.component';
 import {MyInformationsComponent} from './components/parts/dashboard/profil/my-informations/my-informations.component';
+import {AddressesComponent} from './components/parts/dashboard/profil/addresses/addresses.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -33,6 +34,7 @@ export const routes: Routes = [
         }]
       },
       { path: 'mes-informations', component: MyInformationsComponent },
+      { path: 'mes-adresses', component: AddressesComponent },
     ]
   },
   /*
