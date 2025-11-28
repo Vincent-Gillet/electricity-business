@@ -1,6 +1,5 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {BookingService} from '../../../../services/booking/booking.service';
-import {CurrencyPipe, DatePipe, NgForOf, SlicePipe} from '@angular/common';
+import {CurrencyPipe, DatePipe} from '@angular/common';
 import {
   NgbPagination, NgbPaginationEllipsis,
   NgbPaginationFirst,
@@ -10,7 +9,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
-import {BOOKING_STATUS_LABELS} from '../../../../constants/booking-status-labels';
+import {BookingService} from '../../../services/booking/booking.service';
+import {BOOKING_STATUS_LABELS} from '../../../constants/booking-status-labels';
 
 @Component({
   selector: 'app-my-bookings',

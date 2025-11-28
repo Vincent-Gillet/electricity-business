@@ -15,7 +15,7 @@ import {Car} from '../../../../models/car';
 export class CarComponent {
   carService: CarService = inject(CarService);
   @Input() car: any;
-  private router: Router
+  router: Router = inject(Router);
   private dialog: MatDialog = inject(MatDialog);
 
   clickSeeMore(){
@@ -28,7 +28,7 @@ export class CarComponent {
     })
   }
 
-  overlay = document.createElement("div");
+  private overlay = document.createElement("div");
 
   clickDelete() {
     console.log("j'ai cliquer");
@@ -54,10 +54,17 @@ export class CarComponent {
       console.log(this.car)
 
       console.log('publicId de la voiture à supprimer :', this.car.publicId);
-      this.carService.deleteCarPublicId(this.car.publicId).subscribe();
-      this.overlay.remove();
-      this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
-        this.router.navigate(['./tableau-de-bord/mes-voitures']);
+      this.carService.deleteCarPublicId(this.car.publicId).subscribe({
+        next: () => {
+          this.overlay.remove();
+          const currentUrl = this.router.url;
+          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+            this.router.navigateByUrl(currentUrl);
+          });
+        },
+        error: err => {
+          console.error('Erreur lors de la suppression de la voiture:', err);
+        }
       });
     })
 

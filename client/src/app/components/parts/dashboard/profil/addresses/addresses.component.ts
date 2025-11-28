@@ -23,7 +23,7 @@ export class AddressesComponent implements OnInit {
   addressService: AddressService = inject(AddressService);
 
   ngOnInit(): void {
-    this.addressService.getAddresssByUser().subscribe({
+    this.addressService.getAddressesByUser().subscribe({
       next: data => {
         this.addresses = data;
         console.log(this.addresses);

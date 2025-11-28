@@ -36,4 +36,29 @@ export class OptionService {
   deleteOption(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // Méthodes user
+
+  createOptionByPublicId(option: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user`, option);
+  }
+
+  // Mettre à jour une voiture
+  updateOptionByPublicId(publicId: string, option: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, option);
+  }
+
+  // Supprimer une voiture
+  deleteOptionByPublicId(publicId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
+  }
+
+  // Récupérer les voitures d'un utilisateur spécifique
+  getOptionsByUser(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user`);
+  }
+
+  getOptionsByTerminal(terminal: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/terminal/${terminal}`);
+  }
 }

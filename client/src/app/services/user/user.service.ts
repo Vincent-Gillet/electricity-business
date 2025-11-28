@@ -40,8 +40,18 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getUserWithToken(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/me`, {
+      headers: {
+        accept: 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      withCredentials: true
+    });
+  }
+
   updateUserByToken(user: User): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
+    const token = sessionStorage.getItem('tokenStorage');
     const accessToken = token ? JSON.parse(token).accessToken : null;
     return this.http.put(`${this.apiUrl}/token`, user,
       {
@@ -55,7 +65,7 @@ export class UserService {
   }
 
   updatePasswordByToken(user: User): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
+    const token = sessionStorage.getItem('tokenStorage');
     const accessToken = token ? JSON.parse(token).accessToken : null;
     return this.http.put(`${this.apiUrl}/password`, user,
       {
@@ -68,4 +78,11 @@ export class UserService {
     );
   }
 
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/delete/me`);
+  }
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`);
+  }
 }

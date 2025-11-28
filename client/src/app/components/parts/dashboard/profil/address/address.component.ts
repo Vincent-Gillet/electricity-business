@@ -18,7 +18,7 @@ import {Address} from '../../../../../models/address';
 export class AddressComponent {
   addressService: AddressService = inject(AddressService);
   @Input() address: any;
-  private router: Router
+  router: Router = inject(Router);
   private dialog: MatDialog = inject(MatDialog);
 
   clickUpdate(address: Address) {
@@ -53,10 +53,17 @@ export class AddressComponent {
       console.log(this.address)
 
       console.log('publicId de la voiture à supprimer :', this.address.publicId);
-      this.addressService.deleteAddressPublicId(this.address.publicId).subscribe();
-      this.overlay.remove();
-      this.router.navigateByUrl('addresses', { skipLocationChange: true }).then(() => {
-        this.router.navigate(['./tableau-de-bord/mes-adresses']);
+      this.addressService.deleteAddressPublicId(this.address.publicId).subscribe({
+        next: () => {
+          this.overlay.remove();
+          const currentUrl = this.router.url;
+          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+            this.router.navigateByUrl(currentUrl);
+          });
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression de l\'adresse :', err);
+        }
       });
     })
 

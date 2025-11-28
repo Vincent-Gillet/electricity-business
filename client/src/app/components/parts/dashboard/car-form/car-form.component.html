@@ -1,5 +1,5 @@
 <div class="table-blue">
-  <form class="row g-3 needs-validation" [formGroup]="postCarForm" (ngSubmit)="onSubmit()">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postCarForm" (ngSubmit)="onSubmit()">
     <div class="mb-3">
       <label for="licensePlatePostCar" class="form-label">Plaque d'immatriculation *</label>
       <input [value]="car?.licensePlate || ''" type="text" class="form-control" id="licensePlatePostCar" formControlName="licensePlate" placeholder="AB123CD" required>

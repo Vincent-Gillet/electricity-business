@@ -1,0 +1,32 @@
+<div class="table-blue">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postOptionForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="nameOptionPostOption" class="form-label">Nom de l'option *</label>
+      <input [value]="option?.nameOption || ''" type="text" class="form-control" id="nameOptionPostCar" formControlName="nameOption" placeholder="Karcher" required>
+      <app-error-from [fieldName]="'nameOption'" [nameFormGroup]="postOptionForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="priceOptionPostOption" class="form-label">Prix *</label>
+      <input [value]="option?.priceOption || ''" type="text" class="form-control" id="priceOptionPost" formControlName="priceOption" placeholder="5" required>
+      <app-error-from [fieldName]="'priceOption'" [nameFormGroup]="postOptionForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="descriptionOptionPostOption" class="form-label">Description *</label>
+      <input [value]="option?.descriptionOption || ''" type="text" class="form-control" id="descriptionOptionPostCar" formControlName="descriptionOption" placeholder="Nettoyage haute pression" required>
+      <app-error-from [fieldName]="'descriptionOption'" [nameFormGroup]="postOptionForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="publicIdPlacePostOption" class="form-label">Selectionner son lieu *</label>
+      <select class="form-control" id="publicIdPlacePostOption" formControlName="publicIdPlace" required>
+        @for (place of places; track place.publicId) {
+          <option [value]="place.publicId" [selected]="option?.publicIdPlace === place.publicId">{{ place.nameAddress }}</option>
+        }
+      </select>
+      <app-error-from [fieldName]="'statusTerminal'" [nameFormGroup]="postOptionForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="col-12 d-flex justify-content-around">
+      <button class="btn button-style" type="submit">Valider</button>
+      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+    </div>
+  </form>
+</div>

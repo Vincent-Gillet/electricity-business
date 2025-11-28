@@ -4,7 +4,8 @@ import {Place} from './place';
 import {Repairer} from './repairer';
 
 export interface Terminal {
-  readonly idBorne?: number;
+  readonly idTerminal?: number;
+  readonly publicId?: string;
   nameTerminal: string;
   latitude: number;
   longitude: number;
@@ -20,4 +21,5 @@ export interface Terminal {
   medias?: Media[];
   place?: Place;
   repairer?: Repairer;
+  publicIdPlace?: string;
 }

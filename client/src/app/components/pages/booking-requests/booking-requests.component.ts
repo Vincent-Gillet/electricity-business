@@ -7,10 +7,10 @@ import {
   NgbPaginationLast, NgbPaginationModule,
   NgbPaginationNext, NgbPaginationNumber, NgbPaginationPrevious
 } from "@ng-bootstrap/ng-bootstrap";
-import {BookingService} from '../../../../services/booking/booking.service';
-import {Booking, BookingStatus} from '../../../../models/booking';
 import {Router} from '@angular/router';
-import {BOOKING_STATUS_LABELS} from '../../../../constants/booking-status-labels';
+import {BookingService} from '../../../services/booking/booking.service';
+import {BookingStatus} from '../../../models/booking';
+import {BOOKING_STATUS_LABELS} from '../../../constants/booking-status-labels';
 
 @Component({
   selector: 'app-booking-requests',

@@ -1,5 +1,5 @@
 <div class="table-blue">
-  <form class="row g-3 needs-validation" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
     <div class="mb-3">
       <label for="pseudoUpdateUser" class="form-label">Pseudo *</label>
       <input [value]="user.pseudo" type="text" class="form-control" id="pseudoUpdateUser" formControlName="pseudo" placeholder="John123" required>

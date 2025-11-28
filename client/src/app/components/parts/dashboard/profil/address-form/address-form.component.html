@@ -1,5 +1,5 @@
 <div class="table-blue">
-  <form class="row g-3 needs-validation" [formGroup]="postAddressForm" (ngSubmit)="onSubmit()">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postAddressForm" (ngSubmit)="onSubmit()">
     <div class="mb-3">
       <label for="nameAddressPostAddress" class="form-label">Nom addresse *</label>
       <input [value]="address?.nameAddress || ''" type="text" class="form-control" id="nameAddressPostAddress" formControlName="nameAddress" placeholder="Addresse Principal" required>

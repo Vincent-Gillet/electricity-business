@@ -25,35 +25,12 @@ export class CarService {
   }
 
   createCar(car: any): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-/*
-    const accessToken = token.access_token;
-*/
-    return this.http.post(this.apiUrl, car,
-      {
-        headers: {
-          accept: 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return this.http.post(this.apiUrl, car);
   }
 
   // Mettre à jour une voiture
   updateCar(publicId: string, car: any): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, car,
-      {
-        headers: {
-          accept: 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, car);
   }
 
   // Supprimer une voiture
@@ -63,32 +40,11 @@ export class CarService {
 
   // Supprimer une voiture
   deleteCarPublicId(publicId: string): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`,
-      {
-        headers: {
-          accept: 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
   }
 
   // Récupérer les voitures d'un utilisateur spécifique
   getCarsByUser(): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-    let cars = this.http.get(`${this.apiUrl}/user`,
-      {
-        headers: {
-          accept: 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        }
-      }
-    )
-    return cars;
+    return this.http.get(`${this.apiUrl}/user`);
   }
 }
