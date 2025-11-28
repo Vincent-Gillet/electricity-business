@@ -4,6 +4,10 @@
   --yellow :#FEE900;
 }
 
+text-yellow {
+  color: var(--yellow);
+}
+
 body {
   color: black;
   padding: 0;
@@ -84,9 +88,7 @@ h1 {
 }
 
 
-
-.form-login-subcription {
-
+.form-check {
   .form-check-input:checked {
     background-color: var(--yellow);
     border-color: var(--yellow);
@@ -95,6 +97,9 @@ h1 {
   .form-check-input:checked[type=checkbox] {
     --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23233B6E' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
   }
+}
+
+.form-login-subcription {
 
   .container {
     max-width: 650px;
@@ -171,6 +176,13 @@ main{
   border-radius: 5px;
 }
 
+.btn.button-secondary-style:hover {
+  background-color: var(--blue);
+  color: var(--yellow);
+  text-decoration: none;
+  border: 2px var(--yellow) solid;
+}
+
 /*
 a:not([href]):not([tabindex]):hover,
 */
@@ -184,6 +196,8 @@ a:not([href]):not([tabindex]):hover,
 header, footer {
   background-color: var(--blue);
   padding: 30px 80px;
+
+  display: flex;
 
   .link-logo {
     border: none;
@@ -242,9 +256,9 @@ header, footer {
     vertical-align: middle;
   }
 
-  .case-button a:first-child {
+/*  .case-button a:first-child {
     margin-right: 4px;
-  }
+  }*/
 }
 
 

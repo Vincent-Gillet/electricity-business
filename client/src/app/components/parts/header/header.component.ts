@@ -22,12 +22,12 @@ export class HeaderComponent implements OnInit {
   authInitialized: boolean = false;
 
   links: any[] = [
-    { name: 'Statistiques', path: '/tableau-de-bord' },
-    { name: 'Trouver une borne', path: '/tableau-de-bord/trouver-bornes' },
-    { name: 'Mes réservations', path: '/tableau-de-bord/mes-reservations' },
-    { name: 'Demandes de réservations', path: '/tableau-de-bord/mes-demandes-de-reservation' },
-    { name: 'Lieux de recharge', path: '/tableau-de-bord/lieux-de-recharge' },
-    { name: 'Mes voitures', path: '/tableau-de-bord/mes-voitures' }
+    { name: 'Trouver une borne', path: '/tableau-de-bord/trouver-bornes', ariaLabel: 'Trouver une borne' },
+    { name: 'Mes réservations', path: '/tableau-de-bord/mes-reservations', ariaLabel: 'Voir mes réservations' },
+    { name: 'Demandes de réservations', path: '/tableau-de-bord/mes-demandes-de-reservation', ariaLabel: 'Voir mes demandes de réservations' },
+    { name: 'Lieux de recharge', path: '/tableau-de-bord/lieux-de-recharge', ariaLabel: 'Voir mes lieux de recharge' },
+    { name: 'Mes voitures', path: '/tableau-de-bord/mes-voitures', ariaLabel: 'Voir mes voitures' },
+    { name: 'Mes options', path: '/tableau-de-bord/mes-options', ariaLabel: 'Voir mes options' },
   ]
 
   ngOnInit(): void {
@@ -36,7 +36,7 @@ export class HeaderComponent implements OnInit {
     });
 
     this.authService.user$.subscribe(user => {
-      this.user = user; // Always update, even if null
+      this.user = user;
       console.log('User loaded:', this.user);
       this.authInitialized = true;
     });

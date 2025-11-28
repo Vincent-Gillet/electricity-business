@@ -72,42 +72,40 @@ export class AddressFormComponent {
 
       console.log('Données de connexion:', addressData);
 
-      // 5. Simuler un appel API avec setTimeout
-      // (Dans un vrai projet, ça serait un appel HTTP)
-      setTimeout(() => {
-        if (this.updateAddress) {
-          this.addressService.updateAddressPublicId(this.address.publicId, addressData).subscribe(
-            {
-              next: (response) => {
-                console.log('Adresse mise à jour:', response);
-                this.dialogRef.close();
-                this.router.navigateByUrl('addresses', { skipLocationChange: true }).then(() => {
-                  this.router.navigate(['./tableau-de-bord/mes-adresses']);
-                });
-              },
-              error: (error) => {
-                console.error('Erreur lors de la mise à jour de l\'adresse:', error);
-              }
+      if (this.updateAddress) {
+        this.addressService.updateAddressPublicId(this.address.publicId, addressData).subscribe(
+          {
+            next: (response) => {
+              console.log('Adresse mise à jour:', response);
+              this.dialogRef.close();
+              const currentUrl = this.router.url;
+              this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                this.router.navigateByUrl(currentUrl);
+              });
+            },
+            error: (error) => {
+              console.error('Erreur lors de la mise à jour de l\'adresse:', error);
             }
-          );
-          return;
-        } else {
-          this.addressService.createAddress(addressData).subscribe(
-            {
-              next: (response) => {
-                console.log('Voiture créée:', response);
-                this.dialogRef.close();
-                this.router.navigateByUrl('addresses', { skipLocationChange: true }).then(() => {
-                  this.router.navigate(['./tableau-de-bord/mes-adresses']);
-                });
-              },
-              error: (error) => {
-                console.error('Erreur lors de la création d\'une adresse:', error);
-              }
+          }
+        );
+        return;
+      } else {
+        this.addressService.createAddress(addressData).subscribe(
+          {
+            next: (response) => {
+              console.log('Adresse créée:', response);
+              this.dialogRef.close();
+              const currentUrl = this.router.url;
+              this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                this.router.navigateByUrl(currentUrl);
+              });
+            },
+            error: (error) => {
+              console.error('Erreur lors de la création d\'une adresse:', error);
             }
-          );
-        }
-      }, 1000);
+          }
+        );
+      }
 
     }
 

@@ -4,9 +4,11 @@ import {Terminal} from './terminal';
 
 export interface Place {
   readonly idPlace?: number;
+  readonly publicId?: string;
   instructionPlace: string;
   user?: User;
   media?: Media[];
   terminal?: Terminal[];
-
+  readonly publicIdAddress?: string;
+  nameAddress?: string;
 }

@@ -1,6 +1,7 @@
 import {User} from './user';
 
 export interface Car {
+  readonly idCar?: number;
   readonly publicId?: string;
   licensePlate: string;
   brand: string;

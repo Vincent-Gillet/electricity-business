@@ -1,6 +1,6 @@
 import {HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
 import {inject} from '@angular/core';
-import {AuthService} from '../services/auth/auth.service';
+import {AuthService} from '../../services/auth/auth.service';
 import {BehaviorSubject, catchError, filter, finalize, switchMap, take, throwError} from 'rxjs';
 import {Router} from '@angular/router';
 
@@ -98,7 +98,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
       } else {
         // Pour toutes les autres erreurs HTTP, propager l'erreur
+/*
         console.error('Interceptor: Une autre erreur HTTP non 401 est survenue.', error);
+*/
         return throwError(() => error);
       }
     })

@@ -1,10 +1,10 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {Car} from '../../../../models/car';
-import {CarService} from '../../../../services/car/car.service';
-import {LoaderComponent} from '../../loader/loader.component';
-import {CarComponent} from '../car/car.component';
-import {CarFormComponent} from '../car-form/car-form.component';
 import {MatDialog} from '@angular/material/dialog';
+import {LoaderComponent} from '../../parts/loader/loader.component';
+import {CarComponent} from '../../parts/dashboard/car/car.component';
+import {Car} from '../../../models/car';
+import {CarService} from '../../../services/car/car.service';
+import {CarFormComponent} from '../../parts/dashboard/car-form/car-form.component';
 
 @Component({
   selector: 'app-cars',

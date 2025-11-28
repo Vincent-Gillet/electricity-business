@@ -1,0 +1,27 @@
+<div class="container table-blue">
+  <h2 class="text-center">Mes Option</h2>
+  <div class="row d-flex gy-4">
+    <div class="col text-center">
+      <button class="btn button-style mb-4" (click)="openAddOption()">Ajouter</button>
+    </div>
+  </div>
+  <div class="row">
+    @defer () {
+      @for (option of options; track option.publicId) {
+        <div class="col-md-4 mb-4">
+          <app-option [option]="option"></app-option>
+        </div>
+      }
+    } @loading {
+      <app-loader></app-loader>
+    } @placeholder {
+      <div class="col-md-4 mb-4">
+        <p>Page Mes Options</p>
+      </div>
+    } @error {
+      <div class="col-md-12">
+        <p class="text-danger">Erreur lors du chargement des options.</p>
+      </div>
+    }
+  </div>
+</div>

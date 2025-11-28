@@ -1,11 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {MapTerminalComponent} from '../map-terminal/map-terminal.component';
 import {GeolocationService} from '@ng-web-apis/geolocation';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
-import {NominatimService} from '../../../../services/map/nominatim.service';
-import {TerminalService} from '../../../../services/terminal/terminal.service';
-import {ErrorFromComponent} from '../../error-from/error-from.component';
+import {MapTerminalComponent} from '../../parts/dashboard/map-terminal/map-terminal.component';
+import {LocationSuggestion, NominatimService} from '../../../services/map/nominatim.service';
+import {TerminalService} from '../../../services/terminal/terminal.service';
+import {debounceTime, distinctUntilChanged} from 'rxjs';
 
 @Component({
   selector: 'app-find-terminal',
@@ -33,6 +33,10 @@ export class FindTerminalComponent implements OnInit {
 
   long: number = 2.287592;
   lat: number = 48.862725;
+
+  locationSuggestions: LocationSuggestion[] = [];
+  showSuggestions: boolean = false;
+  isLoading: boolean = false;
 
   public startingDateSearch: Date = new Date();
   public endingDateSearch: number;
@@ -69,6 +73,13 @@ export class FindTerminalComponent implements OnInit {
     console.log("endingDateSearch : " + this.endingDateSearch);
 
     this.initializeGeolocation();
+
+    this.searchTerminalForm.get('address')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.onAddressInput();
+    });
   }
 
   private initializeGeolocation() {
@@ -195,4 +206,51 @@ export class FindTerminalComponent implements OnInit {
     this.searchTerminalForm.reset();
     this.initializeGeolocation();
   }
+
+
+  /**
+   * Recherche d'adresse au fur et à mesure de la saisie
+   */
+  onAddressInput(): void {
+    const address = this.searchTerminalForm.get('address')?.value;
+    if (!address || address.length < 3) {
+      this.locationSuggestions = [];
+      this.showSuggestions = false;
+      return;
+    }
+
+    this.isLoading = true;
+    this.showSuggestions = true;
+
+    this.nominatimService.searchLocations(address).subscribe({
+      next: (locations) => {
+        this.locationSuggestions = locations;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors de la recherche:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Sélection d'une suggestion d'adresse
+   */
+  selectSuggestion(suggestion: LocationSuggestion): void {
+    this.searchTerminalForm.patchValue({
+      address: suggestion.display_name
+    });
+    this.lat = parseFloat(suggestion.lat);
+    this.long = parseFloat(suggestion.lon);
+    this.showSuggestions = false;
+    this.chargerTerminals(this.getDefaultParams());
+  }
+
+  closeSuggestions(): void {
+    setTimeout(() => {
+      this.showSuggestions = false;
+    }, 200);
+  }
+
 }

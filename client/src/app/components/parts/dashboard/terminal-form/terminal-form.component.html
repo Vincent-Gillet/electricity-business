@@ -1,0 +1,54 @@
+<div class="table-blue">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postTerminalForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="nameTerminalPostTerminal" class="form-label">Nom borne *</label>
+      <input [value]="terminal?.nameTerminal || ''" type="text" class="form-control" id="nameTerminalPostPlace" formControlName="nameTerminal" placeholder="Borne 1" required>
+      <app-error-from [fieldName]="'nameTerminal'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="latitudePostPlace" class="form-label">Latitude *</label>
+      <input [value]="terminal?.latitude || ''" type="number" class="form-control" id="latitudePostPlace" formControlName="latitude" placeholder="48.866667" required>
+      <app-error-from [fieldName]="'latitude'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="longitudePostPlace" class="form-label">Longitude *</label>
+      <input [value]="terminal?.longitude || ''" type="number" class="form-control" id="longitudePostPlace" formControlName="longitude" placeholder="2.333333" required>
+      <app-error-from [fieldName]="'longitude'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="pricePostPlace" class="form-label">Prix (€) *</label>
+      <input [value]="terminal?.price || ''" type="number" class="form-control" id="pricePostPlace" formControlName="price" placeholder="1.5" required>
+      <app-error-from [fieldName]="'price'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="powerPostPlace" class="form-label">Puissance (kWh) *</label>
+      <input [value]="terminal?.power || ''" type="number" class="form-control" id="powerPostPlace" formControlName="power" placeholder="22" required>
+      <app-error-from [fieldName]="'power'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="instructionTerminalPostPlace" class="form-label">Instruction *</label>
+      <input [value]="terminal?.instructionTerminal || ''" type="text" class="form-control" id="instructionTerminalPostPlace" formControlName="instructionTerminal" placeholder="Entrer dans la cour ..." required>
+      <app-error-from [fieldName]="'instructionTerminal'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <div class="form-check">
+        <label for="standingPostPlace" class="form-label">Borne sur pied *</label>
+        <input [value]="terminal?.standing || ''" type="checkbox" class="form-check-input" id="standingPostPlace" formControlName="standing" placeholder="Sur pied" required>
+        <app-error-from [fieldName]="'standing'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="statusTerminalPostPlace" class="form-label">Status Borne *</label>
+      <select class="form-control" id="statusTerminalPostPlace" formControlName="statusTerminal" required>
+        @for (status of terminalStatuses; track status) {
+          <option [value]="status" [selected]="terminal?.statusTerminal === status">{{ terminalStatusLabels[status] || status }}</option>
+        }
+      </select>
+      <app-error-from [fieldName]="'statusTerminal'" [nameFormGroup]="postTerminalForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="col-12 d-flex justify-content-around">
+      <button class="btn button-style" type="submit">Valider</button>
+      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+    </div>
+  </form>
+</div>

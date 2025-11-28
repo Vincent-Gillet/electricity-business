@@ -1,0 +1,23 @@
+<div class="table-blue">
+  <form class="row g-3 needs-validation" [formGroup]="postPlaceForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="addressPostPlace" class="form-label">Adresse *</label>
+      <select class="form-select" formControlName="publicIdAddress" id="addressTypePostPlace" required>
+        @for (address of addresses; track address.publicId) {
+          <option [value]="address.publicId" [selected]="place?.publicIdAddress === address.publicId">{{ address.nameAddress }}</option>
+        }
+      </select>
+      <app-error-from [fieldName]="'address'" [nameFormGroup]="postPlaceForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="instructionPlacePostPlace" class="form-label">Instruction *</label>
+      <input [value]="place?.instructionPlace || ''" type="text" class="form-control" id="instructionPlacePostPlace" formControlName="instructionPlace" placeholder="Entrer dans la cour ..." required>
+      <app-error-from [fieldName]="'instructionPlace'" [nameFormGroup]="postPlaceForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="col-12 d-flex justify-content-around">
+      <button class="btn button-style" type="submit">Valider</button>
+      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+    </div>
+  </form>
+</div>
+

@@ -1,10 +1,10 @@
 <h1>Inscription</h1>
 <section class="form-login-subcription" [formGroup]="subscirbeForm" (ngSubmit)="onSubmit()">
   <div class="container table-blue">
-    <form class="row g-3 needs-validation" novalidate>
+    <form role="form" class="row g-3 needs-validation" novalidate>
       <div class="col-md-6">
         <label for="firstNameSubscription" class="form-label">Prénom *</label>
-        <input type="text" class="form-control" id="firstNameSubscription" formControlName="firstName" value="" placeholder="Prénom" required>
+        <input  type="text" class="form-control" id="firstNameSubscription" formControlName="firstName" value="" placeholder="Prénom" required>
         <app-error-from [fieldName]="'firstName'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
       </div>
       <div class="col-md-6">
@@ -13,9 +13,9 @@
         <app-error-from [fieldName]="'surnameUser'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
       </div>
       <div class="col-md-6">
-        <label for="usernameSubscription" class="form-label">Pseudo *</label>
-        <input type="text" class="form-control" id="usernameSubscription" formControlName="username" value="" placeholder="Pseudo" required>
-        <app-error-from [fieldName]="'username'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
+        <label for="pseudoSubscription" class="form-label">Pseudo *</label>
+        <input type="text" class="form-control" id="pseudoSubscription" formControlName="pseudo" value="" placeholder="Pseudo" required>
+        <app-error-from [fieldName]="'pseudo'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
       </div>
       <div class="col-md-6">
         <label for="dateOfBirthSubscription" class="form-label">Date de naissance *</label>

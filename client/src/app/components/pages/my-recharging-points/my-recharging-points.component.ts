@@ -1,10 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {MyRechargingPointComponent} from '../my-recharging-point/my-recharging-point.component';
-import {LoaderComponent} from '../../loader/loader.component';
 import {MatDialog} from '@angular/material/dialog';
-import {Place} from '../../../../models/place';
-import {PlaceService} from '../../../../services/place/place.service';
-import {MyRechargingPointFormComponent} from '../my-recharging-point-form/my-recharging-point-form.component';
+import {LoaderComponent} from '../../parts/loader/loader.component';
+import {MyRechargingPointComponent} from '../../parts/dashboard/my-recharging-point/my-recharging-point.component';
+import {Place} from '../../../models/place';
+import {PlaceService} from '../../../services/place/place.service';
+import {MyRechargingPointFormComponent} from '../../parts/dashboard/my-recharging-point-form/my-recharging-point-form.component';
+
 import {
   NgbPagination,
   NgbPaginationEllipsis,

@@ -39,6 +39,40 @@ export class TerminalService {
 
   getTerminalsNearby(param: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/search-terminals?${param}`);
+
+/*    return this.http.get(`${this.apiUrl}/search-terminals?${param}` , {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );*/
+  }
+
+  // Méthode publicId
+
+  createTerminalByPublicId(terminal: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/place`, terminal);
+  }
+
+  // Mettre à jour une voiture
+  updateTerminalByPublicId(publicId: string, terminal: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, terminal);
+  }
+
+  // Supprimer une voiture
+  deleteTerminalByPublicId(publicId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
+  }
+
+  // Récupérer les bornes d'un lieu spécifique
+  getTerminalsByPlace(publicIdPlace: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/place/${publicIdPlace}`);
+  }
+
+  getTerminalStatuses() {
+    return this.http.get(`${this.apiUrl}/statuses`);
   }
 
 }

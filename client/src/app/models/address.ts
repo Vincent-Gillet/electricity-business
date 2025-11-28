@@ -2,6 +2,7 @@ import {User} from './user';
 import {Place} from './place';
 
 export interface Address {
+  readonly idAddress?: number;
   readonly publicId?: string;
   nameAddress: string;
   address: string;

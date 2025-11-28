@@ -3,6 +3,12 @@ import {MapComponent, MarkerComponent, PopupComponent} from '@maplibre/ngx-mapli
 import {CommonModule, NgStyle} from '@angular/common';
 import {NavigationControl} from 'maplibre-gl';
 import {GeolocationService} from '@ng-web-apis/geolocation';
+import {BookingService} from '../../../../services/booking/booking.service';
+import {Terminal} from '../../../../models/terminal';
+import {AddressFormComponent} from '../profil/address-form/address-form.component';
+import {MatDialog} from '@angular/material/dialog';
+import {BookingFormComponent} from '../booking-form/booking-form.component';
+import {TerminalFormComponent} from '../terminal-form/terminal-form.component';
 
 @Component({
   selector: 'app-map-terminal',
@@ -26,9 +32,15 @@ export class MapTerminalComponent implements OnInit{
 /*  @Input() long: number = 2.287592;
   @Input() lat: number = 48.862725;*/
 
+  bookingService: BookingService = inject(BookingService);
+
   @Input() long: number;
   @Input() lat: number;
+  @Input() startingDateSearch: Date;
+  @Input() endingDateSearch: number;
+
   private geolocation: GeolocationService = inject(GeolocationService);
+  private dialog: MatDialog = inject(MatDialog);
 
   ngOnInit() {
 
@@ -58,5 +70,9 @@ export class MapTerminalComponent implements OnInit{
   }
 
   // Bouton de réservation
-  modalReservation() {}
+  modalReservation(terminal: Terminal): void {
+    this.dialog.open(BookingFormComponent, {
+      data: { booking: null, terminal, startingDateSearch: this.startingDateSearch, endingDateSearch: this.endingDateSearch }
+    })
+  }
 }

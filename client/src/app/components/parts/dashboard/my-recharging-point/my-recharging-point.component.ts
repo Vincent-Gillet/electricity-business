@@ -1,8 +1,6 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {ElectricalChargePortComponent} from '../electrical-charge-port/electrical-charge-port.component';
 import {Terminal} from '../../../../models/terminal';
 import {TerminalService} from '../../../../services/terminal/terminal.service';
-import {NgForOf} from '@angular/common';
 import {AddressService} from '../../../../services/address/address.service';
 import {Address} from '../../../../models/address';
 import {Place} from '../../../../models/place';
@@ -10,13 +8,15 @@ import {MyRechargingPointFormComponent} from '../my-recharging-point-form/my-rec
 import {MatDialog} from '@angular/material/dialog';
 import {PlaceService} from '../../../../services/place/place.service';
 import {Router} from '@angular/router';
+import {TerminalComponent} from '../terminal/terminal.component';
+import {TerminalFormComponent} from '../terminal-form/terminal-form.component';
+import {GlobalErrorService} from '../../../../services/global-error/global-error.service';
 
 @Component({
   selector: 'app-my-recharging-point',
   standalone: true,
   imports: [
-    ElectricalChargePortComponent,
-    NgForOf
+    TerminalComponent
   ],
   templateUrl: './my-recharging-point.component.html',
   styleUrl: './my-recharging-point.component.scss'
@@ -27,6 +27,8 @@ export class MyRechargingPointComponent implements OnInit {
   private router: Router;
   @Input() public place: Place;
   private dialog: MatDialog = inject(MatDialog);
+  private globalError: GlobalErrorService = inject(GlobalErrorService);
+  public isLoading: boolean = false;
 
   private termianlService: TerminalService = inject(TerminalService);
   private addressService: AddressService = inject(AddressService);
@@ -39,10 +41,17 @@ export class MyRechargingPointComponent implements OnInit {
       }
     );
 
-    this.termianlService.getTerminals().subscribe(
-      terminals => {
-        this.terminals = terminals;
+    this.isLoading = true;
+    this.globalError.clearError();
+    this.termianlService.getTerminalsByPlace(this.place.publicId).subscribe(
+      {
+        next: (terminals) => {
+          this.terminals = terminals;
+        }
       }
+/*      terminals => {
+        this.terminals = terminals;
+      }*/
     );
   }
 
@@ -80,8 +89,8 @@ export class MyRechargingPointComponent implements OnInit {
       console.log('publicId de la voiture à supprimer :', this.place.publicId);
       this.placeService.deletePlaceByPublicId(this.place.publicId).subscribe();
       this.overlay.remove();
-      this.router.navigateByUrl('cars', {skipLocationChange: true}).then(() => {
-        this.router.navigate(['./tableau-de-bord/mes-voitures']);
+      this.router.navigateByUrl('places', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['./tableau-de-bord/lieux-de-recharge']);
       });
     })
 
@@ -91,7 +100,21 @@ export class MyRechargingPointComponent implements OnInit {
     })
   }
 
-  clickAddTerminal() {
+  clickAddTerminal(place : Place) {
+    this.dialog.open(TerminalFormComponent, {
+      data: { terminal: null, place }
+    })
+  }
 
+  // Charger plus ou moins de bornes
+
+  loadAll: boolean = false;
+
+  loadMore() {
+    this.loadAll = true;
+  }
+
+  loadLess() {
+    this.loadAll = false;
   }
 }

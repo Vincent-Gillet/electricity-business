@@ -1,19 +1,56 @@
 <section id="rechercher_borne" class="form-login-subcription">
   <div class="container table-blue">
     <h2 class="text-center">Trouver une borne</h2>
-    <form class="row g-3 needs-validation" novalidate [formGroup]="searchTerminalForm" (ngSubmit)="onSubmit()">
-      <div class="col-md-4">
+    <form class="row g-3 needs-validation" novalidate [formGroup]="searchTerminalForm" (ngSubmit)="onSubmit()" style="position: relative; z-index: 1000;">
+<!--      <div class="col-md-4">
         <label for="addressSearch" class="form-label">Adresse *</label>
         <input type="text" class="form-control" id="addressSearch" formControlName="address" placeholder="10 Rue Philippe Marcombes" required>
+      </div>-->
+
+      <div class="col-md-4 position-relative">
+        <label for="addressSearch" class="form-label">Adresse *</label>
+        <input
+          type="text"
+          class="form-control"
+          id="addressSearch"
+          formControlName="address"
+          placeholder="10 Rue Philippe Marcombes"
+          required
+          (blur)="closeSuggestions()"
+          autocomplete="off"
+        >
+
+        <!-- Indicateur de chargement -->
+        @if (isLoading) {
+          <div class="position-absolute top-50 end-0 translate-middle-y me-2">
+            <div class="spinner-border spinner-border-sm text-secondary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+        }
+
+        <!-- Liste des suggestions -->
+        @if (showSuggestions && locationSuggestions.length > 0) {
+          <div class="position-absolute z-index-9999 w-100 mt-1 bg-white border rounded shadow-sm">
+            <div class="list-group list-group-flush">
+              @for (suggestion of locationSuggestions; track suggestion) {
+                <button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        (mousedown)="selectSuggestion(suggestion)">
+                  {{ suggestion.display_name }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
       </div>
+
       <div class="col-md-4">
         <label for="startingDateSearch" class="form-label">Date de debut</label>
         <input [min]="minDateTimeString" [max]="maxDateTimeString" type="datetime-local" class="form-control" id="startingDateSearch" formControlName="startingDate" required>
       </div>
-<!--      <div class="col-md-4">
-        <label for="endingDateSearch" class="form-label">Date de fin</label>
-        <input [min]="minDateTimeString" [max]="maxDateTimeString" type="datetime-local" class="form-control" id="endingDateSearch" formControlName="endingDate" required>
-      </div>-->
       <div class="col-md-4">
         <label for="endingDateSearch" class="form-label">Durée de la réservation *</label>
         <select class="form-control" id="endingDatePost" formControlName="endingDate" required>
@@ -23,14 +60,6 @@
           <option value="60">1 heure</option>
         </select>
       </div>
-<!--      <div class="col-md-2 d-flex align-items-end form-check form-switch">
-        <div>
-
-          <label for="dateFinRecherche" class="form-label">Disponibles</label>
-          <input mdbCheckbox class="form-check-input" type="checkbox" id="dateFinRecherche" formControlName="occupied" />
-        </div>
-
-      </div>-->
       <div class="col-12 div-center">
         <button class="btn button-style" type="submit">Rechercher</button>
         <button class="btn button-style ms-2" (click)="onReset()">Réinitialiser</button>

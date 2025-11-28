@@ -25,7 +25,7 @@
           <h3>{{ terminal.nameTerminal | titlecase }}</h3>
           <p>Tarif: {{ terminal.price | currency:'EUR' }}</p>
           <p>Puissance: {{ terminal.power }} kW</p>
-          <button (click)="modalReservation()" class="btn button-style">Réserver</button>
+          <button (click)="modalReservation(terminal)" class="btn button-style">Réserver</button>
         </mgl-popup>
       }
     </mgl-marker>

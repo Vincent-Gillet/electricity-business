@@ -33,7 +33,7 @@ export class SubscriptionComponent {
       {
         firstName: ['', [Validators.required]],
         surnameUser: ['', [Validators.required]],
-        username: ['', [Validators.required]],
+        pseudo: ['', [Validators.required]],
         dateOfBirth: ['', [Validators.required]],
         phone: ['', [Validators.required]],
         emailUser: ['', [Validators.required, Validators.email]],  // Champ nommé email, requis, contrainte EMAIL
@@ -91,7 +91,7 @@ export class SubscriptionComponent {
               console.log('User login successfully:', response);
               const localArray = [];
               localArray.push(response);
-              localStorage.setItem("tokenStorage", JSON.stringify(localArray));
+              sessionStorage.setItem("tokenStorage", JSON.stringify(localArray));
               this.router.navigate(['/connexion']);
             },
             error: (error) => {
