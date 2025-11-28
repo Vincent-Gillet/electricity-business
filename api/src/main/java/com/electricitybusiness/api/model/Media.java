@@ -3,9 +3,7 @@ package com.electricitybusiness.api.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +21,7 @@ public class Media {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_media")
+    @EqualsAndHashCode.Include
     private Long idMedia;
 
     @Column(name = "name_media", length = 100, nullable = false)
@@ -47,18 +46,40 @@ public class Media {
     @NotNull(message = "La date de création est obligatoire")
     private LocalDateTime dateCreation = LocalDateTime.now();
 
-    @ManyToOne
+/*    @ManyToOne
     @JoinColumn(name = "id_options")
-    private Option options;
+    private Option options;*/
 
+    @ManyToMany(mappedBy = "medias")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Option> options;
+
+/*
     @ManyToOne
     @JoinColumn(name = "id_terminal")
     private Terminal terminal;
+*/
 
     @ManyToMany(mappedBy = "medias")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Terminal> terminals;
+
+    @ManyToMany(mappedBy = "medias")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Place> places;
 
-    @OneToOne
+/*    @OneToOne
     @JoinColumn(name = "id_user")
+    private User user;*/
+
+/*    @OneToOne(mappedBy = "media")
+    private User user;*/
+    @OneToOne(mappedBy = "media", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private User user;
+
 }

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class RepairerController {
      * @return Une liste de tous les réparateurs
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<RepairerDTO>> getAllRepairers() {
         List<Repairer> repairers = repairerService.getAllRepairers();
         List<RepairerDTO> repairersDTO = repairers.stream()

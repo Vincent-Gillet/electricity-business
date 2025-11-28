@@ -1,11 +1,14 @@
 package com.electricitybusiness.api.config;
 
+import com.electricitybusiness.api.mapper.IEntityMapper;
 import com.electricitybusiness.api.repository.UserRepository;
 import com.electricitybusiness.api.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,6 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity
@@ -33,6 +39,8 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
 
+    private final IEntityMapper entityMapper; // Interface, pas l'implémentation
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -40,32 +48,40 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/auth/login",
-                                "/api/users/**",
+                                "/api/auth/login"
+/*                                "/api/users/**",
                                 "/api/terminals/**",
                                 "/api/options/**",
                                 "/api/bookings/**",
                                 "/api/medias/**",
-                                "/api/cars/**",
-                                "/api/addresses/**"
-
-
+                                "/api/cars/**"*/
 
                         ).permitAll()
+                        .requestMatchers(OPTIONS, "/**").permitAll()
+                        .requestMatchers(POST,
+                                "/api/auth/login",
+                                "/api/users"
+                        ).permitAll()
                         .requestMatchers(
-                                "/api/places/**"
-
-                        ).authenticated()
-                        .requestMatchers(
-                                "/api/user/**"
+                                "/api/addresses/**",
+                                "/api/places/**",
 /*
-                                "/api/addresses/**"
+                                "/api/users/**",
 */
-                        ).hasAnyAuthority("UTILISATEUR")
+                                "/api/terminals/**",
+                                "/api/options/**",
+                                "/api/bookings/**",
+                                "/api/medias/**",
+                                "/api/cars/**"
+
+                        ).hasAnyAuthority("USER", "ADMIN")
+/*                        .requestMatchers(
+
+                        ).hasAnyAuthority("USER", "ADMIN")*/
                         .requestMatchers(
                                 "/api/admin/**",
                                 "/api/repairers/**"
-                        ).hasAnyAuthority("ADMINISTRATEUR")
+                        ).hasRole("ADMIN")
 
 
                         .anyRequest().authenticated()
@@ -99,5 +115,21 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Lazy
+    @Autowired
+    public SecurityConfig(
+        IEntityMapper entityMapper,
+        UserRepository userRepository,
+        CustomUserDetailService userDetailsService,
+        JwtService jwtService,
+        JwtAuthFilter jwtAuthFilter
+    ) {
+        this.entityMapper = entityMapper;
+        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
+        this.jwtService = jwtService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 }

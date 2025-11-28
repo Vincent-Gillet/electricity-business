@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
@@ -33,6 +34,7 @@ public class MediaController {
      * @return Une liste de tous les médias
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<MediaDTO>> getAllMedias() {
         List<Media> medias = mediaService.getAllMedias();
         List<MediaDTO> mediasDTO = medias.stream()
@@ -47,6 +49,7 @@ public class MediaController {
      * @return Le média correspondant à l'ID, ou un statut HTTP 404 Not Found si non trouvé
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<MediaDTO> getMediaById(@PathVariable Long id) {
         return mediaService.getMediaById(id)
                 .map(medias -> ResponseEntity.ok(mapper.toDTO(medias)))
@@ -60,6 +63,7 @@ public class MediaController {
      * @return Le média créé avec un statut HTTP 201 Created
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<MediaDTO> saveMedia(@Valid @RequestBody MediaDTO mediaDTO) {
         Media media = mapper.toEntity(mediaDTO);
         Media savedMedia = mediaService.saveMedia(media);
@@ -72,8 +76,7 @@ public class MediaController {
     @PostMapping("/profil")
     public ResponseEntity<MediaDTO> createMedia(@RequestBody MediaDTO mediaDTO, Principal principal) {
         String email = principal.getName(); // Get email from JWT
-        User user = userService.findByUserEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found")); // Extract User
+        User user = userService.getUserByEmail(email);
         mediaDTO.setIdUser(user.getIdUser()); // Associate media with user
         Media media = mapper.toEntity(mediaDTO); // Convert DTO to entity
         media.setUser(user); // Associate with user
@@ -103,8 +106,7 @@ public class MediaController {
     @PutMapping("/profil/update/{id}")
     public ResponseEntity<MediaDTO> updateMedia(@PathVariable Long id, @RequestBody MediaDTO mediaDTO, Principal principal) {
         String email = principal.getName();
-        userService.findByUserEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        userService.getUserByEmail(email);
         Media existingMedia = mediaService.getMediaById(id)
                 .orElseThrow(() -> new RuntimeException("Media not found"));
         Media updatedMediaEntity = mapper.toEntity(mediaDTO, existingMedia);

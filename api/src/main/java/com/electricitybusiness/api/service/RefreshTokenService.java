@@ -1,15 +1,14 @@
 package com.electricitybusiness.api.service;
 
 
-import com.electricitybusiness.api.dto.UserDTO;
+import com.electricitybusiness.api.dto.user.UserDTO;
 import com.electricitybusiness.api.model.RefreshToken;
 import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.RefreshTokenRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -116,8 +115,37 @@ public class RefreshTokenService {
      * - Le token n’est pas expiré.
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            // Extrait tous les claims une seule fois.
+            // Si le token est expiré ou invalide, une exception sera levée ici.
+            Claims claims = extractAllClaims(token);
+            final String username = claims.getSubject();
+            final Date expiration = claims.getExpiration();
+
+            // Vérifie le nom d'utilisateur et que le token n'est pas expiré
+            return (username.equals(userDetails.getUsername()) && !expiration.before(new Date()));
+
+        } catch (ExpiredJwtException e) {
+            // Le token est expiré.
+            System.out.println("Validation JWT : Le token est expiré pour l'utilisateur: " + userDetails.getUsername() + ". Message: " + e.getMessage());
+            return false;
+        } catch (SignatureException e) {
+            // La signature du token est invalide.
+            System.out.println("Validation JWT : Signature du token invalide pour l'utilisateur: " + userDetails.getUsername() + ". Message: " + e.getMessage());
+            return false;
+        } catch (MalformedJwtException e) {
+            // Le token est mal formé.
+            System.out.println("Validation JWT : Token mal formé pour l'utilisateur: " + userDetails.getUsername() + ". Message: " + e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            // Le token est vide ou null.
+            System.out.println("Validation JWT : Token vide ou argument illégal pour l'utilisateur: " + userDetails.getUsername() + ". Message: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            // Capture toute autre exception inattendue.
+            System.out.println("Validation JWT : Erreur inattendue pour l'utilisateur: " + userDetails.getUsername() + ". Message: " + e.getMessage());
+            return false;
+        }
     }
 
     /**

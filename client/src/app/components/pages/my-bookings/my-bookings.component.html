@@ -1,0 +1,105 @@
+<section id="my-reservations">
+  <div class="container table-blue">
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <h2>Mes réservations</h2>
+      </div>
+    </div>
+    <form class="row g-3 needs-validation" novalidate [formGroup]="searchBookingForm" (ngSubmit)="onSubmit()">
+      <div class="row row-md-3 d-flex align-items-center justify-content-center gy-2">
+<!--        <div class="col-xl-3 col-sm-12 justify-content-center">
+          <p class="m-0 text-center">Filter <i class="fa-solid fa-filter"></i></p>
+        </div>-->
+        <div class="col-xl-3 col-sm-12 d-flex flex-column align-items-center justify-content-center">
+          <div class="row">
+            <label for="startingDateSearchMyBooking" class="form-label">Date de début</label></div>
+          <div class="row">
+            <input type="datetime-local" name="date_start" class="form-control" id="startingDateSearchMyBooking" formControlName="startingDate">
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-12 d-flex flex-column align-items-center justify-content-center">
+          <div class="row">
+            <label for="endingDateSearchMyBooking">Date de fin</label></div>
+          <div class="row">
+            <input type="datetime-local" class="form-control" id="endingDateSearchMyBooking" formControlName="endingDate">
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-12 d-flex flex-column align-items-center justify-content-center form-check form-switch">
+          <div>
+            <label for="orderBooking" class="form-label">Ordre croissant</label>
+            <input mdbCheckbox type="checkbox" class="form-check-input" name="orderBooking" id="orderBooking" formControlName="orderBooking">
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-12 d-flex flex-column align-items-center justify-content-center">
+            <label for="statusBooking">Statut</label>
+            <select class="form-control" id="statusBooking" formControlName="statusBooking">
+              @for (status of statusBookings; track status) {
+                <option [value]="status">{{status}}</option>
+              }
+            </select>
+        </div>
+      </div>
+      <div class="col-12 div-center text-center">
+        <button class="btn button-style" type="submit">Rechercher</button>
+        <button class="btn button-style ms-2" (click)="onReset()">Réinitialiser</button>
+      </div>
+    </form>
+    <div class="row">
+      <div class="col container-table">
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th scope="col">Date et heure début</th>
+            <th scope="col">Date et heure fin</th>
+            <th scope="col">Borne ; Lieu ; Ville ; Utilisateur</th>
+            <th scope="col">Montant réglé</th>
+            <th scope="col">Statut</th>
+            <th scope="col">Reçu</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (booking of bookings.slice((page-1) * pageSize, page * pageSize); track booking.publicId ) {
+              <tr>
+                <td>{{booking.startingDate | date:'dd/MM/yyyy - HH:mm'}}</td>
+                <td>{{booking.endingDate | date:'dd/MM/yyyy - HH:mm'}}</td>
+                <td>Borne {{booking.publicId}}; {{booking.addressDTO.address}}; {{booking.addressDTO.city}}; {{booking.userOwnerDTO.firstName}} {{booking.userOwnerDTO.surnameUser}}</td>
+                <td>{{booking.totalAmount | currency:"EUR"}}</td>
+                <td>{{bookingStatusLabels[booking.statusBooking]}}</td>
+                <td class="case-button">
+                  @if (booking.statusBooking === 'ACCEPTEE') {
+                    <a class="btn button-secondary-style" (click)="downloadPdf(booking.publicId)">PDF</a>
+                  }
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row justify-content-center gy-1">
+      <div class="col-12 col-sm-6 text-center">
+        <a class="btn button-style" href="/tableau-de-bord/trouver-bornes">Effectuer une réservation</a>
+      </div>
+      <div class="col-12 col-sm-6 text-center">
+        <a class="btn button-style" (click)="downloadExcel()">Tout Exporter (format Excel)</a>
+      </div>
+    </div>
+    <!--
+      Pagination
+    -->
+    @if (bookings.length > pageSize) {
+        <ngb-pagination [(page)]="page"
+                        [pageSize]="pageSize"
+                        [collectionSize]="numElement"
+                        (pageChange)="done()">
+          <ng-template ngbPaginationFirst>First</ng-template>
+          <ng-template ngbPaginationLast>Last</ng-template>
+          <ng-template ngbPaginationPrevious>Prev</ng-template>
+          <ng-template ngbPaginationNext>Next</ng-template>
+          <ng-template ngbPaginationEllipsis>...</ng-template>
+          <ng-template ngbPaginationNumber let-page>{{ page }}</ng-template>
+        </ngb-pagination>
+    }
+  </div>
+</section>
