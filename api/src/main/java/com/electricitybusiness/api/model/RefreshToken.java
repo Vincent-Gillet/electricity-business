@@ -20,7 +20,7 @@ public class RefreshToken {
     private String idRefreshToken;
 
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
 }

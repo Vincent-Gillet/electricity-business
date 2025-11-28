@@ -41,6 +41,10 @@ public class Car {
     private String model;
 
     @Past(message = "L'année de fabrication doit être dans le passé")
+/*
+    @Column(columnDefinition = "YEAR")
+*/
+    @Column(name = "\"year\"")
     private Year year;
 
     @Column(name = "battery_capacity")

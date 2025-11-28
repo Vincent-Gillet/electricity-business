@@ -1,10 +1,12 @@
 package com.electricitybusiness.api.service;
 
+import com.electricitybusiness.api.dto.address.AddressDTO;
+import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Address;
-import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Transactional
 public class AddressService {
     private final AddressRepository addressRepository;
+    private final EntityMapper entityMapper;
 
     /**
      * Récupère toutes les addresss.
@@ -123,5 +126,11 @@ public class AddressService {
             address.setUser(existingUser);
         }
         return addressRepository.save(address);
+    }
+
+    public ResponseEntity<AddressDTO> getAddressDTOByPublicId(UUID publicId) {
+        return addressRepository.findByPublicId(publicId)
+                .map(address -> ResponseEntity.ok(entityMapper.toDTO(address)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

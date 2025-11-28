@@ -1,7 +1,6 @@
 package com.electricitybusiness.api.repository;
 
 import com.electricitybusiness.api.model.Address;
-import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -24,4 +23,7 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     Optional<Address> findByPublicId(UUID publicId);
 
+/*
+    Optional<AddressDTO> findDTOByPublicId(UUID publicId);
+*/
 }

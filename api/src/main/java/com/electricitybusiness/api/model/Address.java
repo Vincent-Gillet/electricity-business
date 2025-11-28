@@ -1,11 +1,14 @@
 package com.electricitybusiness.api.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -52,14 +55,18 @@ public class Address {
     @Column(name = "complement", length = 200)
     private String complement;
 
-    @Column(name = "floor", length = 10)
+    @Column(name = "floor", length = 100)
     private String floor;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_place")
-    private Place place;
+    @Column(name = "main_address")
+    private Boolean mainAddress;
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
+    private List<Place> places;
 
     @ManyToOne
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "id_user", nullable = false)
     private User user;
 }

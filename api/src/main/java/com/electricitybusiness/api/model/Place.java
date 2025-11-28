@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Entité représentant un lieu dans le système.
@@ -24,6 +25,9 @@ public class Place {
     @Column(name = "id_place")
     private Long idPlace;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
+
     @Column(name = "instruction_place", columnDefinition = "TEXT")
     private String instructionPlace;
 
@@ -39,8 +43,7 @@ public class Place {
     )
     private Set<Media> medias = new HashSet<>();
 
-
-    @OneToMany(mappedBy = "place")
-    private Set<Terminal> terminals = new HashSet<>();
-
+    @ManyToOne
+    @JoinColumn(name="id_address", nullable=false)
+    private Address address;
 }

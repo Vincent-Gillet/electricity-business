@@ -1,18 +1,15 @@
 package com.electricitybusiness.api.controller;
 
-import com.electricitybusiness.api.dto.CarCreateDTO;
-import com.electricitybusiness.api.dto.CarDTO;
-import com.electricitybusiness.api.dto.UserDTO;
+import com.electricitybusiness.api.dto.car.CarCreateDTO;
+import com.electricitybusiness.api.dto.car.CarDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.service.CarService;
-import com.electricitybusiness.api.service.JwtService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.electricitybusiness.api.model.User;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,7 +31,6 @@ public class CarController {
     private final CarService carService;
     private final EntityMapper mapper;
     private final UserService userService;
-    private final JwtService jwtService;
 
     /**
      * Récupère tous les Cars.
@@ -43,6 +38,7 @@ public class CarController {
      * @return Une liste de tous les véhicules
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<CarDTO>> getAllCars() {
         List<Car> cars = carService.getAllCars();
         List<CarDTO> CarsDTO = cars.stream()
@@ -58,6 +54,7 @@ public class CarController {
      * @return Le véhicule correspondant à l'ID, ou un statut HTTP 404 Not Found si non trouvé
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CarDTO> getCarById(@PathVariable Long id) {
         return carService.getCarById(id)
                 .map(Car -> ResponseEntity.ok(mapper.toDTO(Car)))
@@ -71,6 +68,7 @@ public class CarController {
      * @return Le véhicule créé avec un statut HTTP 201 Created
      */
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CarDTO> saveCar(@Valid @RequestBody CarCreateDTO carDTO) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -87,7 +85,6 @@ public class CarController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
 
     /**
@@ -98,6 +95,7 @@ public class CarController {
      * @return La voiture mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CarDTO> updateCar(@PathVariable Long id, @Valid @RequestBody CarCreateDTO carDTO) {
         if (!carService.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -116,6 +114,7 @@ public class CarController {
      * @return Une réponse vide avec le statut 204 No Content si la voiture a été supprimé, ou 404 Not Found si le véhicule n'existe pas
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
         if (!carService.existsById(id)) {
             return ResponseEntity.notFound().build();
@@ -130,13 +129,13 @@ public class CarController {
      * @return Une liste de tous les véhicules
      */
     @GetMapping("/user")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<CarDTO>> getAllCarsByUser() {
         // Récupérer l'utilisateur authentifié
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Long idUser = userService.getIdByEmailUser(email);
-        User user = userService.getUserById(idUser)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User user = userService.getUserById(idUser);
 
         // Récupérer les voitures de l'utilisateur
         List<Car> cars = carService.getCarsByUser(user);
@@ -153,6 +152,7 @@ public class CarController {
      * @return Une réponse vide avec le statut 204 No Content si la voiture a été supprimé, ou 404 Not Found si le véhicule n'existe pas
      */
     @DeleteMapping("publicId/{publicId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteCar(@PathVariable UUID publicId) {
         if (!carService.existsByPublicId(publicId)) {
             return ResponseEntity.notFound().build();
@@ -169,6 +169,7 @@ public class CarController {
      * @return La voiture mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/publicId/{publicId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CarDTO> updateCar(
             @PathVariable UUID publicId,
             @Valid @RequestBody CarCreateDTO carDTO

@@ -1,8 +1,21 @@
 <div class="col-12 text-dark">
   <div class="place-card bg-white text-dark">
-    <div class="row text-center">
-      <div class="col">
-        <h3>8 Rue Mozat</h3>
+    <div class="row align-items-center justify-content-between px-4">
+      <div class="col-auto">
+        <h3 class="mb-0">{{ address.nameAddress }}</h3>
+      </div>
+      <div class="col-auto">
+        <div class="btn-group icons-bornes " role="group">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clickUpdate(place)" aria-label="Modifier lieu">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clickAddTerminal()" aria-label="Ajouter borne">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm" (click)="clickDelete()" aria-label="Supprimer lieu">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div *ngFor="let terminal of terminals" class="row borne-cards gy-3 text-white justify-content-center">

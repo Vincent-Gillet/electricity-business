@@ -1,6 +1,7 @@
 package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.model.Place;
+import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service pour gérer les opérations liées aux Placex.
@@ -74,5 +76,31 @@ public class PlaceService {
     @Transactional(readOnly = true)
     public boolean existsById(Long id) {
         return placeRepository.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Place> getPlacesByUser(User user) { return placeRepository.findPlacesByUser(user); }
+
+    public void deletePlaceByPublicId(UUID publicId) {
+        placeRepository.deletePlaceByPublicId(publicId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByPublicId(UUID publicId) {
+        return placeRepository.findByPublicId(publicId).isPresent();
+    }
+
+    public Place updatePlace(UUID publicId, Place place) {
+        Place existing = placeRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Place with publicId not found: " + publicId));
+
+        place.setIdPlace(existing.getIdPlace());
+        place.setPublicId(existing.getPublicId());
+
+        User existingUser = existing.getUser();
+        if (place.getUser() == null) {
+            place.setUser(existingUser);
+        }
+        return placeRepository.save(place);
     }
 }

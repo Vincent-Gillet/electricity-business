@@ -1,31 +1,43 @@
 package com.electricitybusiness.api.service;
 
-import com.electricitybusiness.api.dto.UserDTO;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.electricitybusiness.api.dto.user.UserDTO;
+import com.electricitybusiness.api.exception.InvalidTokenException;
+import com.electricitybusiness.api.exception.ResourceNotFoundException;
+import com.electricitybusiness.api.mapper.EntityMapper;
+import com.electricitybusiness.api.repository.UserRepository;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.electricitybusiness.api.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
     @Value("${jwt.secret-key-access-token}")
     private String secretKey;
 
+    private final EntityMapper entityMapper;
+    private final UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+
+    private static final long EXPIRATION_TIME = 1000 * 60 * 1; // 10 minutes
 /*
-    private static final long EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
-*/
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours juste pour les tests
+*/
 
     public String generateAccessToken(String username) {
         return Jwts.builder()
@@ -53,13 +65,19 @@ public class JwtService {
     // Méthode pour extraire **tous les "claims"** (les données contenues dans le token).
 // Les claims sont typiquement : username, date d’expiration, rôles, etc.
     public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                // On définit la clé de signature pour vérifier l’authenticité du token.
-                .setSigningKey(getSigningKey())
-                .build()
-                // On parse le token JWT et on récupère la partie "Claims" (le payload).
-                .parseClaimsJws(token)
-                .getBody(); // C’est ici qu’on obtient les données contenues dans le token.
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey()) // Utilise la clé correctement décodée en Base64
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            logger.warn("Token JWT expiré: {}", e.getMessage());
+            throw new InvalidTokenException("Token JWT expiré"); // Encapsule dans InvalidTokenException
+        } catch (MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            logger.warn("Token JWT invalide: {}", e.getMessage());
+            throw new InvalidTokenException("Token JWT invalide"); // Encapsule dans InvalidTokenException
+        }
     }
 
     /**
@@ -106,10 +124,9 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    public Optional<UserDTO> getUserDTOByAccessToken(String accessToken) {
+/*    public Optional<UserDTO> getUserDTOByAccessToken(String accessToken) {
         try {
             String username = extractUsername(accessToken);
 
@@ -135,9 +152,9 @@ public class JwtService {
             e.printStackTrace();
             return Optional.empty();
         }
-    }
+    }*/
 
-    public Optional<User> getUserByAccessToken(String accessToken) {
+/*    public Optional<User> getUserByAccessToken(String accessToken) {
         try {
             String username = extractUsername(accessToken);
 
@@ -151,5 +168,39 @@ public class JwtService {
             e.printStackTrace();
             return Optional.empty();
         }
+    }*/
+
+    public User getUserByAccessToken(String accessToken) {
+        try {
+            String email = extractUsername(accessToken);
+            logger.debug("Recherche de l'utilisateur pour l'email: {}", email);
+
+            User user = userService.getUserByEmail(email);
+            if (user == null) {
+                logger.warn("Utilisateur non trouvé pour l'email: {}", email);
+                throw new ResourceNotFoundException("Utilisateur non trouvé pour l'email: " + email);
+            }
+            return user;
+        } catch (ExpiredJwtException e) {
+            logger.warn("Token expiré: {}", e.getMessage());
+            throw new InvalidTokenException("Token expiré");
+        } catch (JwtException e) {
+            logger.warn("Token invalide: {}", e.getMessage());
+            throw new InvalidTokenException("Token invalide");
+        }
     }
+
+    public Optional<UserDTO> getUserDTOByAccessToken(String accessToken) {
+        logger.info("Récupération du UserDTO à partir du token");
+        try {
+            User user = getUserByAccessToken(accessToken);
+            UserDTO userDTO = entityMapper.toDTO(user);
+            logger.debug("UserDTO généré avec succès pour l'utilisateur: {}", user.getEmailUser());
+            return Optional.of(userDTO);
+        } catch (InvalidTokenException | ResourceNotFoundException e) {
+            logger.warn("Échec de la récupération du UserDTO: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
 }

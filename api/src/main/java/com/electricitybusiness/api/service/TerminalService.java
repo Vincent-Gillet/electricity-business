@@ -1,8 +1,8 @@
 package com.electricitybusiness.api.service;
 
-import com.electricitybusiness.api.model.Booking;
-import com.electricitybusiness.api.model.Place;
-import com.electricitybusiness.api.model.Terminal;
+import com.electricitybusiness.api.dto.terminal.TerminalCreateDTO;
+import com.electricitybusiness.api.dto.terminal.TerminalSearchDTO;
+import com.electricitybusiness.api.model.*;
 import com.electricitybusiness.api.repository.BookingRepository;
 import com.electricitybusiness.api.repository.TerminalRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sqrt;
@@ -50,11 +52,11 @@ public class TerminalService {
 
     /**
      * Crée un nouveau vehicule.
-     * @param Terminal La Terminal à enregistrer
+     * @param terminal La Terminal à enregistrer
      * @return La Terminal enregistrée
      */
-    public Terminal saveTerminal(Terminal Terminal) {
-        return terminalRepository.save(Terminal);
+    public Terminal saveTerminal(Terminal terminal) {
+        return terminalRepository.save(terminal);
     }
 
     /**
@@ -102,7 +104,7 @@ public class TerminalService {
      * @return Une liste de Terminals associées à cet état
      */
     @Transactional(readOnly = true)
-    public List<Terminal> findByStatus(Terminal statusTerminal) {
+    public List<Terminal> findByStatus(TerminalStatus statusTerminal) {
         return terminalRepository.findByStatusTerminal(statusTerminal);
     }
 
@@ -112,8 +114,8 @@ public class TerminalService {
      * @return Une liste de Terminals associées à cette occupation
      */
     @Transactional(readOnly = true)
-    public List<Terminal> findByOccupied(Terminal occupied) {
-        return terminalRepository.findByoccupied(occupied);
+    public List<Terminal> findByOccupied(Boolean occupied) {
+        return terminalRepository.findByOccupied(occupied);
     }
 
     /**
@@ -123,14 +125,15 @@ public class TerminalService {
      * @return Une liste de Terminals associées à ce lieu et cet état
      */
     @Transactional(readOnly = true)
-    public List<Terminal> findByPlaceAndStatus(Place place, Terminal etatTerminal) {
+    public List<Terminal> findByPlaceAndStatus(Place place, TerminalStatus etatTerminal) {
         return terminalRepository.findByPlaceAndStatusTerminal(place, etatTerminal);
     }
 
 
     //V1
+    // Surement à supprimer plus tard
 
-    @Transactional(readOnly = true)
+/*    @Transactional(readOnly = true)
     public List<Terminal> getNearbyTerminals(BigDecimal longitude, BigDecimal latitude, double radius) {
         List<Terminal> liste_Terminal = terminalRepository.findAll();
         List<Terminal> liste_Terminal_resultat = new ArrayList<>();
@@ -153,11 +156,12 @@ public class TerminalService {
 
         return liste_Terminal_resultat;
 
-    }
+    }*/
 
     //V2
+    // Surement à supprimer plus tard
 
-    @Transactional(readOnly = true)
+/*    @Transactional(readOnly = true)
     public List<Terminal> getNearbyAndAvaibleTerminals(BigDecimal longitude, BigDecimal latitude, double radius, boolean occupied) {
         List<Terminal> liste_Terminal = terminalRepository.findAll();
 
@@ -184,11 +188,12 @@ public class TerminalService {
 
         return liste_Terminal_resultat;
 
-    }
+    }*/
 
     //V3
+    // Surement à supprimer plus tard
 
-    @Transactional(readOnly = true)
+/*    @Transactional(readOnly = true)
     public List<Terminal> getNearbyAndAvaibleInPeriodTerminals(BigDecimal longitude, BigDecimal latitude, double radius, boolean occupied, LocalDateTime startingDate, LocalDateTime endingDate) {
         List<Terminal> liste_terminal = terminalRepository.findAll();
         List<Terminal> liste_terminal_resultat = new ArrayList<>();
@@ -235,31 +240,40 @@ public class TerminalService {
             }
         }
         return liste_terminal_resultat;
-    }
+    }*/
 
 
+    // Surement à supprimer plus tard
 
 
+/*
     public List<Terminal> findAvailableTerminals() {
         return terminalRepository.findAvailableTerminals();
     }
+*/
 
+    // Surement à supprimer plus tard
 
-    public List<Terminal> findTerminalsAvailableInRadius(BigDecimal longitude, BigDecimal latitude, double radius, boolean occupied) {
+/*    public List<Terminal> findTerminalsAvailableInRadius(BigDecimal longitude, BigDecimal latitude, double radius, boolean occupied) {
         return terminalRepository.findTerminalsInRadius(longitude, latitude, radius, occupied);
-    }
+    }*/
 
     // fonction non modulaire
-    public List<Terminal> findTerminalsAvailableInPeriod(
+    // Surement à supprimer plus tard
+
+/*    public List<Terminal> findTerminalsAvailableInPeriod(
             boolean occupied,
             LocalDateTime startingDate,
             LocalDateTime endingDate) {
         return terminalRepository.findTerminalsAvailableInPeriod(
                 occupied, startingDate, endingDate);
-    }
+    }*/
 
 
     // fonction non modulaire
+    // Surement à supprimer plus tard
+
+/*
     public List<Terminal> findTerminalsAvailableInRadiusAndPeriod(
             BigDecimal longitude,
             BigDecimal latitude,
@@ -270,8 +284,10 @@ public class TerminalService {
         return terminalRepository.findTerminalsAvailableInRadiusAndPeriod(
                 longitude, latitude, radius, occupied, startingDate, endingDate);
     }
+*/
 
 
+    // Méthode 10
     public List<Terminal> searchTerminals(
             BigDecimal longitude,
             BigDecimal latitude,
@@ -287,8 +303,75 @@ public class TerminalService {
 
 
 
+/*    @Transactional(readOnly = true)
+    public List<Terminal> searchTerminals(TerminalSearchDTO searchDTO) {
 
-    public List<Terminal> searchTerminalsWithCriteria(
+        // Validation métier
+        if (!searchDTO.hasAnyCriteria()) {
+            throw new IllegalArgumentException(
+                    "Au moins un critère de recherche doit être fourni"
+            );
+        }
+
+        if (!searchDTO.isValidDateRange()) {
+            throw new IllegalArgumentException(
+                    "La date de début doit être antérieure à la date de fin"
+            );
+        }
+
+        // Recherche géographique + disponibilité
+        if (searchDTO.hasGeographicCriteria() && searchDTO.hasAvailabilityCriteria()) {
+            return terminalRepository.searchTerminals(
+                    searchDTO.getLongitude(),
+                    searchDTO.getLatitude(),
+                    searchDTO.getRadiusOrDefault(),
+                    searchDTO.getOccupied(),
+                    searchDTO.getStartingDate(),
+                    searchDTO.getEndingDate()
+            );
+        }
+
+        // Recherche géographique seule
+        if (searchDTO.hasGeographicCriteria()) {
+            List<Terminal> terminals = terminalRepository.findWithinRadius(
+                    searchDTO.getLatitude(),
+                    searchDTO.getLongitude(),
+                    searchDTO.getRadiusOrDefault()
+            );
+
+            // Filtrage optionnel par état d'occupation
+            if (searchDTO.getOccupied() != null) {
+                return terminals.stream()
+                        .filter(t -> t.getOccupied().equals(searchDTO.getOccupied()))
+                        .collect(Collectors.toList());
+            }
+
+            return terminals;
+        }
+
+        // Recherche par disponibilité seule
+        if (searchDTO.hasAvailabilityCriteria()) {
+            return terminalRepository.findAvailableTerminals(
+                    searchDTO.getStartingDate(),
+                    searchDTO.getEndingDate()
+            );
+        }
+
+        // Filtrage par état d'occupation seul
+        if (searchDTO.getOccupied() != null) {
+            return terminalRepository.findByOccupied(searchDTO.getOccupied());
+        }
+
+        // Ne devrait jamais arriver (déjà vérifié par hasAnyCriteria())
+        return List.of();
+    }*/
+
+
+
+
+    // Surement à supprimer plus tard
+
+/*    public List<Terminal> searchTerminalsWithCriteria(
             BigDecimal longitude,
             BigDecimal latitude,
             Double radius,
@@ -299,5 +382,54 @@ public class TerminalService {
         return terminalRepository.searchTerminalsWithCriteria(
                 longitude, latitude, radius, occupied, startingDate, endingDate
         );
+    }*/
+
+    @Transactional(readOnly = true)
+    public List<Terminal> getTerminalsByPlace(UUID place) { return terminalRepository.findTerminalByPlace_PublicId(place); }
+
+    public void deleteTerminalByPublicId(UUID publicId) {
+        terminalRepository.deleteTerminalByPublicId(publicId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByPublicId(UUID publicId) {
+        return terminalRepository.findByPublicId(publicId).isPresent();
+    }
+
+    public Terminal updateTerminal(UUID publicId, Terminal terminal) {
+        Terminal existing = terminalRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Terminal with publicId not found: " + publicId));
+
+        terminal.setIdTerminal(existing.getIdTerminal());
+        terminal.setPublicId(existing.getPublicId());
+
+        User existingUser = existing.getUser();
+        if (terminal.getUser() == null) {
+            terminal.setUser(existingUser);
+        }
+        return terminalRepository.save(terminal);
+    }
+
+    public List<TerminalStatus> getAllTerminalStatuses() {
+        List<TerminalStatus> statuses = new ArrayList<>();
+        for (TerminalStatus status : TerminalStatus.values()) {
+            statuses.add(status);
+        }
+        return statuses;
+    }
+
+    @Transactional
+    public void setOccupiedByPublicId(UUID publicId, TerminalStatus status, Boolean occupied) {
+        terminalRepository.findByPublicId(publicId).ifPresent(terminal -> {
+            terminal.setStatusTerminal(status);
+            terminal.setOccupied(occupied);
+            terminalRepository.save(terminal);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Terminal getTerminalByPublicId(UUID publicId) {
+        return terminalRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Terminal with publicId not found: " + publicId));
     }
 }

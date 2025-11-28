@@ -1,20 +1,17 @@
 package com.electricitybusiness.api.controller;
 
-import com.electricitybusiness.api.dto.AddressCreateDTO;
-import com.electricitybusiness.api.dto.AddressDTO;
-import com.electricitybusiness.api.dto.CarCreateDTO;
-import com.electricitybusiness.api.dto.CarDTO;
+import com.electricitybusiness.api.dto.address.AddressCreateDTO;
+import com.electricitybusiness.api.dto.address.AddressDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Address;
-import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.service.AddressService;
-import com.electricitybusiness.api.service.JwtService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +39,7 @@ public class AddressController {
      * @return Une liste de toutes les adresses
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<AddressDTO>> getAllAdresses() {
         // Récupérer toutes les adresses
         List<Address> adresses = addressService.getAllAddresses();
@@ -59,6 +57,7 @@ public class AddressController {
      * @return L'adresse correspondante à l'ID, ou un statut HTTP 404 Not Found si non trouvée
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<AddressDTO> getAdresseById(@PathVariable Long id) {
         return addressService.getAddressById(id)
                 .map(adresse -> ResponseEntity.ok(mapper.toDTO(adresse)))
@@ -79,6 +78,7 @@ public class AddressController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }*/
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AddressDTO> saveAdresse(@Valid @RequestBody AddressCreateDTO addressDTO) {
         try {
             // Récupérer l'utilisateur authentifié
@@ -108,6 +108,7 @@ public class AddressController {
      * @return L'adresse mise à jour, ou un statut HTTP 404 Not Found si l'adresse n'existe pas
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         // Vérifier si l'adresse existe
         if (!addressService.existsById(id)) {
@@ -127,6 +128,7 @@ public class AddressController {
      * @return Un statut HTTP 204 No Content si la suppression est réussie, ou 404 Not Found si l'adresse n'existe pas
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteAddressById(@PathVariable Long id) {
         // Vérifier si l'adresse existe
         if (!addressService.existsById(id)) {
@@ -143,13 +145,13 @@ public class AddressController {
      * @return Une liste de tous les adresses
      */
     @GetMapping("/user")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<AddressDTO>> getAllAddresssByUser() {
         // Récupérer l'utilisateur authentifié
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         Long idUser = userService.getIdByEmailUser(email);
-        User user = userService.getUserById(idUser)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User user = userService.getUserById(idUser);
 
         // Récupérer les adresses associées à l'utilisateur
         List<Address> addresss = addressService.getAddressesByUser(user);
@@ -166,6 +168,7 @@ public class AddressController {
      * @return Une réponse vide avec le statut 204 No Content si l'adresse a été supprimé, ou 404 Not Found si le véhicule n'existe pas
      */
     @DeleteMapping("publicId/{publicId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteAddress(@PathVariable UUID publicId) {
         // Vérifier si l'adresse existe
         if (!addressService.existsByPublicId(publicId)) {
@@ -184,6 +187,7 @@ public class AddressController {
      * @return L'adresse mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/publicId/{publicId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AddressDTO> updateAddress(
             @PathVariable UUID publicId,
             @Valid @RequestBody AddressCreateDTO addressDTO
@@ -202,5 +206,11 @@ public class AddressController {
         Address updatedAddress = addressService.updateAddress(publicId, address);
         AddressDTO updatedDTO = mapper.toDTO(updatedAddress);
         return ResponseEntity.ok(updatedDTO);
+    }
+
+    @GetMapping("/publicId/{publicId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AddressDTO> getAddressByPublicId(@PathVariable UUID publicId) {
+        return addressService.getAddressDTOByPublicId(publicId);
     }
 }
