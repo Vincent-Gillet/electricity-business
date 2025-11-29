@@ -12,7 +12,6 @@ export interface GlobalError {
   providedIn: 'root'
 })
 export class GlobalErrorService {
-  private globalError = inject(GlobalErrorService);
   private errorSubject = new BehaviorSubject<GlobalError | null>(null);
   error$ = this.errorSubject.asObservable();
 
@@ -24,7 +23,7 @@ export class GlobalErrorService {
     this.setError(null);
   }
 
-  handleError(error: HttpErrorResponse): never {
+  handleError(error: HttpErrorResponse): void {
     const { status, error: errorDetails, url } = error;
     let message = 'Une erreur est survenue.';
     let details: any = null;
@@ -47,7 +46,7 @@ export class GlobalErrorService {
     }
 
     // Déclencher l'erreur globale
-    this.globalError.setError({
+    this.setError({
       status,
       message,
       details
