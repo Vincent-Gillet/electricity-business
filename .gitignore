@@ -1,3 +1,5 @@
+.DS_Store
+
 ### Ignore Tout les fichiers et dossiers de configuration de Jenkins
 /jenkins_home
 
