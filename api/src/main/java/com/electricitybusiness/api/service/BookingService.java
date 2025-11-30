@@ -141,17 +141,6 @@ public class BookingService {
         return bookingRepository.findByTerminalAndStatusBooking(terminal, status);
     }
 
-    /**
-     * Récupère les réservations actives par borne.
-     *  borne La borne associée aux réservations
-     *  actif L'état actif des réservations à récupérer
-     * @return Une liste de réservations actives correspondant à la borne
-     */
-/*    @Transactional(readOnly = true)
-    public List<Booking> findByBorneAndActif(Borne borne, Boolean actif) {
-        return bookingRepository.findByBorneAndActif(borne, actif);
-    }*/
-
     // méthode user
 
     /**
@@ -160,9 +149,6 @@ public class BookingService {
      * @return Une liste de réservations correspondant à l'utilisateur
      */
     @Transactional(readOnly = true)
-/*
-    public List<Booking> getBookingsByUserClient(User user) { return bookingRepository.findBookingsByUser(user); }
-*/
     public List<Booking> getBookingsByUserClient(
             User user,
             LocalDateTime startingDate,
@@ -362,7 +348,7 @@ public class BookingService {
 
 
     public byte[] generateBookingExcel(User user) throws Exception {
-        List<Booking> bookings = bookingRepository.findBookingsByUser(user);
+        List<Booking> bookings = bookingRepository.findByUser(user);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Bookings");
@@ -389,11 +375,6 @@ public class BookingService {
         int rowNum = 1;
         for (Booking booking : bookings) {
             Row row = sheet.createRow(rowNum++);
-
-/*
-            row.createCell(0).setCellValue(booking.getStartingDate());
-            row.createCell(1).setCellValue(booking.getEndingDate());
-*/
 
             // Starting date
             if (booking.getStartingDate() != null) {
