@@ -25,9 +25,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // Méthodes user
 
-    // Réservations faites par l'utilisateur
-    List<Booking> findBookingsByUser(User user);
-
     @Query("SELECT b FROM Booking b " +
             "WHERE b.user = :user " +
             "AND (:startingDate IS NULL OR b.startingDate >= :startingDate)" +
