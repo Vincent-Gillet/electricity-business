@@ -255,20 +255,6 @@ public class BookingController {
         return ResponseEntity.ok(BookingDTO);
     }*/
 
-
-    @GetMapping("/search")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<BookingDTO>> findByBookingBetweenDate(
-            @RequestParam LocalDateTime startingDateBooking,
-            @RequestParam LocalDateTime endingDateBooking
-    ) {
-        List<Booking> bookings = bookingService.findByBookingBetweenDate(startingDateBooking, endingDateBooking);
-        List<BookingDTO> bookingDTO = bookings.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(bookingDTO);
-    }
-
     // requête user
 
     /**
