@@ -152,20 +152,6 @@ public class BookingService {
         return bookingRepository.findByBorneAndActif(borne, actif);
     }*/
 
-
-    @Transactional(readOnly = true)
-    public List<Booking> findByBookingBetweenDate(LocalDateTime startingDate, LocalDateTime endingDate) {
-        List<Booking> listBooking = bookingRepository.findAll();
-        List<Booking> newlistBooking = new ArrayList<>();
-        for (Booking booking : listBooking) {
-            if ((booking.getStartingDate().isAfter(startingDate) || booking.getStartingDate().isEqual(startingDate)) &&
-                    (booking.getStartingDate().isBefore(endingDate) || booking.getStartingDate().isEqual(endingDate))) {
-                newlistBooking.add(booking);
-            }
-        };
-        return newlistBooking;
-    }
-
     // méthode user
 
     /**

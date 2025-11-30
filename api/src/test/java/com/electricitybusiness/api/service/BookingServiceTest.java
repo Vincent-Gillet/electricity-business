@@ -403,50 +403,6 @@ public class BookingServiceTest {
         // Ajoutez d'autres statuts si votre enum en contient plus
     }
 
-    // --- Tests pour les méthodes plus complexes `findByBookingBetweenDate` et les `getBookingsByUser...` ---
-
-    @Test
-    @DisplayName("Devrait trouver les réservations entre des dates spécifiques")
-    void shouldFindByBookingBetweenDate() {
-        // Préparation
-        LocalDateTime startFilter = LocalDateTime.now().plusMinutes(30);
-        LocalDateTime endFilter = LocalDateTime.now().plusHours(4); // Filtre pour inclure testBooking
-
-        Booking otherBooking = new Booking(2L, UUID.randomUUID(), testUser, null, testTerminal, null, "CODE2", BookingStatus.ACCEPTEE, BigDecimal.valueOf(70), LocalDateTime.now().plusHours(5), LocalDateTime.now().plusHours(6), LocalDateTime.now());
-        Booking outOfRangeBooking = new Booking(3L, UUID.randomUUID(), testUser, null, testTerminal, null, "CODE3", BookingStatus.ACCEPTEE, BigDecimal.valueOf(30), LocalDateTime.now().minusDays(5), LocalDateTime.now().minusDays(4), LocalDateTime.now());
-
-        List<Booking> allBookings = Arrays.asList(testBooking, otherBooking, outOfRangeBooking);
-        when(bookingRepository.findAll()).thenReturn(allBookings);
-
-        // Exécution
-        List<Booking> result = bookingService.findByBookingBetweenDate(startFilter, endFilter);
-
-        // Vérification
-        assertNotNull(result);
-        assertEquals(1, result.size()); // Seul testBooking devrait correspondre à la condition de date
-        assertEquals(testBooking, result.get(0));
-        verify(bookingRepository, times(1)).findAll();
-    }
-
-    @Test
-    @DisplayName("Devrait retourner une liste vide si aucune réservation ne correspond aux dates")
-    void shouldReturnEmptyListWhenNoBookingMatchesDates() {
-        // Préparation
-        LocalDateTime startFilter = LocalDateTime.now().plusDays(10);
-        LocalDateTime endFilter = LocalDateTime.now().plusDays(11);
-
-        List<Booking> allBookings = Arrays.asList(testBooking); // testBooking n'est pas dans cet intervalle
-        when(bookingRepository.findAll()).thenReturn(allBookings);
-
-        // Exécution
-        List<Booking> result = bookingService.findByBookingBetweenDate(startFilter, endFilter);
-
-        // Vérification
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(bookingRepository, times(1)).findAll();
-    }
-
     @Test
     @DisplayName("Devrait récupérer les réservations d'un client avec filtres")
     void shouldGetBookingsByUserClientWithFilters() {
