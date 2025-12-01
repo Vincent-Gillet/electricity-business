@@ -1,6 +1,8 @@
 package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
+import com.electricitybusiness.api.exception.ConflictException;
+import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.*;
 import com.electricitybusiness.api.repository.BookingRepository;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -21,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import java.util.List;
 @Transactional
 public class BookingService {
     private final BookingRepository bookingRepository;
+    private final BookingSchedulerService bookingSchedulerService;
 
     /**
      * Récupère toutes les réservations.
@@ -54,9 +57,90 @@ public class BookingService {
      * @param booking La réservation à enregistrer
      * @return La réservation enregistrée
      */
-    @Transactional
-    public Booking saveBooking(Booking booking) {
+/*    public Booking saveBooking(Booking booking) {
         return bookingRepository.save(booking);
+    }*/
+/*    public Booking saveBooking(Booking booking) {
+        // Validation de l'ordre des dates
+        if (booking.getStartingDate().isAfter(booking.getEndingDate())) {
+            throw new IllegalArgumentException("La date de début de réservation ne peut pas être après la date de fin.");
+        }
+
+        // Validation que la date de début n'est pas dans le passé
+        if (booking.getStartingDate().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            throw new IllegalArgumentException("La date de début de réservation ne peut pas être dans le passé.");
+        }
+
+        // Validation de chevauchement
+        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
+                booking.getTerminal(),
+                booking.getStartingDate(),
+                booking.getEndingDate()
+        );
+
+        if (!overlappingBookings.isEmpty()) {
+            throw new ConflictException("Le terminal est déjà réservé pour la période spécifiée.");
+        }
+
+        LocalDateTime startingDateTime = booking.getStartingDate();
+        Instant bookingStartInstant = startingDateTime.toInstant(ZoneOffset.UTC);
+        Instant now = Instant.now();
+        Duration timeUntilBooking = Duration.between(now, bookingStartInstant);
+        Duration thirtyMinutes = Duration.ofMinutes(30);
+
+        if (timeUntilBooking.isNegative() || timeUntilBooking.compareTo(thirtyMinutes) < 0) {
+            System.out.println("Réservation pour un démarrage imminent (moins de 30 minutes). Procédure de validation automatique.");
+            booking.setStatusBooking(BookingStatus.ACCEPTEE);
+            Booking savedBooking = bookingRepository.save(booking);
+            bookingSchedulerService.scheduleBookingTasks(savedBooking);
+        }
+
+        return bookingRepository.save(booking);
+    }*/
+
+    public Booking saveBooking(Booking booking) {
+        if (booking.getStartingDate().isAfter(booking.getEndingDate())) {
+            throw new IllegalArgumentException("La date de début de réservation ne peut pas être après la date de fin.");
+        }
+
+        if (booking.getStartingDate().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            throw new IllegalArgumentException("La date de début de réservation ne peut pas être dans le passé.");
+        }
+
+        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
+                booking.getTerminal(),
+                booking.getStartingDate(),
+                booking.getEndingDate()
+        );
+
+        if (!overlappingBookings.isEmpty()) {
+            throw new ConflictException("Le terminal est déjà réservé pour la période spécifiée.");
+        }
+
+        LocalDateTime startingDateTime = booking.getStartingDate();
+        ZoneId userTimeZone = ZoneId.of("Europe/Paris");
+        ZonedDateTime zonedBookingStart = startingDateTime.atZone(userTimeZone);
+        Instant bookingStartInstant = zonedBookingStart.toInstant();
+        Instant now = Instant.now();
+        Duration thirtyMinutes = Duration.ofMinutes(30);
+        Duration timeUntilBooking = Duration.between(now, bookingStartInstant);
+
+        if (timeUntilBooking.isNegative() || timeUntilBooking.compareTo(thirtyMinutes) < 0) {
+            booking.setStatusBooking(BookingStatus.ACCEPTEE);
+        } else {
+            booking.setStatusBooking(BookingStatus.EN_ATTENTE);
+        }
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+
+        if (savedBooking.getStatusBooking() == BookingStatus.EN_ATTENTE) {
+            bookingSchedulerService.scheduleAutoValidationTask(savedBooking.getPublicId(), bookingStartInstant);
+        }
+
+        bookingSchedulerService.scheduleBookingTasks(savedBooking);
+
+        return savedBooking; // Retourner la réservation persistée
     }
 
 
@@ -209,7 +293,6 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    @Transactional
     public Booking updateBookingStatus(UUID publicId, BookingStatusDTO dto) {
         Booking existing = bookingRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + publicId));

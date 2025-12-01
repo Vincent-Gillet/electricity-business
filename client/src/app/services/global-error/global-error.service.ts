@@ -37,6 +37,10 @@ export class GlobalErrorService {
         message = `La ressource demandée (${url?.split('/').pop()}) est introuvable.`;
         details = errorDetails;
         break;
+      case 409:
+        message = 'Conflit de données détecté.';
+        details = errorDetails?.message || 'Aucun détail disponible';
+        break;
       case 500:
         message = 'Une erreur serveur est survenue.';
         details = errorDetails?.message || 'Aucun détail disponible';

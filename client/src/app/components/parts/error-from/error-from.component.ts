@@ -39,7 +39,11 @@ export class ErrorFromComponent {
     'brand' : 'Marque',
     'model' : 'Modèle',
     'year' : 'Année',
-    'batteryCapacity' : 'Capacité de la batterie'
+    'batteryCapacity' : 'Capacité de la batterie',
+    //Booking
+    'startingDate' : 'Date de début',
+    'endingDate' : 'Date de fin',
+    'publicIdCar' : 'Véhicule'
   }
 
   getFieldError(fieldName: string): string {
