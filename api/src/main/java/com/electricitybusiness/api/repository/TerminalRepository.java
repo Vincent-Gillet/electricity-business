@@ -64,7 +64,9 @@ public interface TerminalRepository extends JpaRepository<Terminal,Long> {
      */
     @Query("""
     SELECT t FROM Terminal t
-    WHERE (:occupied IS NULL OR t.occupied = :occupied)
+    WHERE t.statusTerminal = 'LIBRE'
+          AND
+        (:occupied IS NULL OR t.occupied = :occupied)
           AND (
               :latitude IS NULL OR :longitude IS NULL OR :radius IS NULL OR
               (6371 * 2 * ASIN(SQRT(

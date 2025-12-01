@@ -318,27 +318,22 @@ public class BookingController {
     @PostMapping("/user")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<BookingDTO> saveBookingByToken(@Valid @RequestBody BookingCreateDTO bookingDTO) {
-        try {
-            OffsetDateTime now = OffsetDateTime.now();
-            System.out.println("OffsetDateTime.now() : " + now);
-            System.out.println("Base UTC time : " + now.withOffsetSameInstant(ZoneOffset.UTC));
+        OffsetDateTime now = OffsetDateTime.now();
+        System.out.println("OffsetDateTime.now() : " + now);
+        System.out.println("Base UTC time : " + now.withOffsetSameInstant(ZoneOffset.UTC));
 
 
-            // Récupérer l'utilisateur authentifié
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String email = authentication.getName();
-            Long idUser = userService.getIdByEmailUser(email);
+        // Récupérer l'utilisateur authentifié
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Long idUser = userService.getIdByEmailUser(email);
 
-            Booking booking = mapper.toEntityCreate(bookingDTO, idUser, bookingDTO.getPublicIdTerminal(), bookingDTO.getPublicIdCar(), bookingDTO.getPublicIdOption());
-            Booking savedBooking = bookingService.saveBooking(booking);
+        Booking booking = mapper.toEntityCreate(bookingDTO, idUser, bookingDTO.getPublicIdTerminal(), bookingDTO.getPublicIdCar(), bookingDTO.getPublicIdOption());
+        Booking savedBooking = bookingService.saveBooking(booking);
 
-            BookingDTO savedDTO = mapper.toDTO(savedBooking);
+        BookingDTO savedDTO = mapper.toDTO(savedBooking);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
     @DeleteMapping("publicId/{publicId}")

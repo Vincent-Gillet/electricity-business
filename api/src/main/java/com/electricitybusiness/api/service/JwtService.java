@@ -34,7 +34,7 @@ public class JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 1; // 10 minutes
+    private static final long EXPIRATION_TIME = 1000 * 60 * 10; // 10 minutes
 /*
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours juste pour les tests
 */
