@@ -174,7 +174,7 @@ export class FindTerminalComponent implements OnInit {
     return {
       longitude : this.long,
       latitude : this.lat,
-      radius : !this.searchTerminalForm.get('radius')?.value ? 50 : this.searchTerminalForm.get('radius')?.value,
+      radius : !this.searchTerminalForm.get('radius')?.value ? 5 : this.searchTerminalForm.get('radius')?.value,
       occupied : this.searchTerminalForm.get('occupied')?.value === true ? false : undefined
     };
   }

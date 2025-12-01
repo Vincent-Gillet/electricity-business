@@ -23,6 +23,7 @@ export class GlobalErrorComponent implements OnInit {
       case 401: return 'Non autorisé';
 */
       case 404: return 'Page introuvable';
+      case 409: return this.details?this.details:'Conflit de données';
       case 500: return 'Erreur serveur';
       default: return 'Une erreur est survenue';
     }
