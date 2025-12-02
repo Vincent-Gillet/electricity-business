@@ -3,8 +3,7 @@ package com.electricitybusiness.api.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -61,9 +60,6 @@ public class Booking {
     private Option option;
 
     @Column(name = "number_booking", length = 20, unique = true)
-/*
-    @NotBlank(message = "Le numéro de réservation est obligatoire")
-*/
     private String numberBooking;
 
     @Column(name = "statut_booking")
@@ -76,14 +72,11 @@ public class Booking {
     private BigDecimal totalAmount;
 
     @Column(name = "payment_date")
-/*
-    @NotNull(message = "La date de paiement est obligatoire")
-*/
     private LocalDateTime paymentDate;
 
     @Column(name = "starting_date")
     @NotNull(message = "La date de début est obligatoire")
-    @Future(message = "La date de début doit être dans le futur")
+    @FutureOrPresent(message = "La date de début doit être actuelle ou dans le futur")
     private LocalDateTime startingDate;
 
     @Column(name = "ending_date")
