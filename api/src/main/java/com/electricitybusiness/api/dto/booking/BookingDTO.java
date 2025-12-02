@@ -4,8 +4,7 @@ import com.electricitybusiness.api.dto.address.AddressDTO;
 import com.electricitybusiness.api.dto.terminal.TerminalDTO;
 import com.electricitybusiness.api.dto.user.UserDTO;
 import com.electricitybusiness.api.model.BookingStatus;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -32,7 +30,7 @@ public class BookingDTO {
     private String numberBooking;
 
     @NotNull(message = "La date de début est obligatoire")
-    @Future(message = "La date de début doit être dans le futur")
+    @FutureOrPresent(message = "La date de début doit être actuelle ou dans le futur")
     private LocalDateTime startingDate;
 
     @NotNull(message = "La date de fin est obligatoire")
