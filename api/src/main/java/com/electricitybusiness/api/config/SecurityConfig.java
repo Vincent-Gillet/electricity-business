@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -30,6 +31,7 @@ import static org.springframework.http.HttpMethod.POST;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final CorsConfigurationSource corsConfigurationSource; // Injectez votre source CORS
 
     private final CustomUserDetailService userDetailsService;
 
@@ -45,17 +47,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/login"
-/*                                "/api/users/**",
-                                "/api/terminals/**",
-                                "/api/options/**",
-                                "/api/bookings/**",
-                                "/api/medias/**",
-                                "/api/cars/**"*/
-
                         ).permitAll()
                         .requestMatchers(OPTIONS, "/**").permitAll()
                         .requestMatchers(POST,
@@ -65,9 +61,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/addresses/**",
                                 "/api/places/**",
-/*
-                                "/api/users/**",
-*/
                                 "/api/terminals/**",
                                 "/api/options/**",
                                 "/api/bookings/**",
@@ -75,9 +68,6 @@ public class SecurityConfig {
                                 "/api/cars/**"
 
                         ).hasAnyAuthority("USER", "ADMIN")
-/*                        .requestMatchers(
-
-                        ).hasAnyAuthority("USER", "ADMIN")*/
                         .requestMatchers(
                                 "/api/admin/**",
                                 "/api/repairers/**"
@@ -131,5 +121,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.corsConfigurationSource = null;
     }
 }

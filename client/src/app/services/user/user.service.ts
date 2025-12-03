@@ -51,8 +51,10 @@ export class UserService {
   }
 
   updateUserByToken(user: User): Observable<any> {
-    const token = sessionStorage.getItem('tokenStorage');
+    const accessToken = localStorage.getItem('access_token');
+/*
     const accessToken = token ? JSON.parse(token).accessToken : null;
+*/
     return this.http.put(`${this.apiUrl}/token`, user,
       {
         headers: {
@@ -65,8 +67,10 @@ export class UserService {
   }
 
   updatePasswordByToken(user: User): Observable<any> {
-    const token = sessionStorage.getItem('tokenStorage');
+    const accessToken = localStorage.getItem('tokenStorage');
+/*
     const accessToken = token ? JSON.parse(token).accessToken : null;
+*/
     return this.http.put(`${this.apiUrl}/password`, user,
       {
         headers: {

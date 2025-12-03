@@ -1,8 +1,9 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {AuthService} from '../../../services/auth/auth.service';
 import {User} from '../../../models/user';
 import {LogoComponent} from '../logo/logo.component';
+import {combineLatest, Subject, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -15,8 +16,8 @@ import {LogoComponent} from '../logo/logo.component';
   standalone: true,
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent implements OnInit {
-
+export class HeaderComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   authService: AuthService = inject(AuthService);
   user:User|null = null;
   authInitialized: boolean = false;
@@ -30,7 +31,7 @@ export class HeaderComponent implements OnInit {
     { name: 'Mes options', path: '/tableau-de-bord/mes-options', ariaLabel: 'Voir mes options' },
   ]
 
-  ngOnInit(): void {
+/*  ngOnInit(): void {
    this.authService.initialized$.subscribe(initialized => {
       this.authInitialized = initialized;
     });
@@ -40,6 +41,28 @@ export class HeaderComponent implements OnInit {
       console.log('User loaded:', this.user);
       this.authInitialized = true;
     });
+  }*/
+
+  ngOnInit(): void {
+    combineLatest([
+      this.authService.initialized$,
+      this.authService.user$
+    ]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([initialized, user]) => {
+      this.authInitialized = initialized;
+      this.user = user;
+      console.log('Header updated - Initialized:', initialized, 'User:', user);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  get isLoggedIn(): boolean {
+    return !!this.user;
   }
 
 

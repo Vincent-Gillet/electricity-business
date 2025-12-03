@@ -91,7 +91,7 @@ export class SubscriptionComponent {
               console.log('User login successfully:', response);
               const localArray = [];
               localArray.push(response);
-              sessionStorage.setItem("tokenStorage", JSON.stringify(localArray));
+              localStorage.setItem("access_token", JSON.stringify(localArray));
               this.router.navigate(['/connexion']);
             },
             error: (error) => {

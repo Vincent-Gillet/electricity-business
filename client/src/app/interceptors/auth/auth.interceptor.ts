@@ -1,3 +1,4 @@
+/*
 import {HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {AuthService} from '../../services/auth/auth.service';
@@ -18,19 +19,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService: AuthService = inject(AuthService);
   const router: Router = inject(Router);
   let accessToken = authService.getAccessToken();
-
-  //Vérifier
-/*
-  if (token && !req.headers.has('Authorization')) {
-    const authReq = req.clone({
-      setHeaders: {
-        "Authorization": "Bearer " + token,
-      }
-    })
-    return next(authReq);
-  }
-  return next(req);
-*/
 
   const addToken = (request: HttpRequest<any>, token: string | null): HttpRequest<any> => {
     return token ? request.clone({
@@ -98,122 +86,103 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
       } else {
         // Pour toutes les autres erreurs HTTP, propager l'erreur
-/*
+/!*
         console.error('Interceptor: Une autre erreur HTTP non 401 est survenue.', error);
-*/
+*!/
         return throwError(() => error);
       }
     })
   );
 };
 
+*/
 
 
-/*
-import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth/auth.service';
-import { catchError, switchMap, filter, take, finalize } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { AuthService } from '../../services/auth/auth.service';
+import { BehaviorSubject, catchError, filter, finalize, switchMap, take, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
+// Défini les routes publiques avec un contexte
 export const IS_PUBLIC = new HttpContextToken<boolean>(() => false);
 
-export const authInterceptor: HttpInterceptorFn = (request: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
-  const authService: AuthService = inject(AuthService);
+// Utilisation d'un singleton pour éviter les variables globales
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+let isRefreshingToken = false;
+
+// Intercepteur HTTP pour ajouter le token d'authentification
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // Ignorer les requêtes publiques ou les requêtes vers /auth/refresh
+  if (req.context.get(IS_PUBLIC) || req.url.includes('/auth/refresh')) {
+    return next(req);
+  }
+
+  const authService = inject(AuthService);
   const router = inject(Router);
+  const accessToken = authService.getAccessToken();
 
-  console.log('INTERCEPTOR: Nouvelle requête interceptée. URL:', request.url); // LOG 1
+  // Cloner la requête avec le token d'autorisation
+  const authReq = accessToken
+    ? req.clone({
+      setHeaders: { Authorization: `Bearer ${accessToken}` },
+    })
+    : req;
 
-  // Ne pas intercepter les requêtes publiques (ex: login, inscription)
-  if (request.context.get(IS_PUBLIC)) {
-    console.log('INTERCEPTOR: Requête marquée comme publique, ignorée.'); // LOG 2
-    return next(request);
-  }
-
-  let accessToken = authService.getAccessToken();
-  let handledRequest = request; // Initialise handledRequest
-
-  if (accessToken) {
-    console.log('INTERCEPTOR: Access Token trouvé, ajout à l\'en-tête Authorization.'); // LOG 3
-    handledRequest = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-  } else {
-    console.log('INTERCEPTOR: Pas d\'Access Token, requête envoyée sans Authorization.'); // LOG 4
-  }
-
-  return next(handledRequest).pipe(
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      console.error('INTERCEPTOR: Erreur de requête détectée.', error); // LOG 5
+      console.error('[AuthInterceptor] Erreur interceptée:', error.status, error.url);
 
-      // Si l'erreur est un 401 (Unauthorized)
-      if (error.status === 401) {
-        console.log('INTERCEPTOR: Status 401 Unauthorized détecté.'); // LOG 6
-
-        // Si une tentative de rafraîchissement est déjà en cours
-        if (authService.isRefreshing) {
-          console.log('INTERCEPTOR: Le rafraîchissement du token est déjà en cours, en attente...'); // LOG 7
-          return authService.refreshTokenSubject.pipe(
-            filter(token => token !== null), // Attendre qu'un nouveau token soit émis (non null)
-            take(1), // Prendre la première émission après le filtre
-            switchMap((token) => {
-              if (token) {
-                console.log('INTERCEPTOR: Nouveau token reçu après attente, rejoue la requête originale.'); // LOG 8
-                // Rejouer la requête originale avec le nouvel Access Token
-                const newRequest = request.clone({ // Important: cloner la *requête originale*
-                  setHeaders: {
-                    Authorization: `Bearer ${token}`
-                  }
-                });
-                return next(newRequest);
-              } else {
-                console.error('INTERCEPTOR: Refresh token échoué pendant l\'attente, déconnexion.'); // LOG 9
-                authService.logout();
-                router.navigate(['/connexion']);
-                return throwError(() => new Error('Refresh token failed during pending requests.'));
-              }
-            })
-          );
-        } else {
-          // Ce block ne sera exécuté que par la *première* requête 401 qui arrive
-          console.log('INTERCEPTOR: Démarrage du processus de rafraîchissement du token.'); // LOG 10
-          authService.isRefreshing = true;
-          authService.refreshTokenSubject.next(null); // Réinitialise le sujet pour les requêtes en attente
-
-          return authService.refreshToken().pipe(
-            switchMap((response: any) => {
-              console.log('INTERCEPTOR: Rafraîchissement réussi, nouvel Access Token obtenu.'); // LOG 11
-              authService.isRefreshing = false;
-              authService.refreshTokenSubject.next(response.accessToken); // Emet le nouveau token
-              // Rejouer la requête originale avec le nouvel Access Token
-              const newRequest = request.clone({ // Important: cloner la *requête originale*
-                setHeaders: {
-                  Authorization: `Bearer ${response.accessToken}`
-                }
-              });
-              return next(newRequest);
-            }),
-            catchError((refreshError) => {
-              console.error('INTERCEPTOR: Échec du rafraîchissement du token.', refreshError); // LOG 12
-              authService.logout(); // Déconnecte l'utilisateur
-              router.navigate(['/connexion']); // Redirige
-              return throwError(() => refreshError); // Propager l'erreur
-            }),
-            finalize(() => {
-              console.log('INTERCEPTOR: Processus de rafraîchissement terminé (réussi ou échoué).'); // LOG 13
-              authService.isRefreshing = false; // Assurer que le flag est reset
-            })
-          );
-        }
-      } else {
-        // Si l'erreur n'est pas 401, propager l'erreur directement
-        console.log('INTERCEPTOR: Erreur non-401, propagation.', error); // LOG 14
+      // Gérer uniquement les erreurs 401 (Unauthorized)
+      if (error.status !== 401) {
         return throwError(() => error);
       }
+
+      // Si le token est déjà en cours de rafraîchissement, attendre le nouveau token
+      if (isRefreshingToken) {
+        console.log('[AuthInterceptor] Token en cours de rafraîchissement. Attente...');
+        return refreshTokenSubject.pipe(
+          filter((token): token is string => token !== null),
+          take(1),
+          switchMap((newToken) => {
+            console.log('[AuthInterceptor] Nouveau token reçu. Rejouer la requête...');
+            return next(
+              req.clone({
+                setHeaders: { Authorization: `Bearer ${newToken}` },
+              })
+            );
+          })
+        );
+      }
+
+      // Sinon, initier le rafraîchissement du token
+      console.log('[AuthInterceptor] 401 détecté. Rafraîchissement du token...');
+      isRefreshingToken = true;
+      refreshTokenSubject.next(null);
+
+      return authService.refreshToken().pipe(
+        switchMap((response) => {
+          const newAccessToken = response.accessToken;
+          authService.saveAccessToken(newAccessToken);
+          refreshTokenSubject.next(newAccessToken);
+
+          console.log('[AuthInterceptor] Token rafraîchi. Rejouer la requête...');
+          return next(
+            req.clone({
+              setHeaders: { Authorization: `Bearer ${newAccessToken}` },
+            })
+          );
+        }),
+        catchError((refreshError) => {
+          console.error('[AuthInterceptor] Échec du rafraîchissement:', refreshError);
+          authService.logout();
+          router.navigate(['/connexion']);
+          return throwError(() => refreshError);
+        }),
+        finalize(() => {
+          isRefreshingToken = false;
+        })
+      );
     })
   );
 };
-*/
