@@ -1,26 +1,22 @@
 package com.electricitybusiness.api.controller;
 
 import com.electricitybusiness.api.config.CustomUserDetailService;
-import com.electricitybusiness.api.dto.AuthenticationResponse;
-import com.electricitybusiness.api.dto.user.UserDTO;
 import com.electricitybusiness.api.model.RefreshToken;
 import com.electricitybusiness.api.model.User;
-import com.electricitybusiness.api.model.UserRole;
 import com.electricitybusiness.api.service.JwtService;
-import com.electricitybusiness.api.service.RefreshTokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,255 +25,156 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
     private final JwtService jwtService;
-
-    private final RefreshTokenService refreshTokenService;
-
     private final AuthenticationManager authenticationManager;
-
     private final CustomUserDetailService customUserDetailService;
 
-    // Original fonctionne
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticate(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> authenticate(@RequestBody AuthRequest request, HttpServletResponse response) {
+        try {
+            // Authentification de l'utilisateur
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.emailUser(), request.passwordUser())
+            );
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.emailUser(), request.passwordUser())
-        );
+            final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.emailUser());
+            final String jwt = jwtService.generateAccessToken(userDetails.getUsername());
 
-        final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.emailUser());
+            // Génération et sauvegarde du refresh token en BDD
+            final RefreshToken refreshToken = jwtService.generateRefreshTokenBdd((User) userDetails);
 
-        final String jwt = jwtService.generateAccessToken(userDetails.getUsername());
+            // Création d'un cookie HttpOnly pour le refresh token (optionnel mais recommandé)
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getIdRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 jours
+                    .sameSite("None")
+                    .build();
 
-        final RefreshToken refreshToken = refreshTokenService.generateRefreshTokenBdd((User) userDetails);
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "accessToken", jwt,
-                        "refreshToken", String.valueOf(refreshToken.getIdRefreshToken())
-                )
-        );
+            // Retourne uniquement l'access token (le refresh token est dans le cookie)
+            return ResponseEntity.ok(Map.of("accessToken", jwt));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Email ou mot de passe incorrect"));
+        }
     }
 
-    // Nouveau avec cookie HttpOnly pour le refresh token
-/*    @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthRequest request,
-            HttpServletResponse response
-    ) { // Injectez HttpServletResponse
-
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.emailUser(), request.passwordUser())
-        );
-
-        final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.emailUser());
-        User user = (User) userDetails; // Cast vers votre modèle User (assurez-vous que User implémente UserDetails)
-
-        // 1. Générer l'Access Token (JWT de courte durée, pour les requêtes API)
-        final String accessToken = jwtService.generateAccessToken(userDetails.getUsername());
-
-        // 2. Générer un nouveau Refresh Token et le stocker en BDD
-        RefreshToken refreshTokenEntity = refreshTokenService.generateRefreshTokenBdd(user);
-        String refreshTokenString = refreshTokenEntity.getIdRefreshToken(); // Le JWT généré pour le refresh
-
-        // 3. Créer le cookie HttpOnly pour le Refresh Token
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshTokenString)
-                .httpOnly(true) // Empêche l'accès via JavaScript
-                .secure(true)  // N'envoyez le cookie que via HTTPS (OBLIGATOIRE en production)
-                .path("/api/auth") // Limite la portée du cookie. Le refresh endpoint doit être sous ce chemin.
-                // Utilisez un chemin plus précis comme "/api/auth/refresh" si vous le souhaitez.
-                .sameSite("Lax") // Protection CSRF : "Strict", "Lax" ou "None" (si cross-domain, nécessite secure=true)
-                .maxAge(refreshTokenService.getExpirationTime() / 1000) // Durée de vie du cookie en secondes
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        // 4. Retourner l'Access Token au frontend dans le corps de la réponse
-        return ResponseEntity.ok(
-                AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .build()
-        );
-    }*/
-
-
-    record AuthRequest (String emailUser, String passwordUser) {}
-
-/*
     @PostMapping("/refresh")
-    public ResponseEntity<String> refreshAccessToken(@RequestBody Map<String, String> body) {
-        String refreshToken = body.get("refreshToken");
-*/
+    public ResponseEntity<?> refreshAccessToken(
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
+        String refreshToken = extractRefreshTokenFromCookie(request, "refreshAccessToken");
 
-    // Original fonctionne
-    @GetMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestHeader("X-Refresh-Token") String refreshToken) {
+        System.out.println("== Request == : " + request);
+        System.out.println("== Refresh Token == : " + refreshToken);
 
+        // Si aucun refresh token n'est trouvé dans les cookies
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Le refresh token est manquant ou invalide."));
+            // L'absence de token est traitée ici
+            return ResponseEntity.badRequest().body(Map.of("error", "Le refresh token est manquant."));
         }
 
-        Optional<RefreshToken> refreshTokenSave = refreshTokenService.getRefreshTokenByToken(refreshToken);
+        // Vérifier si le refresh token existe en base de données
+        Optional<RefreshToken> refreshTokenSaved = jwtService.getRefreshTokenByToken(refreshToken);
 
-        if (refreshTokenSave == null || refreshTokenSave.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","Un refresh token est requis."));
+        // Si le token n'est pas trouvé en base, il est invalide
+        if (refreshTokenSaved.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Le refresh token est invalide ou expiré."));
         }
 
         try {
-            User user = refreshTokenSave.get().getUser();
+            User user = refreshTokenSaved.get().getUser();
             String username = user.getUsername();
 
-            if (!refreshTokenService.isTokenValid(refreshToken, user)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","Le refresh token est invalide."));
+            // Valide le refresh token avec la clé de refresh
+            if (!jwtService.isTokenValid(refreshToken, jwtService.getRefreshSecretKey(), user)) { // <--- UTILISER getRefreshSecretKey()
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Le refresh token est invalide."));
             }
 
-            String nouveauAccessToken = jwtService.generateAccessToken(username);
+            // Génère un nouvel ACCESS token
+            String newAccessToken = jwtService.generateAccessToken(username); // OK, utilise la clé d'accès
 
-            return ResponseEntity.ok(Map.of("accessToken", nouveauAccessToken));
+            // Met à jour le cookie du refresh token
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(true) // Assurez-vous que c'est bien 'true' en production
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 jours
+                    .sameSite("None")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            // Retourne le nouvel access token
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","Une erreur de traitement du refresh token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Erreur lors du rafraîchissement du token."));
         }
-
     }
 
 
 
-    // --- Endpoint de Rafraîchissement du Token ---
-/*    @PostMapping("/refresh") // Utilisez POST, c'est plus approprié pour cette opération
-    public ResponseEntity<AuthenticationResponse> refreshAccessToken(
-            @CookieValue(name = "refreshToken", required = false) String refreshTokenCookieValue, // Lit le cookie HttpOnly
-            HttpServletResponse response
-    ) {
-        // 1. Vérifier la présence du refresh token dans le cookie
-        if (refreshTokenCookieValue == null || refreshTokenCookieValue.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    AuthenticationResponse.builder().accessToken(null).build()); // Ou un DTO d'erreur
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(value = "X-Refresh-Token", required = false) String refreshTokenHeader,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response) {
+
+        String refreshToken = refreshTokenHeader;
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            refreshToken = extractRefreshTokenFromCookie(request, "logout");
+            if (refreshToken == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Le refresh token est manquant."));
+            }
         }
 
-        // 2. Vérifier si le refresh token existe en BDD
-        Optional<RefreshToken> refreshTokenSaveOptional = refreshTokenService.getRefreshTokenByToken(refreshTokenCookieValue);
-
-        if (refreshTokenSaveOptional.isEmpty()) {
-            // Le token n'est pas trouvé en BDD (peut-être déjà utilisé, expiré, révoqué)
-            clearRefreshTokenCookie(response); // Nettoyer le cookie invalide
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                    AuthenticationResponse.builder().accessToken(null).build());
-        }
-
-        RefreshToken storedRefreshToken = refreshTokenSaveOptional.get();
-        User user = storedRefreshToken.getUser();
-
-        // 3. Valider le refresh token (expiration et signature)
-        if (!refreshTokenService.isTokenValid(refreshTokenCookieValue, user)) {
-            // Token invalide ou expiré selon la logique du service
-            refreshTokenService.deleteRefreshToken(refreshTokenCookieValue); // Supprimer de la BDD
-            clearRefreshTokenCookie(response); // Nettoyer le cookie invalide
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                    AuthenticationResponse.builder().accessToken(null).build());
-        }
-
-        // --- Rotation du Refresh Token (sécurité accrue) ---
-        // 4. Supprimer l'ancien refresh token de la BDD (il est à usage unique)
-        refreshTokenService.deleteRefreshToken(refreshTokenCookieValue);
-        // 5. Générer un NOUVEAU refresh token et le stocker en BDD
-        RefreshToken newRefreshTokenEntity = refreshTokenService.generateRefreshTokenBdd(user);
-        String newRefreshTokenString = newRefreshTokenEntity.getIdRefreshToken();
-
-        // 6. Générer un nouvel Access Token
-        String newAccessToken = jwtService.generateAccessToken(user.getUsername());
-
-        // 7. Définir le nouveau refresh token dans un cookie HttpOnly
-        ResponseCookie newRefreshCookie = ResponseCookie.from("refreshToken", newRefreshTokenString)
-                .httpOnly(true)
-                .secure(true)
-                .path("/api/auth") // Doit correspondre au chemin du cookie précédent
-                .sameSite("Lax") // Doit correspondre à la configuration du cookie précédent
-                .maxAge(refreshTokenService.getExpirationTime() / 1000)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, newRefreshCookie.toString());
-
-        // 8. Retourner le nouvel Access Token
-        return ResponseEntity.ok(
-                AuthenticationResponse.builder()
-                        .accessToken(newAccessToken)
-                        .build()
-        );
-    }*/
-
-/*    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        // Supprimer le cookie du refresh token côté client
-        clearRefreshTokenCookie(response);
-        // Optionnel : Si vous souhaitez invalider activement le refresh token en BDD lors de la déconnexion,
-        // vous auriez besoin d'un mécanisme pour récupérer sa valeur (par exemple, via un filtre qui le lit du cookie avant qu'il ne soit effacé)
-        // ou de gérer une révocation par utilisateur. Pour l'instant, la suppression du cookie est suffisante pour l'UX.
-        return ResponseEntity.ok().build();
-    }
-
-    private void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/api/auth") // IMPORTANT : Le chemin doit correspondre au chemin du cookie original !
-                .maxAge(0) // Expire immédiatement
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
-    }*/
-
-
-
-
-
-/*    @GetMapping("/me/{token}")
-    public ResponseEntity<UserDTO> getUserByTokenUrl(@PathVariable String token) {
-        return refreshTokenService.getUserByRefreshToken(token)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }*/
-
-
-
-/*    @GetMapping("/me-refresh")
-    public ResponseEntity<UserDTO> getUserByTokenRefresh(@RequestHeader("X-Refresh-Token") String refreshToken) {
-        return refreshTokenService.getUserByRefreshToken(refreshToken)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }*/
-
-/*    @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserDTO> getUserByTokenAccess(@RequestHeader("Authorization") String authHeader) {
         try {
-            if (!authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            String accessToken = authHeader.substring(7);
-            Optional<UserDTO> userDTO = jwtService.getUserDTOByAccessToken(accessToken);
+            jwtService.deleteRefreshToken(refreshToken);
 
-            if (userDTO.isPresent()) {
-                return ResponseEntity.ok(userDTO.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
+            // Supprime le cookie du refresh token
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("None")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie."));
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Une erreur est survenue lors de la déconnexion."));
         }
-    }*/
+    }
 
+    /**
+     * Extrait le refresh token depuis les cookies de la requête.
+     * @param request La requête HTTP contenant les cookies
+     * @return La valeur du refresh token, ou null s'il n'est pas trouvé
+     */
+    private String extractRefreshTokenFromCookie(HttpServletRequest request,  String source) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if ("refreshToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
 
-
-/*    @GetMapping("/test-dto")
-    public ResponseEntity<UserDTO> testDto() {
-        UserDTO test = new UserDTO();
-        test.setSurnameUser("Test");
-        test.setFirstName("Test");
-        test.setPseudo("TestUser");
-        test.setRole(UserRole.USER);
-        test.setDateOfBirth(LocalDate.of(2000,1, 1));
-        test.setPhone("0123456789");
-        test.setIban("FR7612345678901234567890123");
-        test.setBanished(false);
-        return ResponseEntity.ok(test);
-    }*/
+    record AuthRequest(String emailUser, String passwordUser) {}
 }

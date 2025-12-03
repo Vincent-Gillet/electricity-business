@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpContext, HttpErrorResponse} from '@angular/common/http';
-import {BehaviorSubject, catchError, Observable, switchMap, tap, throwError} from 'rxjs';
+import {BehaviorSubject, catchError, filter, finalize, Observable, of, switchMap, take, tap, throwError} from 'rxjs';
 import {UserService} from '../user/user.service';
 import {Router} from '@angular/router';
 import {User} from '../../models/user';
@@ -24,180 +24,177 @@ export class AuthService {
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor(private http: HttpClient) {
-    this.verifyAuth();
+    this.verifyAuth().subscribe();
+    this.setupStorageListener();
   }
 
-  authenticate(user: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, user, {
-      context: new HttpContext().set(IS_PUBLIC, true),
-    });
-  }
-
-/*  authenticate(credentials: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials, {
-      context: new HttpContext().set(IS_PUBLIC, true),
-      withCredentials: true // Très important pour envoyer et recevoir les cookies (dont HttpOnly)
-    }).pipe(
-      tap((response: AuthResponse) => {
-        // Stocke uniquement l'accessToken, le refreshToken est géré par le cookie HttpOnly
-        sessionStorage.setItem('tokenStorage', JSON.stringify({ accessToken: response.accessToken }));
-      }),
-      catchError((error: HttpErrorResponse) => {
-        // Gérer les erreurs spécifiques de login ici si nécessaire
-        return throwError(() => error);
-      })
-    );
-  }*/
-
-/*  login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/authenticate`, credentials).pipe(
-      tap(response => {
-        if (response && response.accessToken) {
-          this.saveAccessToken(response.accessToken);
-          // Si le backend renvoie le refresh token dans le corps de la réponse
-          // (ce qui est moins courant avec des cookies HttpOnly),
-          // alors vous le sauveriez ici.
-          // if (response.refreshToken) {
-          //   this.saveRefreshToken(response.refreshToken);
-          // }
-          console.log('Login réussi. Access Token sauvegardé.');
-        }
-      })
-    );
-  }*/
-
-  authenticateRefresh(refreshToken: any): Observable<any> {
-    return this.http.get(`${this.apiUrl}/refresh`, {
-      context: new HttpContext().set(IS_PUBLIC, true),
-      headers: {
-        accept: 'application/json',
-        'X-Refresh-Token': `${refreshToken}`
-      },
-      withCredentials: true
-    });
-  }
-
-  refreshToken(): Observable<any> {
-    console.log('AuthService: Appel au endpoint de rafraîchissement du token.');
-    // Ce endpoint doit lire le refresh token du cookie HttpOnly de la requête
-    // et renvoyer un nouvel access token.
-    return this.http.post<any>(`${this.apiUrl}/refresh-token`, {}).pipe( // Le corps est vide car le refresh token est dans le cookie
-      tap(response => {
-        if (response && response.accessToken) {
-          this.saveAccessToken(response.accessToken);
-          console.log('AuthService: Nouveau Access Token reçu et sauvegardé.');
-        } else {
-          // Si le backend ne renvoie pas d'accessToken, cela signifie que le refresh token est probablement invalide
-          // ou expiré côté serveur.
-          console.error('AuthService: Le rafraîchissement du token n\'a pas retourné de nouvel Access Token.');
-          this.logout(); // Déconnecter l'utilisateur si le refresh échoue
-          throw new Error('Refresh token response missing accessToken.');
-        }
-      }),
-      catchError(error => {
-        console.error('AuthService: Erreur lors du rafraîchissement du token.', error);
-        this.logout(); // Toujours déconnecter en cas d'échec du refresh token
-        return throwError(() => error);
-      })
-    );
-  }
-
-  getAccessToken(): string | null {
-    const tokenData = sessionStorage.getItem("tokenStorage");
-    return tokenData ? JSON.parse(tokenData).accessToken : null;
-  }
-
-  private router: Router = inject(Router); // Pour la redirection
-
-  private initializedSubject = new BehaviorSubject<boolean>(false);
-  public initialized$ = this.initializedSubject.asObservable();
-  //Utilisation d'un observable pour partager la prop User aux autre composants
-  private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();
-  //Le $ en fin de variable est une convention pour identifier les data observable
-
-  //Getter pour la simplicité d'utilisation
-  get user(): User | null {
-    return this.userSubject.value;
-  }
-
-  // Setter pour mettre à jour l'observable utilisateur
-  setUser(user: User | null): void {
-    this.userSubject.next(user);
-  }
-
-
-  verifyAuth(redirectRoute: string | null = null) {
-    const tokenData: string | null = sessionStorage.getItem('tokenStorage');
-    let accessToken: string | null = null;
-    let refreshToken: string | null = null;
-
-    if (tokenData) {
-      try {
-        const parsed = JSON.parse(tokenData);
-        accessToken = parsed.accessToken;
-        refreshToken = parsed.refreshToken;
-      } catch (e) {
-        accessToken = null;
+  authenticate(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}/login`,
+      { emailUser: email, passwordUser: password },
+      {
+        context: new HttpContext().set(IS_PUBLIC, true),
+        withCredentials: true
       }
+    ).pipe(
+      tap(response => {
+        this.saveAccessToken(response.accessToken);
+      })
+    );
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    if (this.isRefreshing) {
+      return this.refreshTokenSubject.pipe(
+        filter((token): token is string => token !== null),
+        take(1),
+        switchMap((token) => of({ accessToken: token }))
+      );
     }
 
-    if (accessToken) {
-      this.userService.getUserWithToken(accessToken).subscribe({
-        next: (data: User | null) => {
-          if (data) {
-            this.setUser(data);
-            this.initializedSubject.next(true);
-            if (redirectRoute) this.router.navigate([redirectRoute]);
-          } else {
-            // Gérer le cas où l'utilisateur n'est pas trouvé
-            this.logout();
-            this.initializedSubject.next(true);
-          }
-        },
-        error: (error) => {
-          // try refresh
-          if (refreshToken) {
-            this.authenticateRefresh(refreshToken).subscribe({
-              next: (data: any) => {
-                const parsed = tokenData ? JSON.parse(tokenData) : {};
-                parsed.accessToken = data.accessToken;
-                sessionStorage.setItem('tokenStorage', JSON.stringify(parsed));
-                // re-run verifyAuth to fetch user with new token
-                this.verifyAuth(redirectRoute);
-              },
-              error: () => {
-                this.logout();
-                this.initializedSubject.next(true);
-              }
-            });
-          } else {
-            this.logout();
-            this.initializedSubject.next(true);
-          }
+    this.isRefreshing = true;
+    this.refreshTokenSubject.next(null);
+
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}/refresh`,
+      {},
+      { context: new HttpContext().set(IS_PUBLIC, true), withCredentials: true } // <-- options
+    ).pipe(
+      tap((response) => {
+        if (!response?.accessToken) {
+          throw new Error('Refresh response missing accessToken');
         }
-      });
-    } else {
+        this.saveAccessToken(response.accessToken);
+        this.refreshTokenSubject.next(response.accessToken);
+      }),
+      catchError((error) => {
+        this.clearAuthState();
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.isRefreshing = false;
+      })
+    );
+  }
+
+  private router: Router = inject(Router);
+
+  private _initialized = new BehaviorSubject<boolean>(false);
+  private _user = new BehaviorSubject<User | null>(null);
+
+  initialized$ = this._initialized.asObservable();
+  user$ = this._user.asObservable();
+
+  verifyAuth(): Observable<User | null> {
+    const token = this.getAccessToken();
+    if (!token) {
       this.setUser(null);
-      this.initializedSubject.next(true);
+      return of(null);
+    }
+
+    if (this.isTokenExpired(token)) {
+      this.clearAuthState();
+      return of(null);
+    }
+
+    try {
+      const user = this.decodeToken();
+      this.setUser(user);
+      return of(user);
+    } catch (error) {
+      console.error('Token decoding failed:', error);
+      this.clearAuthState();
+      return of(null);
     }
   }
 
-  logout(){
-    // Suppression du token qui n'a pas fonctionné pour /me
-    sessionStorage.removeItem("tokenStorage");
+  // Vérifie si le token JWT est expiré
+  isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  // Déconnecte l'utilisateur
+  logout(): void {
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .pipe(finalize(() => this.clearAuthState()))
+      .subscribe();
+  }
+
+  // Réinitialise l'état d'authentification
+  private clearAuthState(): void {
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     this.setUser(null);
-    this.router.navigate(["connexion"]);
+    this.router.navigate(['/connexion']);
   }
 
-  saveAccessToken(token: string): void {
-    sessionStorage.setItem(this.ACCESS_TOKEN_KEY, token);
+  // Sauvegarde l'accessToken dans localStorage
+  public saveAccessToken(token: string): void {
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
   }
 
+  // Récupère l'accessToken depuis localStorage
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+  }
+
+  // Vérifie si l'utilisateur est authentifié (accessToken présent)
   isAuthenticated(): boolean {
+    return !!this.getAccessToken();
+  }
+
+  // Met à jour l'utilisateur courant
+  private setUser(user: User | null): void {
+    this._user.next(user);
+    this._initialized.next(true);
+  }
+
+  // Getter pour l'utilisateur courant
+  get user(): User | null {
+    return this._user.value;
+  }
+
+  // Décode le token JWT pour extraire les informations utilisateur
+  private decodeToken(): User | null {
     const token = this.getAccessToken();
-    // Vous devriez aussi vérifier si le token est encore valide (non expiré)
-    // Pour une vérification simple, nous nous basons juste sur sa présence.
-    return !!token;
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return {
+        pseudo: payload.sub,
+        emailUser: payload.emailUser,
+        surnameUser: payload.surnameUser,
+        firstName: payload.firstName,
+        dateOfBirth: payload.dateOfBirth,
+        phone: payload.phone,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  // Vérifie et met à jour l'utilisateur courant à partir du token
+  verifyToken(): void {
+    const user = this.decodeToken();
+    this.setUser(user);
+  }
+
+  // Écoute les changements de localStorage pour synchroniser l'état d'authentification
+  private setupStorageListener(): void {
+    window.addEventListener('storage', (event) => {
+      if (event.key === this.ACCESS_TOKEN_KEY) {
+        if (!event.newValue) {
+          this.clearAuthState();
+        } else {
+          this.saveAccessToken(event.newValue);
+          this.verifyToken();
+        }
+      }
+    });
   }
 }

@@ -27,8 +27,10 @@ export class MyInformationsComponent implements OnInit {
   user: User = null;
 
   ngOnInit() {
-    const token = sessionStorage.getItem('tokenStorage');
+    const accessToken = localStorage.getItem('access_token');
+/*
     const accessToken = token ? JSON.parse(token).accessToken : null;
+*/
     this.userService.getUserWithToken(accessToken).subscribe({
       next: data => {
         this.user = data;

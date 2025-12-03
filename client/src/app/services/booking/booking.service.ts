@@ -57,7 +57,7 @@ export class BookingService {
 
   // Récupérer les réservations d'un utilisateur spécifique
 /*  getBookingsByUser(): Observable<any> {
-    const token = localStorage.getItem('tokenStorage');
+    const token = localStorage.getItem('access_token');
     const accessToken = token ? JSON.parse(token).accessToken : null;
     return this.http.get(`${this.apiUrl}/user/client`,
       {
