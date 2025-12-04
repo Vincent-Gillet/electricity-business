@@ -58,7 +58,7 @@ public class JwtService {
     public boolean validateAccessToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey(accessSecretKey)) // ✅ Utilise accessSecretKey (ACCESS_KEY)
+                    .setSigningKey(getSigningKey(accessSecretKey))
                     .build()
                     .parseClaimsJws(token);
             return true;
@@ -179,8 +179,12 @@ public class JwtService {
      * @return true si le token est valide, false sinon
      */
     public boolean isTokenValid(String token, String secretKey, UserDetails userDetails) {
-        final String username = extractUsername(token, secretKey);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, secretKey));
+        try {
+            final String username = extractUsername(token, secretKey);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, secretKey));
+        } catch (InvalidTokenException e) {
+            return false;
+        }
     }
 
     /**
@@ -189,8 +193,13 @@ public class JwtService {
      * @param secretKey La clé secrète utilisée pour signer le token
      * @return La date d'expiration du token
      */
-    private Date extractExpiration(String token, String secretKey) {
-        return extractClaim(token, secretKey, Claims::getExpiration);
+    protected Date extractExpiration(String token, String secretKey) throws InvalidTokenException {
+        try {
+            final Claims claims = extractAllClaims(token, secretKey);
+            return claims.getExpiration();
+        } catch (JwtException e) {
+            throw new InvalidTokenException("Token JWT expiré");
+        }
     }
 
     /**
@@ -199,8 +208,13 @@ public class JwtService {
      * @param secretKey La clé secrète utilisée pour signer le token
      * @return true si le token est expiré, false sinon
      */
-    private boolean isTokenExpired(String token, String secretKey) {
-        return extractExpiration(token, secretKey).before(new Date());
+    boolean isTokenExpired(String token, String secretKey) {
+        try {
+            final Date expirationDate = extractExpiration(token, secretKey);
+            return expirationDate.before(new Date());
+        } catch (InvalidTokenException e) {
+            return true;
+        }
     }
 
     /**
@@ -262,38 +276,6 @@ public class JwtService {
         } catch (InvalidTokenException | ResourceNotFoundException e) {
             logger.warn("Échec de la récupération du UserDTO: {}", e.getMessage());
             return Optional.empty();
-        }
-    }
-
-    /**
-     * Effectue la rotation d'un refresh token.
-     * Supprime l'ancien token et génère un nouveau token pour le même utilisateur.
-     * @param oldRefreshToken L'ancien refresh token à remplacer
-     * @return Le nouveau refresh token généré
-     */
-    public RefreshToken rotateRefreshToken(RefreshToken oldRefreshToken) {
-        // 1. Supprime l'ancien refresh token
-        deleteRefreshToken(oldRefreshToken.getIdRefreshToken());
-
-        // 2. Génère un nouveau refresh token pour le même utilisateur
-        return generateRefreshTokenBdd(oldRefreshToken.getUser());
-    }
-
-    /**
-     * Teste la cohérence de la génération et de la validation des tokens.
-     * Génère un token et vérifie immédiatement sa validité.
-     * Si le token n'est pas valide, une exception est levée.
-     */
-    public void testTokenConsistency() {
-        String testUsername = "test@example.com";
-        String token = generateAccessToken(testUsername);
-        boolean isValid = validateAccessToken(token);
-
-        logger.info("Token généré: {}", token);
-        logger.info("Token valide ? {}", isValid);
-
-        if (!isValid) {
-            throw new IllegalStateException("Le token généré n'est pas valide !");
         }
     }
 }
