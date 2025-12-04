@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -24,10 +25,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
-    @Mock // Créera un mock de BookingRepository
+    @Mock
     private BookingRepository bookingRepository;
 
-    @InjectMocks // Injectera les mocks dans BookingService
+    @InjectMocks
     private BookingService bookingService;
 
     // Objets de test communs
@@ -51,23 +52,23 @@ public class BookingServiceTest {
         testTerminal.setIdTerminal(10L);
         testTerminal.setNameTerminal("Terminal_A");
         testTerminal.setPublicId(UUID.randomUUID());
-        testTerminal.setUser(testUser); // Le terminal appartient à cet utilisateur (propriétaire)
+        testTerminal.setUser(testUser);
 
         // Initialisation de la réservation de test
         testPublicId = UUID.randomUUID();
         testBooking = new Booking(
-                1L, // idBooking
-                testPublicId, // publicId
-                testUser, // user (client qui réserve)
-                null, // car (si applicable)
-                testTerminal, // terminal réservé
-                null, // options (si applicable)
-                "123456789", // bookingCode
-                BookingStatus.EN_ATTENTE, // statusBooking
-                BigDecimal.valueOf(50.00), // totalAmount
-                LocalDateTime.now().plusHours(1), // startingDate
-                LocalDateTime.now().plusHours(3), // endingDate
-                LocalDateTime.now() // createdAt
+                1L,
+                testPublicId,
+                testUser,
+                null,
+                testTerminal,
+                null,
+                "123456789",
+                BookingStatus.EN_ATTENTE,
+                BigDecimal.valueOf(50.00),
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(3)
         );
     }
 
@@ -77,7 +78,7 @@ public class BookingServiceTest {
         // Préparation (Arrange)
         Booking booking2 = new Booking(2L, UUID.randomUUID(), testUser, null, testTerminal, null, "987654321", BookingStatus.ACCEPTEE, BigDecimal.valueOf(75.00), LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), LocalDateTime.now());
         List<Booking> expectedBookings = Arrays.asList(testBooking, booking2);
-        when(bookingRepository.findAll()).thenReturn(expectedBookings); // Quand findAll est appelé, retourner notre liste
+        when(bookingRepository.findAll()).thenReturn(expectedBookings);
 
         // Exécution (Act)
         List<Booking> actualBookings = bookingService.getAllBookings();
@@ -86,7 +87,7 @@ public class BookingServiceTest {
         assertNotNull(actualBookings);
         assertEquals(2, actualBookings.size());
         assertEquals(expectedBookings, actualBookings);
-        verify(bookingRepository, times(1)).findAll(); // Vérifier que findAll a été appelé une fois
+        verify(bookingRepository, times(1)).findAll();
     }
 
     @Test
@@ -123,15 +124,45 @@ public class BookingServiceTest {
     @DisplayName("Devrait sauvegarder une nouvelle réservation")
     void shouldSaveBooking() {
         // Préparation
-        when(bookingRepository.save(any(Booking.class))).thenReturn(testBooking);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime paymentDate = now;
+        LocalDateTime startDate = now.plusHours(1);
+        LocalDateTime endDate = now.plusHours(3);
+
+        Booking validBooking = new Booking(
+                1L,
+                UUID.randomUUID(),
+                testUser,
+                null,
+                testTerminal,
+                null,
+                "123456789",
+                BookingStatus.EN_ATTENTE,
+                BigDecimal.valueOf(50.00),
+                paymentDate,
+                startDate,
+                endDate
+        );
+
+        // Mock du BookingSchedulerService
+        BookingSchedulerService mockSchedulerService = mock(BookingSchedulerService.class);
+        doNothing().when(mockSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+
+        // Injection des dépendances
+        BookingService bookingService = new BookingService(
+                bookingRepository,
+                mockSchedulerService
+        );
+
+        when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
 
         // Exécution
-        Booking savedBooking = bookingService.saveBooking(testBooking);
+        Booking savedBooking = bookingService.saveBooking(validBooking);
 
         // Vérification
         assertNotNull(savedBooking);
-        assertEquals(testBooking, savedBooking);
-        verify(bookingRepository, times(1)).save(testBooking);
+        assertEquals(validBooking, savedBooking);
+        verify(bookingRepository, times(1)).save(validBooking);
     }
 
     @Test
@@ -142,13 +173,10 @@ public class BookingServiceTest {
         updatedInfo.setStatusBooking(BookingStatus.ACCEPTEE);
         updatedInfo.setTotalAmount(BigDecimal.valueOf(60.00));
 
-        // Simuler le comportement de save : si on passe un booking avec ID, il le retourne.
-        // Ici, bookingService.updateBooking modifie l'ID sur l'objet 'booking' passé en paramètre
-        // puis appelle save. On simule donc save retournant un objet modifié.
         when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> {
             Booking bookingArg = invocation.getArgument(0);
-            assertEquals(testBooking.getIdBooking(), bookingArg.getIdBooking()); // S'assurer que l'ID est bien mis à jour
-            bookingArg.setStatusBooking(updatedInfo.getStatusBooking()); // Appliquer les modifications simulées
+            assertEquals(testBooking.getIdBooking(), bookingArg.getIdBooking());
+            bookingArg.setStatusBooking(updatedInfo.getStatusBooking());
             bookingArg.setTotalAmount(updatedInfo.getTotalAmount());
             return bookingArg;
         });
@@ -245,7 +273,7 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByStatusBooking(BookingStatus.EN_ATTENTE);
     }
 
-    // --- Méthodes avec PublicId ---
+    // Méthodes avec PublicId
 
     @Test
     @DisplayName("Devrait supprimer une réservation par publicId")
@@ -317,13 +345,13 @@ public class BookingServiceTest {
             if (savedBooking.getUser() == null || savedBooking.getUser().getIdUser() == null) {
                 savedBooking.setUser(existingBooking.getUser());
             }
-            return savedBooking; // Retourne le booking potentiellement modifié
+            return savedBooking;
         });
 
         Booking actualResult = bookingService.updateBooking(testPublicId, updatedBookingPayload);
 
         assertNotNull(actualResult);
-        assertEquals(BookingStatus.ACCEPTEE, actualResult.getStatusBooking()); // Vérifiez les champs mis à jour
+        assertEquals(BookingStatus.ACCEPTEE, actualResult.getStatusBooking());
         assertEquals(fullyPopulatedExistingUser, actualResult.getUser());
     }
 
@@ -355,7 +383,7 @@ public class BookingServiceTest {
         when(bookingRepository.findByPublicId(testPublicId)).thenReturn(Optional.of(bookingToUpdate));
         when(bookingRepository.saveAndFlush(any(Booking.class))).thenAnswer(invocation -> {
             Booking savedBooking = invocation.getArgument(0);
-            assertEquals(BookingStatus.REFUSEE, savedBooking.getStatusBooking()); // Vérifier que le statut est mis à jour
+            assertEquals(BookingStatus.REFUSEE, savedBooking.getStatusBooking());
             return savedBooking;
         });
 
