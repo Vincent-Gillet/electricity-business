@@ -35,4 +35,4 @@ EXPOSE 8080
 ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
 
 #ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher"]
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp './dependencies/*:./spring-boot-loader/*:./snapshot-dependencies/*:./application/*' org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp ./dependencies/*:./spring-boot-loader/*:./snapshot-dependencies/*:./application/* org.springframework.boot.loader.JarLauncher"]
