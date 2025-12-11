@@ -1,0 +1,23 @@
+# Ignore Git
+.git
+.gitignore
+
+# Ignore IDE files
+.idea/
+.vscode/
+
+# Ignore build directories
+target/
+build/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+**/*.swp
+**/*~
+
+# Ignore Docker related files
+Dockerfile
+docker-compose.yml
+.dockerignore
