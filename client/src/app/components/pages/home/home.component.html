@@ -32,7 +32,7 @@
         </ul>-->
       </div>
       <div class="col-12 col-md-4 text-center">
-        <img src="" alt="" srcset="assets/images/tourver_bornes.webp">
+        <img src="" alt="homme dans une voiture" srcset="assets/images/tourver_bornes.webp">
       </div>
     </div>
 
@@ -46,15 +46,15 @@
     <h2 class="text-center mb-5">Un réseau en pleine expansion</h2>
     <div class="row row-cards-icon">
       <div class="col-12 col-lg-4 mb-4 card-icon">
-        <img src="assets/icon/icon-france.svg" aria-label="icon France">
+        <img src="assets/icon/icon-france.svg" alt="Carte de France">
         <p>+10 000 bornes disponibles en France</p>
       </div>
       <div class="col-12 col-lg-4 mb-4 card-icon">
-        <img src="assets/icon/icon-responsive.svg" aria-label="icon ordinateur, tablette et téléphone">
+        <img src="assets/icon/icon-responsive.svg" alt="Écrans responsive (ordinateur, tablette, mobile)">
         <p>Accès sur tout les supports</p>
       </div>
       <div class="col-12 col-lg-4 mb-4 card-icon">
-        <img src="assets/icon/icon-disponibilite.svg" aria-label="icon 24 7">
+        <img src="assets/icon/icon-disponibilite.svg" alt="Disponibilité 24h/24 et 7j/7">
         <p>Disponibilité en temps réel</p>
       </div>
     </div>
@@ -66,15 +66,18 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12 col-md-4 text-center">
-        <img src="assets/images/electric_cars_charge_station_black_house.webp" alt="" srcset="assets/images/electric_cars_charge_station_black_house.webp 1x, assets/images/electric_cars_charge_station_black_house@x2.webp 2x" width="300" height="250" loading="lazy">
+        <img
+          src="assets/images/electric_cars_charge_station_black_house.webp"
+          srcset="assets/images/electric_cars_charge_station_black_house.webp 1x, assets/images/electric_cars_charge_station_black_house@x2.webp 2x"
+          alt="Voiture électrique en charge devant une maison moderne" width="300" height="250" loading="lazy">
       </div>
       <div class="col-12 col-md-8">
         <h2 class="text-center mb-4">Pourquoi louer votre borne est rentable ?</h2>
         <ul class="list-group list-group-flush fs-5">
-          <li class="list-group-item"><i class="fa-regular fa-money-bill-1"></i> Jusqu’à 150€ de revenus mensuels</li>
-          <li class="list-group-item"><i class="fa-solid fa-bolt"></i> Mise en ligne en 5 minutes</li>
-          <li class="list-group-item"><i class="fa-solid fa-shield-halved"></i>️ Paiement sécurisé</li>
-          <li class="list-group-item"><i class="fa-regular fa-calendar-check"></i> Vous gérez vos disponibilités</li>
+          <li class="list-group-item" aria-hidden="true"><i class="fa-regular fa-money-bill-1"></i> Jusqu’à 150€ de revenus mensuels</li>
+          <li class="list-group-item" aria-hidden="true"><i class="fa-solid fa-bolt"></i> Mise en ligne en 5 minutes</li>
+          <li class="list-group-item" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i>️ Paiement sécurisé</li>
+          <li class="list-group-item" aria-hidden="true"><i class="fa-regular fa-calendar-check"></i> Vous gérez vos disponibilités</li>
         </ul>
       </div>
     </div>
@@ -133,7 +136,8 @@
 <section class="section-subcription text-white py-5 text-center">
   <div class="container">
     <h2 class="mb-3">Prêt à rejoindre le réseau ?</h2>
-    <a class="btn button-style" [routerLink]="['/inscription']">Nous rejoindre</a>
+    <a class="btn button-style" [routerLink]="['/inscription']"
+       aria-label="Créer un compte Electricity Business">Nous rejoindre</a>
   </div>
 </section>
 

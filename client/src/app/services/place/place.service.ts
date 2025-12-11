@@ -37,4 +37,24 @@ export class PlaceService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  // Méthodes user
+
+  createPlaceByPublicId(place: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user`, place);
+  }
+
+  // Mettre à jour une voiture
+  updatePlaceByPublicId(publicId: string, place: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, place);
+  }
+
+  // Supprimer une voiture
+  deletePlaceByPublicId(publicId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
+  }
+
+  // Récupérer les voitures d'un utilisateur spécifique
+  getPlacesByUser(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user`);
+  }
 }

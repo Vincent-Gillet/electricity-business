@@ -1,0 +1,63 @@
+<section id="reservation-requests">
+  <div class="container table-blue">
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <h2>Demandes de réservations</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col container-table">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">Date et heure début</th>
+              <th scope="col">Date et heure fin</th>
+              <th scope="col">Utilisateur</th>
+              <th scope="col">Borne; Adresse; Ville</th>
+              <th scope="col">Montant réglé</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          @for (booking of bookings.slice((page-1) * pageSize, page * pageSize); track booking.publicId ) {
+            <tr>
+              <td>{{booking.startingDate | date:'dd/MM/yyyy - HH:mm'}}</td>
+              <td>{{booking.endingDate | date:'dd/MM/yyyy - HH:mm'}}</td>
+              <td>{{booking.userClientDTO.firstName}} {{booking.userClientDTO.surnameUser}}</td>
+              <td>Borne {{booking.terminalDTO.publicId}}; {{booking.addressDTO.address}}; {{booking.addressDTO.city}}</td>
+              <td>{{booking.totalAmount | currency:"EUR"}}</td>
+              <td class="case-button">
+                @if (booking.statusBooking === "EN_ATTENTE") {
+                  <div class="d-flex flex-column flex-lg-row gap-2">
+                    <a class="btn button-secondary-style" (click)="accepted(booking.publicId, page)">Accepté</a>
+                    <a class="btn button-secondary-style" (click)="refused(booking.publicId, page)">Refuser</a>
+                  </div>
+                } @else {
+                  {{bookingStatusLabels[booking.statusBooking]}}
+                }
+              </td>
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--
+      Pagination
+    -->
+    @if (bookings.length > pageSize) {
+      <ngb-pagination [(page)]="page"
+                    [pageSize]="pageSize"
+                    [collectionSize]="numElement"
+                    (pageChange)="done()">
+        <ng-template ngbPaginationFirst>First</ng-template>
+        <ng-template ngbPaginationLast>Last</ng-template>
+        <ng-template ngbPaginationPrevious>Prev</ng-template>
+        <ng-template ngbPaginationNext>Next</ng-template>
+        <ng-template ngbPaginationEllipsis>...</ng-template>
+        <ng-template ngbPaginationNumber let-page>{{ page }}</ng-template>
+      </ngb-pagination>
+    }
+  </div>
+</section>
+

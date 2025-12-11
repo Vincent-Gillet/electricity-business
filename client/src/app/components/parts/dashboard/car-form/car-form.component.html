@@ -1,28 +1,28 @@
 <div class="table-blue">
-  <form class="row g-3 needs-validation" [formGroup]="postCarForm" (ngSubmit)="onSubmit()">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postCarForm" (ngSubmit)="onSubmit()">
     <div class="mb-3">
       <label for="licensePlatePostCar" class="form-label">Plaque d'immatriculation *</label>
-      <input [value]="car.licensePlate" type="text" class="form-control" id="licensePlatePostCar" formControlName="licensePlate" placeholder="AB123CD" required>
+      <input [value]="car?.licensePlate || ''" type="text" class="form-control" id="licensePlatePostCar" formControlName="licensePlate" placeholder="AB123CD" required>
       <app-error-from [fieldName]="'licensePlate'" [nameFormGroup]="postCarForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
     <div class="mb-3">
       <label for="brandPostCar" class="form-label">Marque *</label>
-      <input [value]="car.brand" type="text" class="form-control" id="brandPost" formControlName="brand" placeholder="Renault" required>
+      <input [value]="car?.brand || ''" type="text" class="form-control" id="brandPost" formControlName="brand" placeholder="Renault" required>
       <app-error-from [fieldName]="'brand'" [nameFormGroup]="postCarForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
     <div class="mb-3">
       <label for="modelPost" class="form-label">Modele *</label>
-      <input [value]="car.model" type="text" class="form-control" id="modelPostCar" formControlName="model" placeholder="Zoe" required>
+      <input [value]="car?.model || ''" type="text" class="form-control" id="modelPostCar" formControlName="model" placeholder="Zoe" required>
       <app-error-from [fieldName]="'model'" [nameFormGroup]="postCarForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
     <div class="mb-3">
       <label for="yearPostCar" class="form-label">Année *</label>
-      <input [value]="car.year" type="number" class="form-control" id="yearPostCar" formControlName="year" placeholder="2000" required>
+      <input [value]="car?.year || ''" type="number" class="form-control" id="yearPostCar" formControlName="year" placeholder="2000" required>
       <app-error-from [fieldName]="'year'" [nameFormGroup]="postCarForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
     <div class="mb-3">
       <label for="batteryCapacityPostCar" class="form-label">Capacite batterie</label>
-      <input [value]="car.batteryCapacity" type="number" class="form-control" id="batteryCapacityPostCar" formControlName="batteryCapacity" placeholder="22" required>
+      <input [value]="car?.batteryCapacity || ''" type="number" class="form-control" id="batteryCapacityPostCar" formControlName="batteryCapacity" placeholder="22" required>
       <app-error-from [fieldName]="'batteryCapacity'" [nameFormGroup]="postCarForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
     <div class="col-12 d-flex justify-content-around">

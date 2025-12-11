@@ -36,4 +36,67 @@ export class BookingService {
   deleteBooking(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  // Méthodes user
+
+  // Créer une réservation
+  createBookingByPublicId(booking: any): Observable<any> {
+
+    return this.http.post(`${this.apiUrl}/user`, booking);
+  }
+
+  // Mettre à jour une réservation
+  updateBookingByPublicId(publicId: string, booking: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}`, booking);
+  }
+
+  // Supprimer une réservation
+  deleteBookingByPublicId(publicId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
+  }
+
+  // Récupérer les réservations d'un utilisateur spécifique
+/*  getBookingsByUser(): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+    return this.http.get(`${this.apiUrl}/user/client`,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }*/
+
+  // Récupérer les réservations d'un utilisateur spécifique avec paramètre
+  getBookingsByUser(param: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/client?${param}`);
+  }
+
+  // Récupérer les réservations d'un utilisateur spécifique
+  getRequestBookingsByUser(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/owner`);
+  }
+
+  // Mettre à jour la réservation par publicId
+  updateStatusBookingByPublicId(publicId: string, booking: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/publicId/${publicId}/status`, booking);
+  }
+
+  // Télécharger le PDF de la réservation
+  downloadBookingPdf(publicId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/publicId/${publicId}/pdf`);
+  }
+
+  // Télécharger le PDF de la réservation
+  downloadBookingsExcel(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/excel`);
+  }
+
+
+  getStatusBooking(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/booking-status`);
+  }
 }

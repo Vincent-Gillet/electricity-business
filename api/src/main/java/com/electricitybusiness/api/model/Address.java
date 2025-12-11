@@ -1,10 +1,15 @@
 package com.electricitybusiness.api.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Entité représentant une adresse dans le système.
@@ -21,9 +26,12 @@ public class Address {
     @Column(name = "id_address")
     private Long idAddress;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
+
     @Column(name = "name_adress")
     @NotBlank(message = "Le nom est obligatoire")
-    private String nameAdress;
+    private String nameAddress;
 
     @Column(name = "address", length = 200, nullable = false)
     @NotBlank(message = "L'adresse est obligatoire")
@@ -47,14 +55,18 @@ public class Address {
     @Column(name = "complement", length = 200)
     private String complement;
 
-    @Column(name = "floor", length = 10)
+    @Column(name = "floor", length = 100)
     private String floor;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_place")
-    private Place place;
+    @Column(name = "main_address")
+    private Boolean mainAddress;
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
+    private List<Place> places;
 
     @ManyToOne
-    @JoinColumn(name = "id_user")
+    @JoinColumn(name = "id_user", nullable = false)
     private User user;
 }

@@ -1,0 +1,49 @@
+<div class="table-blue">
+  <form role="form" class="row g-3 needs-validation" [formGroup]="postAddressForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="nameAddressPostAddress" class="form-label">Nom addresse *</label>
+      <input [value]="address?.nameAddress || ''" type="text" class="form-control" id="nameAddressPostAddress" formControlName="nameAddress" placeholder="Addresse Principal" required>
+      <app-error-from [fieldName]="'nameAddress'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="brandPostAddress" class="form-label">Adresse *</label>
+      <input [value]="address?.address || ''" type="text" class="form-control" id="addressPost" formControlName="address" placeholder="1 rue de la Paix" required>
+      <app-error-from [fieldName]="'address'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="postCodePost" class="form-label">Code Postal *</label>
+      <input [value]="address?.postCode || ''" type="number" class="form-control" id="postCodePostAddress" formControlName="postCode" placeholder="75000" required>
+      <app-error-from [fieldName]="'postCode'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="cityAddress" class="form-label">Ville *</label>
+      <input [value]="address?.city || ''" type="text" class="form-control" id="cityAddress" formControlName="city" placeholder="2000" required>
+      <app-error-from [fieldName]="'city'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="regionPostAddress" class="form-label">Région</label>
+      <input [value]="address?.region || ''" type="text" class="form-control" id="regionPostAddress" formControlName="region" placeholder="Ile de France" required>
+      <app-error-from [fieldName]="'region'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="countryPostAddress" class="form-label">Pays *</label>
+      <input [value]="address?.country || ''" type="text" class="form-control" id="countryPostAddress" formControlName="country" placeholder="France" required>
+      <app-error-from [fieldName]="'country'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="complementPostAddress" class="form-label">Complément</label>
+      <input [value]="address?.complement || ''" type="text" class="form-control" id="complementPostAddress" formControlName="complement" placeholder="Particularités, ...">
+      <app-error-from [fieldName]="'complement'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="mb-3">
+      <label for="floorPostAddress" class="form-label">Étage</label>
+      <input [value]="address?.floor || ''" type="text" class="form-control" id="floorPostAddress" formControlName="floor" placeholder="1er étage">
+      <app-error-from [fieldName]="'floor'" [nameFormGroup]="postAddressForm" [isSubmitted]="isSubmitted"></app-error-from>
+    </div>
+    <div class="col-12 d-flex justify-content-around">
+      <button class="btn button-style" type="submit">Valider</button>
+      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+    </div>
+  </form>
+</div>
+

@@ -1,0 +1,21 @@
+<div class="global-error py-5 text-center">
+  <div class="error-icon mb-3">
+    @switch (status) {
+      @case (404) { <i class="bi bi-file-earmark-x fs-1"></i> }
+      @case (500) { <i class="bi bi-exclamation-triangle fs-1"></i> }
+<!--
+      @case (401) { <i class="bi bi-lock fs-1"></i> }
+-->
+      @default { <i class="bi bi-bug fs-1"></i> }
+    }
+  </div>
+  <h1 class="display-4">{{ status }}</h1>
+  <h2 class="mb-3">{{ getTitle() }}</h2>
+  <p class="lead text-muted mb-4">{{ message }}</p>
+
+  <div class="d-flex justify-content-center gap-2">
+    <button class="btn btn-primary" (click)="retry.emit()">
+      <i class="bi bi-arrow-clockwise me-1"></i> Réessayer
+    </button>
+  </div>
+</div>

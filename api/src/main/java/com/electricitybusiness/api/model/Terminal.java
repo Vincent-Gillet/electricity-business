@@ -6,14 +6,13 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Entité représentant une borne électrique dans le système.
@@ -28,7 +27,11 @@ public class Terminal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_terminal")
+    @EqualsAndHashCode.Include
     private Long idTerminal;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
 
     @Column(name = "name_terminal", length = 100, nullable = false)
     @NotBlank(message = "Le nom de la borne est obligatoire")
@@ -46,7 +49,7 @@ public class Terminal {
     @NotNull(message = "La longitude est obligatoire")
     private BigDecimal longitude;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", nullable = false, precision = 8, scale = 2)
     @DecimalMin(value = "0.0", message = "Le tarif doit être positive")
     @NotNull(message = "Le tarif est obligatoire")
     private BigDecimal price;
@@ -67,7 +70,10 @@ public class Terminal {
     private TerminalStatus statusTerminal;
 
     @Column(name = "occupied", nullable = false)
-    private Boolean occupied = false;
+/*
+    private Boolean occupied = "LIBRE".equals(statusTerminal) ? false : true;
+*/
+    private Boolean occupied;
 
     @Column(name = "date_creation", nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
@@ -78,17 +84,33 @@ public class Terminal {
     @ManyToOne
     @JoinColumn(name = "id_user")
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private User user;
 
-    @OneToMany(mappedBy = "terminal")
+/*    @OneToMany(mappedBy = "terminal")
+    private Set<Media> medias = new HashSet<>();*/
+
+    @ManyToMany
+    @JoinTable(
+            name = "terminals_medias",
+            joinColumns = @JoinColumn(name = "id_terminal"),
+            inverseJoinColumns = @JoinColumn(name = "id_media")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Media> medias = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "id_place")
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Place place;
 
     @ManyToMany
     private Set<Repairer> repairers = new HashSet<>();
 
+    @OneToMany(mappedBy = "terminal")
+    private Set<Booking> bookings = new HashSet<>();
 }

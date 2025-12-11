@@ -1,5 +1,6 @@
 services:
   jenkins:
+    image: jenkins/jenkins:lts
     build: .
     user: root
     ports:

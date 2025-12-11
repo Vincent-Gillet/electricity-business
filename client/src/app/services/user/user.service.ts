@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
+import {User} from '../../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,53 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getUserWithToken(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/me`, {
+      headers: {
+        accept: 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      withCredentials: true
+    });
+  }
 
+  updateUserByToken(user: User): Observable<any> {
+    const accessToken = localStorage.getItem('access_token');
+/*
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+*/
+    return this.http.put(`${this.apiUrl}/token`, user,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  updatePasswordByToken(user: User): Observable<any> {
+    const accessToken = localStorage.getItem('tokenStorage');
+/*
+    const accessToken = token ? JSON.parse(token).accessToken : null;
+*/
+    return this.http.put(`${this.apiUrl}/password`, user,
+      {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
+
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/delete/me`);
+  }
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`);
+  }
 }

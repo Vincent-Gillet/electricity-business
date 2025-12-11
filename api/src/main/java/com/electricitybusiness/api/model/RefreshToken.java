@@ -3,6 +3,7 @@ package com.electricitybusiness.api.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,12 +16,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "refresh_tokens")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RefreshToken {
     @Id
     private String idRefreshToken;
 
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
 }

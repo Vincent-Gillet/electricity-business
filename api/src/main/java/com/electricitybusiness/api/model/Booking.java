@@ -1,16 +1,15 @@
 package com.electricitybusiness.api.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Entité représentant une réservation dans le système.
@@ -26,30 +25,41 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_booking")
+    @EqualsAndHashCode.Include
     private Long idBooking;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID publicId = UUID.randomUUID();
+
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id")
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "car")
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "terminal")
     @JsonBackReference
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Terminal terminal;
 
     @ManyToOne
     @JoinColumn(name = "option_id")
     @JsonBackReference
+    @Nullable
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Option option;
 
-    @Column(name = "number_booking", length = 20, nullable = false, unique = true)
-    @NotBlank(message = "Le numéro de réservation est obligatoire")
+    @Column(name = "number_booking", length = 20, unique = true)
     private String numberBooking;
 
     @Column(name = "statut_booking")
@@ -57,17 +67,16 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus statusBooking;
 
-    @Column(name = "total_amount")
+    @Column(name = "total_amount", precision = 8, scale = 2)
     @NotNull(message = "Le montant payé est obligatoire")
     private BigDecimal totalAmount;
 
     @Column(name = "payment_date")
-    @NotNull(message = "La date de paiement est obligatoire")
     private LocalDateTime paymentDate;
 
     @Column(name = "starting_date")
     @NotNull(message = "La date de début est obligatoire")
-    @Future(message = "La date de début doit être dans le futur")
+    @FutureOrPresent(message = "La date de début doit être actuelle ou dans le futur")
     private LocalDateTime startingDate;
 
     @Column(name = "ending_date")

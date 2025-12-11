@@ -1,0 +1,31 @@
+<div class="container table-blue">
+  <h2 class="text-center">Mes Voitures</h2>
+  <div class="row d-flex gy-4">
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <button class="btn button-style mb-4" (click)="openAddCar()">Ajouter</button>
+      </div>
+    </div>
+    <div class="row">
+      @defer () {
+        @for (car of cars; track car.publicId) {
+          <div class="col-md-4 mb-4">
+            <app-car [car]="car"></app-car>
+          </div>
+        }
+      } @loading {
+        <app-loader></app-loader>
+      } @placeholder {
+        <div class="col-md-4 mb-4">
+          <p>Page Mes Voitures</p>
+        </div>
+      } @error {
+        <div class="col-md-12">
+          <p class="text-danger">Erreur lors du chargement des voitures.</p>
+        </div>
+      }
+    </div>
+<!--
+  }
+-->
+</div>

@@ -1,0 +1,55 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    @defer () {
+      <div class="col-lg-8">
+        <div class="card shadow-sm d-flex flex-column-align-items-center mb-3">
+          <div class="card-header d-flex justify-content-between flex-column flex-md-row align-items-start align-items-md-center gap-2">
+            <span>Mes Informations</span>
+            <div class="d-flex justify-content-end flex-column flex-md-row gap-2 w-md-auto">
+              <button class="btn button-style" (click)="openUpdateUser(user)">Modifier mes informations</button>
+              <button class="btn button-style" (click)="openUpdateUserPassword()">Modifier mon mot de passe</button>
+              <button class="btn button-style" (click)="clickDelete()">Suppression du compte</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Pseudo : </strong> {{ user.pseudo || "-" }}</li>
+              <li class="list-group-item"><strong>Prénom : </strong> {{ user.firstName || "-" }}</li>
+              <li class="list-group-item"><strong>Nom : </strong> {{ user.surnameUser || "-" }}</li>
+              <li class="list-group-item"><strong>Email : </strong> {{ user.emailUser || "-" }}</li>
+              <li class="list-group-item"><strong>Date de naissance : </strong> {{ user.dateOfBirth | date:'dd/MM/yyyy' || "-" }}</li>
+              <li class="list-group-item"><strong>Numéro de Téléphone : </strong> {{ user.phone || "-" }}</li>
+              <li class="list-group-item"><strong>IBAN : </strong> {{ user.iban || "-" }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+<!--      <div class="col-md-4 mb-4">
+        <button class="btn button-style mb-4" (click)="openUpdateUser(user)">Modifier mes informations</button>
+      </div>
+      <div class="col-md-4 mb-4">
+        <button class="btn button-style mb-4" (click)="openUpdateUserPassword()">Modifier mon mot de passe</button>
+      </div>
+      <div class="col-md-8 mb-8">
+        <p>Pseudo : {{ user.pseudo || "-" }}</p>
+        <p>Prénom : {{ user.firstName || "-" }}</p>
+        <p>Nom : {{ user.surnameUser || "-" }}</p>
+        <p>Email : {{ user.emailUser || "-" }}</p>
+        <p>Date de naissance : {{ user.dateOfBirth | date:'dd/MM/yyyy' || "-" }}</p>
+        <p>Numéro de téléphone : {{ user.phone || "-" }}</p>
+        <p>Iban : {{ user.iban || "-" }}</p>
+      </div>-->
+    } @loading {
+      <app-loader></app-loader>
+    } @placeholder {
+      <div class="col-md-4 mb-4">
+        <p>Pages mes informations</p>
+      </div>
+    } @error {
+      <div class="col-md-12">
+        <p class="text-danger">Erreur lors du chargement des informations.</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,16 +1,20 @@
 package com.electricitybusiness.api.controller;
 
-import com.electricitybusiness.api.dto.*;
+import com.electricitybusiness.api.dto.user.*;
+import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.User;
+import com.electricitybusiness.api.service.JwtService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final EntityMapper mapper;
+    private final JwtService jwtService;
 
     /**
      * Récupère tous les utilisateurs.
@@ -31,12 +36,13 @@ public class UserController {
      * @return Une liste de tous les utilisateurs
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        List<UserDTO> usersDTO = users.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(usersDTO);
+        List<UserDTO> userDTOList = userService.getAllUsers();
+        if (userDTOList.isEmpty()) {
+            throw new ResourceNotFoundException("Aucun utilisateur trouvé");
+        }
+        return ResponseEntity.ok(userDTOList);
     }
 
     /**
@@ -46,10 +52,13 @@ public class UserController {
      * @return L'utilisateur correspondant à l'ID, ou un statut HTTP 404 Not Found si non trouvé
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(user -> ResponseEntity.ok(mapper.toDTO(user)))
-                .orElse(ResponseEntity.notFound().build());
+        User user = userService.getUserById(id);
+        if (user == null) {
+            throw new ResourceNotFoundException("Utilisateur non trouvé avec l'ID : " + id);
+        }
+        return ResponseEntity.ok(mapper.toDTO(user));
     }
 
     /**
@@ -60,9 +69,7 @@ public class UserController {
      */
     @PostMapping
     public ResponseEntity<UserDTO> saveUser(@Valid @RequestBody UserCreateDTO userDTO) {
-        User user = mapper.toEntity(userDTO);
-        User savedUser = userService.saveUser(user);
-        UserDTO savedDTO = mapper.toDTO(savedUser);
+        UserDTO savedDTO = userService.saveUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -74,11 +81,12 @@ public class UserController {
      * @return L'utilisateur mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        User existing = userService.getUserById(id).orElseThrow();
+        User existing = userService.getUserById(id);
         User user = mapper.toEntity(userUpdateDTO, existing);
         User updatedUser = userService.updateUser(id, user);
         UserDTO updatedDTO = mapper.toDTO(updatedUser);
@@ -93,11 +101,12 @@ public class UserController {
      * @return L'utilisateur mis à jour avec le nouveau mot de passe, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/password/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> updateUserPassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordDTO userUpdatePasswordDTO) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        User existing = userService.getUserById(id).orElseThrow();
+        User existing = userService.getUserById(id);
         User user = mapper.toEntityPassword(userUpdatePasswordDTO, existing);
         User updatedUser = userService.updateUser(id, user);
         UserDTO updatedDTO = mapper.toDTO(updatedUser);
@@ -112,11 +121,12 @@ public class UserController {
      * @return L'utilisateur mis à jour avec le statut banni, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/banished/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> updateUserBanni(@PathVariable Long id, @Valid @RequestBody UserUpdateBanishedDTO userUpdateBanniDTO) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        User existing = userService.getUserById(id).orElseThrow();
+        User existing = userService.getUserById(id);
         User user = mapper.toEntityBanished(userUpdateBanniDTO, existing);
         User updatedUser = userService.updateUser(id, user);
         UserDTO updatedDTO = mapper.toDTO(updatedUser);
@@ -131,11 +141,12 @@ public class UserController {
      * @return L'utilisateur mis à jour avec le nouveau rôle, ou un statut HTTP 404 Not Found si l'ID n'existe pas
      */
     @PutMapping("/role/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> updateUserRole(@PathVariable Long id, @Valid @RequestBody UserUpdateRoleDTO userUpdateRoleDTO) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        User existing = userService.getUserById(id).orElseThrow();
+        User existing = userService.getUserById(id);
         User user = mapper.toEntityRole(userUpdateRoleDTO, existing);
         User updatedUser = userService.updateUser(id, user);
         UserDTO updatedDTO = mapper.toDTO(updatedUser);
@@ -149,23 +160,22 @@ public class UserController {
      * @return Une réponse vide avec le statut 204 No Content si l'utilisateur a été supprimé, ou 404 Not Found si l'utilisateur n'existe pas
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (!userService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
 
     /**
      * Récupère un utilisateur par son pseudo.
-     * GET /api/users/username/{username}
-     * @param username Le pseudo de l'utilisateur à récupérer
+     * GET /api/users/pseudo/{pseudo}
+     * @param pseudo Le pseudo de l'utilisateur à récupérer
      * @return L'utilisateur correspondant au pseudo, ou un statut HTTP 404 Not Found si non trouvé
      */
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
-        return userService.findByUsername(username)
+    @GetMapping("/pseudo/{pseudo}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<UserDTO> getUserByPseudo(@PathVariable String pseudo) {
+        return userService.findByPseudo(pseudo)
                 .map(user -> ResponseEntity.ok(mapper.toDTO(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -177,9 +187,108 @@ public class UserController {
      * @return L'utilisateur correspondant à l'email, ou un statut HTTP 404 Not Found si non trouvé
      */
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-        return userService.findByUserEmail(email)
-                .map(user -> ResponseEntity.ok(mapper.toDTO(user)))
-                .orElse(ResponseEntity.notFound().build());
+        User user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(mapper.toDTO(user));
+    }
+
+    /**
+     * Récupère un utilisateur par son token d'accès.
+     * GET /api/users/me
+     * @param authHeader L'en-tête d'autorisation contenant le token d'accès
+     * @return L'utilisateur correspondant au token d'accès, ou un statut HTTP 401 Unauthorized si le token est invalide
+     */
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getUserByTokenAccess(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (!authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String accessToken = authHeader.substring(7);
+            Optional<UserDTO> userDTO = jwtService.getUserDTOByAccessToken(accessToken);
+
+            if (userDTO.isPresent()) {
+                return ResponseEntity.ok(userDTO.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Met à jour un utilisateur existant.
+     * PUT /api/users/{id}
+     * @param token L'identifiant de l'utilisateur à mettre à jour
+     * @param userUpdateDTO Les nouvelles informations de l'utilisateur
+     * @return L'utilisateur mis à jour, ou un statut HTTP 404 Not Found si l'ID n'existe pas
+     */
+    @PutMapping("/token")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> updateUser(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO
+    ) {
+        String rawToken = token.replace("Bearer ", "");
+        User existingUser = jwtService.getUserByAccessToken(rawToken);
+        try {
+            User incoming = mapper.toEntity(userUpdateDTO, existingUser);
+            User updated = userService.updateUserToken(existingUser.getIdUser(), incoming);
+            return ResponseEntity.ok(mapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    /**
+     * Met à jour le mot de passe d'un utilisateur.
+     * PUT /api/users/password/{id}
+     * @param token L'identifiant de l'utilisateur dont le mot de passe doit être mis à jour
+     * @param userUpdatePasswordDTO Les nouvelles informations de mot de passe
+     * @return L'utilisateur mis à jour avec le nouveau mot de passe, ou un statut HTTP 404 Not Found si l'ID n'existe pas
+     */
+    @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> updateUserPassword(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody UserUpdatePasswordDTO userUpdatePasswordDTO
+    ) {
+        String rawToken = token.replace("Bearer ", "");
+
+        User existingUser = jwtService.getUserByAccessToken(rawToken);
+
+        try {
+            User incoming = mapper.toEntityPassword(userUpdatePasswordDTO, existingUser);
+            User updated = userService.updateUserToken(existingUser.getIdUser(), incoming);
+            return ResponseEntity.ok(mapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    /**
+     * Supprime un utilisateur par son token d'accès.
+     * DELETE /api/users/delete/me
+     * @param authHeader L'en-tête d'autorisation contenant le token d'accès
+     * @return Une réponse vide avec le statut 204 No Content si l'utilisateur a été supprimé, ou 500 Internal Server Error en cas d'erreur
+     */
+    @DeleteMapping("/delete/me")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteUserByTokenAccess(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (!authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            String accessToken = authHeader.substring(7);
+            User existingUser = jwtService.getUserByAccessToken(accessToken);
+
+            userService.deleteUserById(existingUser.getIdUser());
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

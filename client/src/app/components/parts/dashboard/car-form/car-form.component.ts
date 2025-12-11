@@ -4,7 +4,6 @@ import {Router} from '@angular/router';
 import {ErrorFromComponent} from '../../error-from/error-from.component';
 import {CarService} from '../../../../services/car/car.service';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {AuthService} from '../../../../services/auth/auth.service';
 import {Car} from '../../../../models/car';
 
 @Component({
@@ -76,59 +75,38 @@ export class CarFormComponent {
 
       console.log('Données de connexion:', carData);
 
-      // 5. Simuler un appel API avec setTimeout
-      // (Dans un vrai projet, ça serait un appel HTTP)
-      setTimeout(() => {
-
-/*        this.authService.getUserWithToken(carData.accessToken).subscribe(
+      if (this.updateCar) {
+        this.carService.updateCar(this.car.publicId, carData).subscribe(
           {
             next: (response) => {
-              console.log('Utilisateur récupéré avec le token:', response);
-              if (response && response.id) {
-                carData.userId = response.id; // Ajouter l'ID utilisateur aux données de la voiture
-              } else {
-                console.error('Réponse utilisateur invalide:', response);
-              }
-          },
+              console.log('Voiture mise à jour:', response);
+              this.dialogRef.close();
+              this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
+                this.router.navigate(['./tableau-de-bord/mes-voitures']);
+              });
+            },
             error: (error) => {
-              console.error('Erreur lors de la récupération de l\'utilisateur avec le token:', error);
+              console.error('Erreur lors de la mise à jour de la voiture:', error);
             }
           }
-        )*/
-
-        if (this.updateCar) {
-          this.carService.updateCar(this.car.publicId, carData).subscribe(
-            {
-              next: (response) => {
-                console.log('Voiture mise à jour:', response);
-                this.dialogRef.close();
-                this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
-                  this.router.navigate(['./tableau-de-bord/mes-voitures']);
-                });
-              },
-              error: (error) => {
-                console.error('Erreur lors de la mise à jour de la voiture:', error);
-              }
+        );
+        return;
+      } else {
+        this.carService.createCar(carData).subscribe(
+          {
+            next: (response) => {
+              console.log('Voiture créée:', response);
+              this.dialogRef.close();
+              this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
+                this.router.navigate(['./tableau-de-bord/mes-voitures']);
+              });
+            },
+            error: (error) => {
+              console.error('Erreur lors de la création d\'une voiture:', error);
             }
-          );
-          return;
-        } else {
-          this.carService.createCar(carData).subscribe(
-            {
-              next: (response) => {
-                console.log('Voiture créée:', response);
-                this.dialogRef.close();
-                this.router.navigateByUrl('cars', { skipLocationChange: true }).then(() => {
-                  this.router.navigate(['./tableau-de-bord/mes-voitures']);
-                });
-              },
-              error: (error) => {
-                console.error('Erreur lors de la création d\'une voiture:', error);
-              }
-            }
-          );
-        }
-      }, 1000);
+          }
+        );
+      }
 
     }
 

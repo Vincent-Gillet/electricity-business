@@ -30,14 +30,28 @@ GET http://localhost:8080/api/users
 ### Utilisateur - Récupérer un utilisateur par son ID
 GET http://localhost:8080/api/users/1
 
-### Utilisateur - Créer un nouvel utilisateur avec valeur par défaut
+### Utilisateur - Créer un nouvel utilisateur
 POST http://localhost:8080/api/users
 Content-Type: application/json
 
 {
   "surnameUser": "Martin",
   "firstName": "Jean",
-  "username": "johnnnn",
+  "pseudo": "paul",
+  "passwordUser": "azerty",
+  "emailUser": "paul@gmail.com",
+  "dateOfBirth": "2008-03-06",
+  "phone": "0123456789"
+}
+
+### Utilisateur - Créer un nouvel utilisateur
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "surnameUser": "Martin",
+  "firstName": "Jean",
+  "pseudo": "paul",
   "passwordUser": "azerty",
   "emailUser": "paul@gmail.com",
   "dateOfBirth": "2008-03-06",
@@ -53,10 +67,33 @@ Content-Type: application/json
   "firstName": "John",
   "username": "johndeo_updated",
   "emailUser": "johndeo@gmail.com",
-  "passwordUser": "new_password",
   "dateOfBirth": "2002-01-01",
   "phone": "0987654321",
   "iban": "FR7612345678901234567890123"
+}
+
+### Utilisateur - Mettre à jour un utilisateur par son token
+PUT http://localhost:8080/api/users/token
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+Content-Type: application/json
+
+{
+  "surnameUser": "Doe",
+  "firstName": "John",
+  "pseudo": "johndeo_updated",
+  "emailUser": "johndeo@gmail.com",
+  "dateOfBirth": "1990-01-01",
+  "phone": "0987654321",
+  "iban": "FR7612345678901234567890123"
+}
+
+### Utilisateur - Mettre à jour du mot de passe un utilisateur par son token
+PUT http://localhost:8080/api/users/password
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTAzOTQwMywiZXhwIjoxNzYxMTI1ODAzfQ.DYRk-jSgkFEM0DWHCs3SYSgwYAgLFYylnIx6L3nPZMY
+Content-Type: application/json
+
+{
+  "passwordUser": "azertyuiop"
 }
 
 ### Utilisateur - Supprimer un utilisateur par son ID
@@ -80,11 +117,11 @@ GET http://localhost:8080/api/terminals/2.287592/48.862525/50/false
 
 
 ### Borne - Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&occupee=false&dateDebut=2023-07-23T21:02:44&dateFin=2026-07-23T21:02:48
+GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&occupee=false&startingDate=2023-07-23T21:02:44&endingDate=2026-07-23T21:02:48
 
 
 ### Borne - V2 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&dateDebut=2023-07-23T21:02:44&dateFin=2026-07-23T21:02:48
+GET http://localhost:8080/api/terminals?longitude=2.287592&latitude=48.862525&rayon=50&startingDate=2023-07-23T21:02:44&endingDate=2026-07-23T21:02:48
 
 ### Borne - V3 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
 GET http://localhost:8080/api/terminals/non-occupees
@@ -99,11 +136,11 @@ GET http://localhost:8080/api/terminals/recherche-terminals-disponibilites-rayon
 GET http://localhost:8080/api/terminals/recherche-terminals-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=50&occupee=true
 
 ### Borne - V6 Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites?occupee=false&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites?occupee=false&startingDate=2033-07-23T21:02:44&endingDate=2036-07-23T21:02:48
 
 
 ### Borne - V5 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=5000&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+GET http://localhost:8080/api/terminals/recherche-terminals-dates-disponibilites-rayon?longitude=2.287592&latitude=48.862525&rayon=5000&startingDate=2033-07-23T21:02:44&endingDate=2036-07-23T21:02:48
 
 
 ### Borne - V10 test1 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
@@ -111,20 +148,32 @@ GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48
 ### Borne - V10 test2 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
 GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000&occupee=true
 ### Borne - V10 test3 Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000&occupee=true&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+GET http://localhost:8080/api/terminals/recherche?longitude=2.287592&latitude=48.862525&rayon=5000&occupee=true&startingDate=2033-07-23T21:02:44&endingDate=2036-07-23T21:02:48
 
 
 
 
 ### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50&dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50&startingDate=2033-07-23T21:02:44&endingDate=2036-07-23T21:02:48
 ### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
 GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50
 ### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
 GET http://localhost:8080/api/terminals/search-terminals?longitude=2.287592&latitude=48.862525&rayon=50000
 ### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
-GET http://localhost:8080/api/terminals/search-terminals?dateDebut=2033-07-23T21:02:44&dateFin=2036-07-23T21:02:48
+GET http://localhost:8080/api/terminals/search-terminals?startingDate=2033-07-23T21:02:44&endingDate=2036-07-23T21:02:48
 
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=3.1237088111431186&latitude=45.81029515326941&radius=50&occupied=false&startingDate=2025-11-02T20:03&endingDate=2025-11-02T22:40
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MzEyNjg5OCwiZXhwIjoxNzYzMTI3NDk4fQ.68d4-asgqvAmqRL-ZhvxLpvue0ZDFKkLk-_chdy8XtM
+
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=3.1237088111431186&latitude=45.81029515326941&radius=50&occupied=false&startingDate=2025-11-08T20:03&endingDate=2025-11-08T20:40
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MzEyNjg5OCwiZXhwIjoxNzYzMTI3NDk4fQ.68d4-asgqvAmqRL-ZhvxLpvue0ZDFKkLk-_chdy8XtM
+
+
+### Borne - V20 Creteria Fonctionne pas dynamique Récupérer la liste des bornes à proximité d'un point, disponibiles et dans une période donnée
+GET http://localhost:8080/api/terminals/search-terminals?longitude=3.1237088111431186&latitude=45.81029515326941&radius=50&occupied=false
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MzEyNjg5OCwiZXhwIjoxNzYzMTI3NDk4fQ.68d4-asgqvAmqRL-ZhvxLpvue0ZDFKkLk-_chdy8XtM
 
 
 
@@ -149,6 +198,23 @@ Content-Type: application/json
   "endingDate": "2023-07-23T21:02:48"
 }
 
+### Borne - créée d'une borne par un utilisateur
+POST http://localhost:8080/api/terminals/place
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+Content-Type: application/json
+
+{
+  "nameTerminal": "Borne 1",
+  "latitude": 48.866667,
+  "longitude": 2.333333,
+  "price": 1.5,
+  "power": 22,
+  "instructionTerminal": "Entrer dans la cour",
+  "standing": true,
+  "statusTerminal": "LIBRE",
+  "publicIdPlace": "a872c970-bc7c-43bb-bacf-0fb20e4d8b53"
+}
+
 ### Authentification - Récupérer le profil de l'utilisateur connecté
 GET http://localhost:8080/api/auth/me/eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzUzODA2Mjc2LCJleHAiOjE3NTQ0MTEwNzZ9.w2206QtqrmMKX8ZxhuoDcVovup4XHGQGMm1vM0Ul3MQ
 
@@ -158,7 +224,7 @@ X-Refresh-Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0Ij
 
 ### Authentification - Récupérer le profil de l'utilisateur connecté access token
 GET http://localhost:8080/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzUzODExNTkwLCJleHAiOjE3NTM4MTIxOTB9.5t5WVMwcjWfZBy8RKZTxRL3DVCtN7czdycdMPt_wVoQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2Mjg3MTE4MSwiZXhwIjoxNzYyODcxNzgxfQ.hvudLyOXzuid7SKAqnzKTyyxf6v74IK7hHWQ8IkIv0s
 
 
 
@@ -175,7 +241,7 @@ GET http://localhost:8080/api/reservations/all
 
 
 ### Réservation - Récupérer la liste des réservations d'un utilisateur
-GET http://localhost:8080/api/reservations/search?dateDebutReservation=2022-07-23T21:02:44&dateFinReservation=2027-07-23T21:02:48
+GET http://localhost:8080/api/reservations/search?startingDate=2022-07-23T21:02:44&endingDate=2027-07-23T21:02:48
 //Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJ0aW5AZ21haWwuY29tIiwiaWF0IjoxNzU0MDYyNDc1LCJleHAiOjE3NTQwNjMwNzV9.NydCq2U4384gdVwDqlo716h-vY2uMFN4KB7fOm_Y-lA
 
 ### Réservation - Récupérer la liste de toutes les réservations
@@ -196,7 +262,44 @@ Content-Type: application/json
   "idOption": 1
 }
 
+### Réservation - Création d'une réservation User
+POST http://localhost:8080/api/bookings/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MTkwNDg5NSwiZXhwIjoxNzYxOTkxMjk1fQ.eGLMXOLA09hKLC5RvUR69Gbak00xR-E4-o29EDeZaqw
+Content-Type: application/json
 
+{
+  "startingDate": "2025-11-30T21:02:44",
+  "endingDate": "2025-11-30T21:52:48",
+  "statusBooking": "EN_ATTENTE",
+  "publicIdTerminal": "942c69cf-abf8-4418-a7eb-ce9266414dc0",
+  "publicIdCar": "e4ac7e50-6564-48d1-8a52-227f80869d64",
+  "publicIdOption": ""
+}
+
+### Réservation - Création d'une réservation User
+PUT http://localhost:8080/api/bookings/publicId/e353e797-fee3-4188-a664-1acb80b6fc80/status
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MTgzMjA5NywiZXhwIjoxNzYxOTE4NDk3fQ.p8wR-nD9dxuQlcVG9ZM_JxdjUYXdyP0FYGXSYlPCaN8
+Content-Type: application/json
+
+{
+  "statusBooking": "ACCEPTEE"
+}
+
+### Réservation - Création du pdf d'une réservation
+GET http://localhost:8080/api/bookings/publicId/ead4c650-8702-4f6d-8ee9-7cf581a4f248/pdf
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MTkwNDg5NSwiZXhwIjoxNzYxOTkxMjk1fQ.eGLMXOLA09hKLC5RvUR69Gbak00xR-E4-o29EDeZaqw
+
+### Réservation - Récupérer une réservation début et fin par token utilisateur triée par date début
+GET http://localhost:8080/api/bookings/user/client?startingDate=2025-11-02T20:00&endingDate=2025-11-02T21:00&orderBooking=ASC&statusBooking=ACCEPTEE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MjUyODAyNSwiZXhwIjoxNzYyNjE0NDI1fQ.zpLDGmSq7RpiAXRsZqepSQhSA4OW0_6N6jY3NLmF4jk
+
+### Réservation - Récupérer une réservation début et fin par token utilisateur triée par date début
+GET http://localhost:8080/api/bookings/user/client?startingDate=2025-11-02T20:00&endingDate=2025-11-02T21:00
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MjUyODAyNSwiZXhwIjoxNzYyNjE0NDI1fQ.zpLDGmSq7RpiAXRsZqepSQhSA4OW0_6N6jY3NLmF4jk
+
+### Réservation - Récupérer une réservation début et fin par token utilisateur triée par date début
+GET http://localhost:8080/api/bookings/user/client?startingDate=2025-11-02T20:00
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MjUyODAyNSwiZXhwIjoxNzYyNjE0NDI1fQ.zpLDGmSq7RpiAXRsZqepSQhSA4OW0_6N6jY3NLmF4jk
 
 ### Véhcule - Récupérer la liste de toutes les voitures
 GET http://localhost:8080/api/cars
@@ -290,6 +393,9 @@ Content-Type: application/json
 ### Option - Supprimer une option
 DELETE http://localhost:8080/api/options/3
 
+### Option - Récupérer la liste de toutes les options d'un terminal
+GET http://localhost:8080/api/options/terminal/13c2e385-fc85-4c8e-93dc-edc6d81eddfc
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTczNDcwNSwiZXhwIjoxNzYxODIxMTA1fQ.fh76k-n50Haqiylye4QmA-7JrgAu4fFCI5DKQMF-CzE
 
 ### Media - Récupérer la liste de tous les médias
 GET http://localhost:8080/api/medias
@@ -337,4 +443,59 @@ Content-Type: application/json
   "descriptionMedia": "Update Ceci est une image de chat",
   "size": "99456 Mo",
   "dateCreation": "2023-07-23T21:02:44"
+}
+
+### Adresse - Récupérer la liste de toutes les adresses
+GET http://localhost:8080/api/addresses
+
+### Adresse - Récupérer une adresse par son token
+GET http://localhost:8080/api/addresses/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZGVvQGdtYWlsLmNvbSIsImlhdCI6MTc2MTEyNDEzNSwiZXhwIjoxNzYxMjEwNTM1fQ.j-ErGwWzlc-tUhZNu7eisBi7bd_uHKY7UrTAJNHiJMU
+
+### Adresse - Créer une adresse
+POST http://localhost:8080/api/addresses
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+Content-Type: application/json
+
+{
+    "address": "rue de la paix",
+    "city": "Paris",
+    "country": "France",
+    "nameAddress": "Adresse principal",
+    "postCode": "94000",
+    "region": "Ile de France"
+}
+
+### Adresse - Mettre à jour une adresse par son ID
+PUT http://localhost:8080/api/addresses/publicId/bb64552c-38c9-4580-811e-f58e167ee1c5
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+Content-Type: application/json
+
+{
+  "nameAddress": "Adresse principal",
+  "address": "rue de la paix",
+  "postCode": "75000",
+  "city": "Paris",
+  "country": "France",
+  "region": "Ile de France",
+  "complement": "Première porte à gauche",
+  "floor": "Premier étage"
+}
+
+### Lieux - Récupérer la liste de tous les lieux
+GET http://localhost:8080/api/places
+
+### Lieux - Récupérer un lieu par son ID
+GET http://localhost:8080/api/places/1
+
+### Lieux - Récupérer un lieu par token utilisateur
+GET http://localhost:8080/api/places/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+
+### Lieux - Créer un lieu par token utilisateur
+POST http://localhost:8080/api/places/user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYXVsQGdtYWlsLmNvbSIsImlhdCI6MTc2MTIyNTM1NywiZXhwIjoxNzYxMzExNzU3fQ.abKdesMF_XAXB4IwgIq41BeXdRPUGSj3U3R_ebLayJQ
+
+{
+
 }

@@ -39,7 +39,7 @@ public class Repairer implements UserDetails {
     private String emailRepairer;
 
     @NotBlank
-    @Column(name = "password_repairer")
+    @Column(name = "password_repairer", length = 60)
     private String passwordRepairer;
 
     @Enumerated

@@ -1,7 +1,5 @@
 package com.electricitybusiness.api.config;
 
-import com.electricitybusiness.api.repository.UserRepository;
-import com.electricitybusiness.api.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -14,54 +12,78 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+    private final CorsConfigurationSource corsConfigurationSource; // Injectez votre source CORS
 
     private final CustomUserDetailService userDetailsService;
 
-    private final JwtService jwtService;
-
     private final JwtAuthFilter jwtAuthFilter;
 
-    private final UserRepository userRepository;
+    private final PasswordEncoderConfig passwordEncoderConfig;
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Reprend les allowedOrigins de WebConfig
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "https://electricity-business-angular-app.onrender.com"
+        ));
+        // Reprend les allowedMethods de WebConfig
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/auth/login"
+                        ).permitAll()
+                        .requestMatchers(OPTIONS, "/**").permitAll()
+                        .requestMatchers(POST,
                                 "/api/auth/login",
-                                "/api/users/**",
+                                "/api/users"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/addresses/**",
+                                "/api/places/**",
                                 "/api/terminals/**",
                                 "/api/options/**",
                                 "/api/bookings/**",
                                 "/api/medias/**",
                                 "/api/cars/**"
 
-
-                        ).permitAll()
-                        .requestMatchers(
-                                "/api/places/**"
-
-                        ).authenticated()
-                        .requestMatchers(
-                                "/api/user/**",
-                                "/api/adresses/**"
-                        ).hasAnyAuthority("UTILISATEUR")
+                        ).hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(
                                 "/api/admin/**",
                                 "/api/repairers/**"
-                        ).hasAnyAuthority("ADMINISTRATEUR")
+                        ).hasRole("ADMIN")
 
 
                         .anyRequest().authenticated()
@@ -80,15 +102,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoderConfig.passwordEncoder());
         return authProvider;
     }
 

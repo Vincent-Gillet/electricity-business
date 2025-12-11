@@ -1,0 +1,43 @@
+<section id="lieux-de-recharge">
+  <div class="container table-blue">
+    <h2 class="text-center">Lieux de recharge</h2>
+    <div class="row d-flex gy-4">
+      @defer () {
+        @for (place of places.slice((page-1) * pageSize, page * pageSize); track place.publicId) {
+          <div class="col-12">
+            <app-my-recharging-point [place]="place"></app-my-recharging-point>
+          </div>
+        }
+
+        @if (places.length > pageSize) {
+          <ngb-pagination [(page)]="page"
+                          [pageSize]="pageSize"
+                          [collectionSize]="numElement"
+                          (pageChange)="done()">
+            <ng-template ngbPaginationFirst>First</ng-template>
+            <ng-template ngbPaginationLast>Last</ng-template>
+            <ng-template ngbPaginationPrevious>Prev</ng-template>
+            <ng-template ngbPaginationNext>Next</ng-template>
+            <ng-template ngbPaginationEllipsis>...</ng-template>
+            <ng-template ngbPaginationNumber let-page>{{ page }}</ng-template>
+          </ngb-pagination>
+        }
+      } @loading {
+        <app-loader></app-loader>
+      } @placeholder {
+        <div class="col-md-4 mb-4">
+          <p>Page Mes Lieux</p>
+        </div>
+      } @error {
+        <div class="col-md-12">
+          <p class="text-danger">Erreur lors du chargement des lieux.</p>
+        </div>
+      }
+    </div>
+    <div class="row justify-content-center">
+      <div class="col text-center">
+        <button class="btn button-style mb-4" (click)="openAddCar()">Ajouter un lieu</button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,6 +1,8 @@
 package com.electricitybusiness.api.service;
 
+import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.model.Option;
+import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.OptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service pour gérer les opérations liées aux options.
@@ -75,4 +78,50 @@ public class OptionService {
     public boolean existsById(Long id) {
         return optionRepository.existsById(id);
     }
+
+    // Méthode user
+
+    @Transactional(readOnly = true)
+    public List<Option> getOptionsByPlace(UUID place) { return optionRepository.findOptionsByPlace_PublicId(place); }
+
+    @Transactional(readOnly = true)
+    public List<Option> getOptionsByUser(User user) { return optionRepository.findOptionByPlace_User(user); }
+
+    @Transactional(readOnly = true)
+    public List<Option> getOptionsByTerminal(UUID terminalId) { return optionRepository.findByTerminalPublicId(terminalId); }
+
+    /**
+     * Supprime une voiture.
+     * @param publicId L'identifiant de la voiture à supprimer
+     */
+    public void deleteOptionByPublicId(UUID publicId) {
+        optionRepository.deleteOptionByPublicId(publicId);
+    }
+
+    /**
+     * Vérifie si une voiture existe.
+     * @param publicId L'identifiant de la voiture à vérifier
+     * @return true si la voiture existe, sinon false
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByPublicId(UUID publicId) {
+        return optionRepository.findByPublicId(publicId).isPresent();
+    }
+
+    /**
+     * Met à jour une voiture existant.
+     * @param publicId L'identifiant de la voiture à mettre à jour
+     * @param option La voiture avec les nouvelles informations
+     * @return La voiture mis à jour
+     */
+    public Option updateOption(UUID publicId, Option option) {
+        Option existing = optionRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new IllegalArgumentException("Option with publicId not found: " + publicId));
+
+        option.setIdOption(existing.getIdOption());
+        option.setPublicId(existing.getPublicId());
+
+        return optionRepository.save(option);
+    }
+
 }

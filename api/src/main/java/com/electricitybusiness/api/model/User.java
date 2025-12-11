@@ -7,10 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +24,11 @@ import java.util.List;
  * Un utilisateur peut effectuer des réservations et appartient à un lieu.
  */
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,15 +46,16 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     @NotNull(message = "Le pseudo est obligatoire")
-    private String username;
+    private String pseudo;
 
     @Column(unique = true)
     @Email(message = "L'adresse email doit être valide")
     @NotBlank(message = "L'adresse email est obligatoire")
     private String emailUser;
 
-    @Column(name = "password_user")
+    @Column(name = "password_user", length = 60)
     @NotBlank(message = "Le mot de passe est obligatoire")
+    @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères")
     private String passwordUser;
 
     @Column(name = "role")
@@ -81,24 +81,44 @@ public class User implements UserDetails {
     @NotNull(message = "Le statut de bannissement est obligatoire")
     private Boolean banished = false;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+/*    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
+    private Media media;*/
+
+/*    @OneToOne
+    @JoinColumn(name = "id_media")
+    @ToString.Exclude
+    private Media media;*/
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_media", referencedColumnName = "id_media")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Media media;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Terminal> terminals = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Car> car = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Address> addresses = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,5 +1,14 @@
-<main class="main">
+<main role="main" class="main">
   <app-header></app-header>
-  <router-outlet></router-outlet>
+  @if (currentError$ | async; as currentError) {  <!-- Utilisation du pipe async -->
+    <app-global-error
+      [status]="currentError.status"
+      [message]="currentError.message"
+      [details]="currentError.details"
+      (retry)="onRetry()">
+    </app-global-error>
+  } @else {
+    <router-outlet></router-outlet>
+  }
   <app-footer></app-footer>
 </main>

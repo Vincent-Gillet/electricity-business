@@ -13,6 +13,10 @@ header {
       width: 50px;
     }
   }
+
+  #main-nav {
+    width: -webkit-fill-available;
+  }
 }
 
 @media screen and (min-width: 990px) and (max-width: 1030px) {
@@ -93,7 +97,7 @@ header {
 
   li {
     max-width: 120px;
-
+    text-align: -webkit-center;
   }
 
   a {

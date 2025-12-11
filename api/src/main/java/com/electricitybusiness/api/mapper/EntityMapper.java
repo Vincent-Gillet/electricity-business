@@ -1,37 +1,61 @@
 package com.electricitybusiness.api.mapper;
 
-import com.electricitybusiness.api.dto.*;
+import com.electricitybusiness.api.dto.address.AddressCreateDTO;
+import com.electricitybusiness.api.dto.address.AddressDTO;
+import com.electricitybusiness.api.dto.booking.BookingCreateDTO;
+import com.electricitybusiness.api.dto.booking.BookingDTO;
+import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
+import com.electricitybusiness.api.dto.car.CarCreateDTO;
+import com.electricitybusiness.api.dto.car.CarDTO;
+import com.electricitybusiness.api.dto.media.MediaDTO;
+import com.electricitybusiness.api.dto.option.OptionCreateDTO;
+import com.electricitybusiness.api.dto.option.OptionDTO;
+import com.electricitybusiness.api.dto.place.PlaceCreateDTO;
+import com.electricitybusiness.api.dto.place.PlaceDTO;
+import com.electricitybusiness.api.dto.place.PlaceUpdateDTO;
+import com.electricitybusiness.api.dto.repairer.RepairerDTO;
+import com.electricitybusiness.api.dto.terminal.TerminalCreateDTO;
+import com.electricitybusiness.api.dto.terminal.TerminalDTO;
+import com.electricitybusiness.api.dto.user.*;
 import com.electricitybusiness.api.model.*;
-import com.electricitybusiness.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.electricitybusiness.api.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Year;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Mapper pour convertir entre entités JPA et DTOs
  * Évite les références circulaires en contrôlant la sérialisation
  */
 @Component
-public class EntityMapper {
+@RequiredArgsConstructor
+public class EntityMapper implements IEntityMapper {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
-    
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final PlaceRepository placeRepository;
+    private final OptionRepository optionRepository;
+    private final CarRepository carRepository;
+    private final TerminalRepository terminalRepository;
 
     // === User ===
+    @Override
     public UserDTO toDTO(User user) {
         if (user == null) return null;
         return new UserDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getRole(),
                 user.getDateOfBirth(),
@@ -41,12 +65,13 @@ public class EntityMapper {
         );
     }
 
+    @Override
     public User toEntity(UserDTO dto) {
         if (dto == null) return null;
         User user = new User();
         user.setSurnameUser(dto.getSurnameUser());
         user.setFirstName(dto.getFirstName());
-        user.setUsername(dto.getUsername());
+        user.setPseudo(dto.getPseudo());
         user.setRole(dto.getRole());
         user.setEmailUser(dto.getEmailUser());
         user.setDateOfBirth(dto.getDateOfBirth());
@@ -63,7 +88,7 @@ public class EntityMapper {
         return new UserCreateDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getPasswordUser(),
                 user.getDateOfBirth(),
@@ -76,7 +101,7 @@ public class EntityMapper {
         User user = new User();
         user.setSurnameUser(dto.getSurnameUser());
         user.setFirstName(dto.getFirstName());
-        user.setUsername(dto.getUsername());
+        user.setPseudo(dto.getPseudo());
         user.setRole(UserRole.USER);
         user.setPasswordUser(passwordEncoder.encode(dto.getPasswordUser()));
         user.setEmailUser(dto.getEmailUser());
@@ -93,7 +118,7 @@ public class EntityMapper {
     public User toEntity(UserUpdateDTO dto, User existing) {
         existing.setSurnameUser(dto.getSurnameUser());
         existing.setFirstName(dto.getFirstName());
-        existing.setUsername(dto.getUsername());
+        existing.setPseudo(dto.getPseudo());
         existing.setEmailUser(dto.getEmailUser());
         existing.setDateOfBirth(dto.getDateOfBirth());
         existing.setPhone(dto.getPhone());
@@ -106,7 +131,7 @@ public class EntityMapper {
         return new UserUpdateDTO(
                 user.getSurnameUser(),
                 user.getFirstName(),
-                user.getUsername(),
+                user.getPseudo(),
                 user.getEmailUser(),
                 user.getDateOfBirth(),
                 user.getPhone(),
@@ -139,10 +164,11 @@ public class EntityMapper {
 
 
     // === address ===
-    public AddressDTO toDTO(Address address) {
+    public AddressDTO toAddressDTO(Address address) {
         if (address == null) return null;
         return new AddressDTO(
-                address.getNameAdress(),
+                address.getPublicId(),
+                address.getNameAddress(),
                 address.getAddress(),
                 address.getPostCode(),
                 address.getCity(),
@@ -150,15 +176,15 @@ public class EntityMapper {
                 address.getRegion(),
                 address.getComplement(),
                 address.getFloor(),
-                toDTO(address.getPlace())
-
+                address.getMainAddress(),
+                toListPLaceDTO(address.getPlaces())
         );
     }
 
     public Address toEntity(AddressDTO dto) {
         if (dto == null) return null;
         Address address = new Address();
-        address.setNameAdress(dto.getNameAdress());
+        address.setNameAddress(dto.getNameAddress());
         address.setAddress(dto.getAddress());
         address.setPostCode(dto.getPostCode());
         address.setCity(dto.getCity());
@@ -166,28 +192,99 @@ public class EntityMapper {
         address.setRegion(dto.getRegion());
         address.setComplement(dto.getComplement());
         address.setFloor(dto.getFloor());
-        address.setPlace(toEntity(dto.getPlace()));
+        address.setPlaces(toEntity(dto.getPlaces()));
         return address;
     }
 
+    public Address toEntityCreate(AddressCreateDTO dto, Long idUser) {
+        if (dto == null) return null;
+        Address address = new Address();
+        address.setNameAddress(dto.getNameAddress());
+        address.setAddress(dto.getAddress());
+        address.setPostCode(dto.getPostCode());
+        address.setCity(dto.getCity());
+        address.setCountry(dto.getCountry());
+        address.setRegion(dto.getRegion());
+        address.setComplement(dto.getComplement());
+        address.setFloor(dto.getFloor());
+        address.setUser(idUser != null ? userRepository.getReferenceById(idUser) : null);
+        return address;
+    }
+
+    public List<PlaceDTO> toListPLaceDTO(List<Place> places) {
+        if (places == null) return null;
+        return places.stream()
+                .map(this::toPlaceDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<Place> toEntity(List<PlaceDTO> placeDTOs) {
+        if (placeDTOs == null) return null;
+        return placeDTOs.stream()
+                .map(this::toEntity)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+/*    public Car toEntityCreate(CarCreateDTO dto, Long idUser) {
+        if (dto == null) return null;
+        Car car = new Car();
+        car.setLicensePlate(dto.getLicensePlate());
+        car.setBrand(dto.getBrand());
+        car.setModel(dto.getModel());
+        car.setYear(dto.getYear() != null ? Year.of(dto.getYear()) : null);
+        car.setBatteryCapacity(dto.getBatteryCapacity());
+
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + idUser));
+        car.setUser(user);
+
+        return car;
+    }*/
+
 
     // === LIEU ===
-    public PlaceDTO toDTO(Place place) {
+    public PlaceDTO toPlaceDTO(Place place) {
         if (place == null) return null;
+        String addressName = place.getAddress() != null ? place.getAddress().getNameAddress() : null;
         return new PlaceDTO(
-                place.getInstructionPlace());
+                place.getPublicId(),
+                place.getInstructionPlace(),
+                addressName,
+                place.getAddress().getPublicId()
+        );
     }
 
     public Place toEntity(PlaceDTO dto) {
         if (dto == null) return null;
         Place place = new Place();
+            place.setPublicId(dto.getPublicId());
+            place.setInstructionPlace(dto.getInstructionPlace());
+        return place;
+    }
+
+    public Place toEntityCreate(PlaceCreateDTO dto, Long idUser, UUID idAddress) {
+        if (dto == null) return null;
+        Place place = new Place();
         place.setInstructionPlace(dto.getInstructionPlace());
+        place.setUser(idUser != null ? userRepository.getReferenceById(idUser) : null);
+        place.setAddress(idAddress != null ? addressRepository.findByPublicId(idAddress)
+                .orElseThrow(() -> new RuntimeException("Adresse introuvable : " + idAddress)) : null);
+        return place;
+    }
+
+    public Place toEntityUpdate(PlaceUpdateDTO dto, Long idUser, UUID idAddress) {
+        if (dto == null) return null;
+        Place place = new Place();
+        place.setInstructionPlace(dto.getInstructionPlace());
+        place.setUser(idUser != null ? userRepository.getReferenceById(idUser) : null);
+        place.setAddress(idAddress != null ? addressRepository.findByPublicId(idAddress)
+                .orElseThrow(() -> new RuntimeException("Adresse introuvable : " + idAddress)) : null);
         return place;
     }
 
 
     // === MEDIA ===
-    public MediaDTO toDTO(Media media) {
+    public MediaDTO toMediaDTO(Media media) {
         if (media == null) return null;
         return new MediaDTO(
                 media.getNameMedia(),
@@ -228,7 +325,7 @@ public class EntityMapper {
 
     // === Car ===
 
-    public CarDTO toDTO(Car car) {
+    public CarDTO toCarDTO(Car car) {
         if (car == null) return null;
         return new CarDTO(
                 car.getPublicId(),
@@ -272,39 +369,20 @@ public class EntityMapper {
         car.setBrand(dto.getBrand());
         car.setModel(dto.getModel());
         car.setYear(dto.getYear() != null ? Year.of(dto.getYear()) : null);
-
-/*
-        car.setYear(Year.of(dto.getYear()));
-*/
         car.setBatteryCapacity(dto.getBatteryCapacity());
-
-        // Set the user directly using the ID
-/*        User user = new User();
-        user.setIdUser(idUser);
-        car.setUser(user);*/
-
-/*
-        User user = userRepository.getReferenceById(idUser);
-*/
         User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable : " + idUser));
         car.setUser(user);
-
-        System.out.println("[DEBUG] Car before save -> " + car);
-        System.out.println("[DEBUG] User linked -> " + user.getIdUser());
-
-/*        User user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        car.setUser(user);*/
 
         return car;
     }
 
 
     // === terminal ===
-    public TerminalDTO toDTO(Terminal terminal) {
+    public TerminalDTO toTerminalDTO(Terminal terminal) {
         if (terminal == null) return null;
         return new TerminalDTO(
+                terminal.getPublicId(),
                 terminal.getNameTerminal(),
                 terminal.getLatitude(),
                 terminal.getLongitude(),
@@ -336,37 +414,84 @@ public class EntityMapper {
         return terminal;
     }
 
+    public Terminal toEntityCreate (TerminalCreateDTO dto, UUID idPlace) {
+        if (dto == null) return null;
+        Terminal terminal = new Terminal();
+        terminal.setNameTerminal(dto.getNameTerminal());
+        terminal.setLatitude(dto.getLatitude());
+        terminal.setLongitude(dto.getLongitude());
+        terminal.setPrice(dto.getPrice());
+        terminal.setPower(dto.getPower());
+        terminal.setInstructionTerminal(dto.getInstructionTerminal());
+        terminal.setStanding(dto.getStanding());
+        terminal.setStatusTerminal(dto.getStatusTerminal());
+        terminal.setOccupied(dto.getStatusTerminal() == TerminalStatus.LIBRE ? false: true);
+/*        terminal.setDateCreation(dto.getDateCreation());
+        terminal.setLastMaintenance(dto.getLastMaintenance());*/
+/*
+        terminal.setPlace(idPlace != null ? addressRepository.getReferenceById(idPlace) : null);
+*/
+        terminal.setPlace(idPlace != null ? placeRepository.findByPublicId(idPlace)
+                .orElseThrow(() -> new RuntimeException("Adresse introuvable : " + idPlace)) : null);
+
+        return terminal;
+    }
+
 
     // === SERVICE SUPPLEMENTAIRE ===
 
-    public OptionDTO toDTO(Option serviceSup) {
-        if (serviceSup == null) return null;
+    public OptionDTO toOptionDTO(Option option) {
+        if (option == null) return null;
+        String addressName = option.getPlace() != null ? option.getPlace().getAddress().getNameAddress() : null;
         return new OptionDTO(
-                serviceSup.getNameOption(),
-                serviceSup.getPriceOption(),
-                serviceSup.getDescriptionOption()
+                option.getPublicId(),
+                option.getNameOption(),
+                option.getPriceOption(),
+                option.getDescriptionOption(),
+                addressName
         );
     }
 
     public Option toEntity(OptionDTO dto) {
         if (dto == null) return null;
-        Option serviceSup = new Option();
-        serviceSup.setNameOption(dto.getNameOption());
-        serviceSup.setPriceOption(dto.getPriceOption());
-        serviceSup.setDescriptionOption(dto.getDescriptionOption());
-        return serviceSup;
+        Option option = new Option();
+        option.setNameOption(dto.getNameOption());
+        option.setPriceOption(dto.getPriceOption());
+        option.setDescriptionOption(dto.getDescriptionOption());
+        return option;
+    }
+
+    public Option toEntityCreate (OptionCreateDTO dto, UUID idPlace) {
+        if (dto == null) return null;
+        Option option = new Option();
+        option.setNameOption(dto.getNameOption());
+        option.setPriceOption(dto.getPriceOption());
+        option.setDescriptionOption(dto.getDescriptionOption());
+        option.setPlace(idPlace != null ? placeRepository.findByPublicId(idPlace)
+                .orElseThrow(() -> new RuntimeException("Adresse introuvable : " + idPlace)) : null);
+        return option;
     }
 
     // === booking ===
-    public BookingDTO toDTO(Booking booking) {
+    public BookingDTO toBookingDTO(Booking booking) {
         if (booking == null) return null;
+        UserDTO userClientDTO = booking.getUser() != null ? toDTO(booking.getUser()) : null;
+        UserDTO userOwnerDTO = booking.getTerminal() != null ? toDTO(booking.getTerminal().getPlace().getUser()) : null;
+        AddressDTO addressDTO = booking.getTerminal() != null ?
+                toAddressDTO(booking.getTerminal().getPlace().getAddress()) : null;
+        TerminalDTO terminalDTO = booking.getTerminal() != null ? toTerminalDTO(booking.getTerminal()) : null;
         return new BookingDTO(
+                booking.getPublicId(),
                 booking.getNumberBooking(),
                 booking.getStartingDate(),
                 booking.getEndingDate(),
                 booking.getStatusBooking(),
                 booking.getTotalAmount(),
                 booking.getPaymentDate(),
+                userClientDTO,
+                userOwnerDTO,
+                addressDTO,
+                terminalDTO,
                 booking.getUser() != null ? booking.getUser().getIdUser() : null,
                 booking.getTerminal() != null ? booking.getTerminal().getIdTerminal() : null,
                 booking.getCar() != null ? booking.getCar().getIdCar() : null,
@@ -384,10 +509,47 @@ public class EntityMapper {
         return booking;
     }
 
+    public Booking toEntityCreate(BookingCreateDTO dto, Long idUser, UUID idTerminal, UUID idCar, UUID idOption) {
+        if (dto == null) return null;
+        BigDecimal terminalPrice = terminalRepository.findByPublicId(idTerminal)
+                .orElseThrow(() -> new RuntimeException("Terminal introuvable : " + idTerminal))
+                .getPrice();
+        terminalPrice = terminalPrice != null ? terminalPrice : BigDecimal.ZERO;
+
+        BigDecimal optionPrice = BigDecimal.ZERO;
+        if (idOption != null) {
+            optionPrice = optionRepository.findByPublicId(idOption)
+                .orElseThrow(() -> new RuntimeException("Option introuvable : " + idOption))
+                .getPriceOption();
+            optionPrice = optionPrice != null ? optionPrice : BigDecimal.ZERO;
+        }
+
+        Booking booking = new Booking();
+        booking.setStartingDate(dto.getStartingDate());
+        booking.setEndingDate(dto.getEndingDate());
+        booking.setStatusBooking(dto.getStatusBooking());
+        booking.setTotalAmount(terminalPrice.add(optionPrice));
+        booking.setUser(idUser != null ? userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("User introuvable : " + idUser)): null);
+        booking.setTerminal(idTerminal != null ? terminalRepository.findByPublicId(idTerminal)
+                .orElseThrow(() -> new RuntimeException("Terminal introuvable : " + idTerminal)) : null);
+        booking.setCar(idCar != null ? carRepository.findByPublicId(idCar)
+                .orElseThrow(() -> new RuntimeException("Car introuvable : " + idCar)) : null);
+        booking.setOption(idOption != null ? optionRepository.findByPublicId(idOption)
+                .orElseThrow(() -> new RuntimeException("Option introuvable : " + idOption)) : null);
+        return booking;
+    }
+
+    public Booking toEntityUpdateStatus(BookingStatusDTO dto) {
+        if (dto == null) return null;
+        Booking booking = new Booking();
+        booking.setStatusBooking(dto.getStatusBooking());
+        return booking;
+    }
 
     // === REPARATEUR ===
 
-    public RepairerDTO toDTO(Repairer repairer) {
+    public RepairerDTO toRepairerDTO(Repairer repairer) {
         if (repairer == null) return null;
         return new RepairerDTO(
                 repairer.getNameRepairer(),

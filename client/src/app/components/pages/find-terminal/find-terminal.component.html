@@ -1,0 +1,90 @@
+<section id="rechercher_borne" class="form-login-subcription">
+  <div class="container table-blue">
+    <h2 class="text-center">Trouver une borne</h2>
+    <form class="row g-3 needs-validation" novalidate [formGroup]="searchTerminalForm" (ngSubmit)="onSubmit()" style="position: relative; z-index: 1000;">
+<!--      <div class="col-md-4">
+        <label for="addressSearch" class="form-label">Adresse *</label>
+        <input type="text" class="form-control" id="addressSearch" formControlName="address" placeholder="10 Rue Philippe Marcombes" required>
+      </div>-->
+
+      <div class="col-md-4 position-relative">
+        <label for="addressSearch" class="form-label">Adresse *</label>
+        <input
+          type="text"
+          class="form-control"
+          id="addressSearch"
+          formControlName="address"
+          placeholder="10 Rue Philippe Marcombes"
+          required
+          (blur)="closeSuggestions()"
+          autocomplete="off"
+        >
+
+        <!-- Indicateur de chargement -->
+        @if (isLoading) {
+          <div class="position-absolute top-50 end-0 translate-middle-y me-2">
+            <div class="spinner-border spinner-border-sm text-secondary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+        }
+
+        <!-- Liste des suggestions -->
+        @if (showSuggestions && locationSuggestions.length > 0) {
+          <div class="position-absolute z-index-9999 w-100 mt-1 bg-white border rounded shadow-sm">
+            <div class="list-group list-group-flush">
+              @for (suggestion of locationSuggestions; track suggestion) {
+                <button
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        (mousedown)="selectSuggestion(suggestion)">
+                  {{ suggestion.display_name }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <div class="col-md-4">
+        <label for="startingDateSearch" class="form-label">Date de debut</label>
+        <input [min]="minDateTimeString" [max]="maxDateTimeString" type="datetime-local" class="form-control" id="startingDateSearch" formControlName="startingDate" required>
+      </div>
+      <div class="col-md-4">
+        <label for="endingDateSearch" class="form-label">Durée de la réservation *</label>
+        <select class="form-control" id="endingDatePost" formControlName="endingDate" required>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">1 heure</option>
+        </select>
+      </div>
+      <div class="col-12 div-center">
+        <button class="btn button-style" type="submit">Rechercher</button>
+        <button class="btn button-style ms-2" (click)="onReset()">Réinitialiser</button>
+      </div>
+    </form>
+    <app-map-terminal [terminals]="terminals" [lat]="lat" [long]="long" [startingDateSearch]="startingDateSearch" [endingDateSearch]="endingDateSearch"></app-map-terminal>
+    <h3>Total de borne : {{ terminals.length }}</h3>
+    <table class="table table-striped mt-4">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Tarif</th>
+          <th>Disponible</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(terminal of terminals; track terminal) {
+          <tr>
+            <td>{{ terminal.nameTerminal }}</td>
+            <td>{{ terminal.price }}</td>
+            <td>{{ terminal.occupied ? "Non" : "Oui"}}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+

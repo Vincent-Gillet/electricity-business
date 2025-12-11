@@ -1,6 +1,6 @@
 package com.electricitybusiness.api.service;
 
-import com.electricitybusiness.api.dto.CarDTO;
+import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.model.Car;
 import com.electricitybusiness.api.model.User;
 import com.electricitybusiness.api.repository.CarRepository;
@@ -131,6 +131,12 @@ public class CarService {
             car.setUser(existingUser);
         }
         return carRepository.save(car);
+    }
+
+    public Car getCarByPublicId(UUID publicId) {
+        return carRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with publicId: " + publicId));
     }
 
 }
