@@ -130,7 +130,7 @@ public class AddressService {
 
     public ResponseEntity<AddressDTO> getAddressDTOByPublicId(UUID publicId) {
         return addressRepository.findByPublicId(publicId)
-                .map(address -> ResponseEntity.ok(entityMapper.toDTO(address)))
+                .map(address -> ResponseEntity.ok(entityMapper.toAddressDTO(address)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

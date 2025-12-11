@@ -1,4 +1,4 @@
-package com.electricitybusiness.api.dto;
+package com.electricitybusiness.api.dto.media;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

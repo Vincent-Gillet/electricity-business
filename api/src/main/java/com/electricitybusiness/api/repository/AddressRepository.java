@@ -22,8 +22,4 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     boolean existsByPublicId(UUID publicId);
 
     Optional<Address> findByPublicId(UUID publicId);
-
-/*
-    Optional<AddressDTO> findDTOByPublicId(UUID publicId);
-*/
 }

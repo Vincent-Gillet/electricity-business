@@ -35,7 +35,6 @@ public class AddressServiceTest {
     @InjectMocks
     private AddressService addressService;
 
-    // Données de test communes
     private User testUser;
     private Address address1;
     private Address address2;
@@ -47,7 +46,6 @@ public class AddressServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Initialisation de l'utilisateur de test
         testUser = new User(
                 1L, "John", "Doe", "johndoe",
                 "john.doe@example.com", "password",
@@ -56,7 +54,6 @@ public class AddressServiceTest {
                 false, null, null, null, null, null
         );
 
-        // Initialisation des adresses de test
         publicId1 = UUID.randomUUID();
         publicId2 = UUID.randomUUID();
 
@@ -72,7 +69,7 @@ public class AddressServiceTest {
         address1.setComplement("Complement");
         address1.setFloor("2nd Floor");
         address1.setMainAddress(true);
-        address1.setUser(testUser); // Assurez-vous d'associer l'utilisateur
+        address1.setUser(testUser);
 
         address2 = new Address();
         address2.setIdAddress(id2);
@@ -88,7 +85,6 @@ public class AddressServiceTest {
         address2.setMainAddress(false);
         address2.setUser(testUser);
 
-        // Initialisation de l'AddressDTO de test (pour la méthode getAddressDTOByPublicId)
         addressDTO1 = new AddressDTO(
                 address1.getPublicId(),
                 address1.getNameAddress(),
@@ -100,14 +96,14 @@ public class AddressServiceTest {
                 address1.getComplement(),
                 address1.getFloor(),
                 address1.getMainAddress(),
-                this.entityMapper.toDTO(address1.getPlaces())
-/*                address1.getNameAddress(),
-                address1.getPublicId(),
-                address1.getRegion(),
-                address1.getUser().getIdUser() // Ou d'autres champs de l'utilisateur*/
+                this.entityMapper.toListPLaceDTO(address1.getPlaces())
         );
     }
 
+    /**
+     * Teste la méthode getAllAddresses() du service AddressService.
+     * Vérifie que la liste des adresses retournée correspond aux attentes.
+     */
     @Test
     void getAllAddresses_shouldReturnListOfAddresses() {
         // Préparation du mock
@@ -122,23 +118,31 @@ public class AddressServiceTest {
         assertEquals(2, result.size());
         assertEquals(address1, result.get(0));
         assertEquals(address2, result.get(1));
-        verify(addressRepository, times(1)).findAll(); // Vérifie que la méthode findAll a été appelée une fois
+        verify(addressRepository, times(1)).findAll();
     }
 
+    /**
+     * Teste la méthode getAddressById() du service AddressService.
+     * Vérifie que l'adresse retournée correspond à l'adresse mockée.
+     */
     @Test
     void getAddressById_shouldReturnAddressWhenFound() {
-        // Préparation du mock
+        // Preparation
         when(addressRepository.findById(id1)).thenReturn(Optional.of(address1));
 
-        // Exécution
+        // Execution
         Optional<Address> result = addressService.getAddressById(id1);
 
-        // Vérification
+        // Assertion
         assertTrue(result.isPresent());
         assertEquals(address1, result.get());
         verify(addressRepository, times(1)).findById(id1);
     }
 
+    /**
+     * Teste la méthode getAddressById() du service AddressService.
+     * Vérifie que l'Optional retourné est vide lorsque l'adresse n'est pas trouvée.
+     */
     @Test
     void getAddressById_shouldReturnEmptyOptionalWhenNotFound() {
         // Préparation du mock
@@ -152,6 +156,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).findById(99L);
     }
 
+    /**
+     * Teste la méthode saveAddress() du service AddressService.
+     * Vérifie que l'adresse sauvegardée est retournée correctement.
+     */
     @Test
     void saveAddress_shouldReturnSavedAddress() {
         // Préparation du mock
@@ -166,17 +174,21 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).save(address1);
     }
 
+    /**
+     * Teste la méthode updateAddress() du service AddressService.
+     * Vérifie que l'adresse mise à jour est retournée correctement.
+     */
     @Test
     void updateAddress_byId_shouldReturnUpdatedAddress() {
         // Préparation du mock
         Address updatedAddressPayload = new Address();
         updatedAddressPayload.setAddress("Nouvelle Rue");
         updatedAddressPayload.setCity("Nouvelle Ville");
-        updatedAddressPayload.setPublicId(UUID.randomUUID()); // Le publicId du payload n'est pas utilisé directement ici
+        updatedAddressPayload.setPublicId(UUID.randomUUID());
 
         Address expectedSavedAddress = new Address();
-        expectedSavedAddress.setIdAddress(id1); // L'ID interne est setté par le service
-        expectedSavedAddress.setPublicId(updatedAddressPayload.getPublicId()); // Copie le publicId du payload
+        expectedSavedAddress.setIdAddress(id1);
+        expectedSavedAddress.setPublicId(updatedAddressPayload.getPublicId());
         expectedSavedAddress.setAddress("Nouvelle Rue");
         expectedSavedAddress.setCity("Nouvelle Ville");
 
@@ -187,15 +199,16 @@ public class AddressServiceTest {
 
         // Vérification
         assertNotNull(result);
-        assertEquals(id1, result.getIdAddress()); // Vérifie que l'ID a été setté
+        assertEquals(id1, result.getIdAddress());
         assertEquals("Nouvelle Rue", result.getAddress());
         assertEquals("Nouvelle Ville", result.getCity());
-        // Note: l'ID public du résultat sera celui du payload, car le service le garde tel quel
-        // si le payload en contient un. Sinon, il serait null.
-        // La méthode updateAddress(Long id, Address address) se contente de setter l'ID interne.
         verify(addressRepository, times(1)).save(any(Address.class));
     }
 
+    /**
+     * Teste la méthode deleteAddressById() du service AddressService.
+     * Vérifie que la méthode deleteById() du repository est appelée une fois.
+     */
     @Test
     void deleteAddressById_shouldCallRepositoryDeleteById() {
         // Exécution
@@ -205,6 +218,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).deleteById(id1);
     }
 
+    /**
+     * Teste la méthode existsById() du service AddressService.
+     * Vérifie que la méthode retourne true lorsque l'adresse existe.
+     */
     @Test
     void existsById_shouldReturnTrueWhenAddressExists() {
         // Préparation du mock
@@ -218,6 +235,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).existsById(id1);
     }
 
+    /**
+     * Teste la méthode existsById() du service AddressService.
+     * Vérifie que la méthode retourne false lorsque l'adresse n'existe pas.
+     */
     @Test
     void existsById_shouldReturnFalseWhenAddressDoesNotExist() {
         // Préparation du mock
@@ -231,6 +252,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).existsById(99L);
     }
 
+    /**
+     * Teste la méthode getAddressesByUser() du service AddressService.
+     * Vérifie que la liste des adresses retournée pour un utilisateur donné correspond aux attentes.
+     */
     @Test
     void getAddressesByUser_shouldReturnListOfAddresses() {
         // Préparation du mock
@@ -248,6 +273,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).findAddressesByUser(testUser);
     }
 
+    /**
+     * Teste la méthode deleteAddressByPublicId() du service AddressService.
+     * Vérifie que la méthode deleteAddressByPublicId() du repository est appelée une fois.
+     */
     @Test
     void deleteAddressByPublicId_shouldCallRepositoryDeleteByPublicId() {
         // Exécution
@@ -257,6 +286,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).deleteAddressByPublicId(publicId1);
     }
 
+    /**
+     * Teste la méthode existsByPublicId() du service AddressService.
+     * Vérifie que la méthode retourne true lorsque l'adresse existe.
+     */
     @Test
     void existsByPublicId_shouldReturnTrueWhenAddressExists() {
         // Préparation du mock
@@ -270,6 +303,10 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).findByPublicId(publicId1);
     }
 
+    /**
+     * Teste la méthode existsByPublicId() du service AddressService.
+     * Vérifie que la méthode retourne false lorsque l'adresse n'existe pas.
+     */
     @Test
     void existsByPublicId_shouldReturnFalseWhenAddressDoesNotExist() {
         // Préparation du mock
@@ -283,32 +320,31 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).findByPublicId(any(UUID.class));
     }
 
+    /**
+     * Teste la méthode updateAddress() du service AddressService en utilisant le publicId.
+     * Vérifie que l'adresse mise à jour est retournée correctement et que l'utilisateur existant est conservé si le payload utilisateur est null.
+     */
     @Test
     void updateAddress_byPublicId_shouldReturnUpdatedAddress_andRetainExistingUserIfPayloadUserIsNull() {
-        // Préparation du mock pour l'adresse existante
         Address existingAddress = new Address();
         existingAddress.setIdAddress(id1);
         existingAddress.setPublicId(publicId1);
         existingAddress.setAddress("Ancienne Rue");
         existingAddress.setCity("Ancienne Ville");
-        existingAddress.setUser(testUser); // L'utilisateur existant
+        existingAddress.setUser(testUser);
 
         when(addressRepository.findByPublicId(publicId1)).thenReturn(Optional.of(existingAddress));
 
-        // Préparation du payload de mise à jour (l'utilisateur est null)
         Address updatedAddressPayload = new Address();
         updatedAddressPayload.setAddress("Nouvelle Rue");
         updatedAddressPayload.setCity("Nouvelle Ville");
-        updatedAddressPayload.setUser(null); // L'utilisateur du payload est null
+        updatedAddressPayload.setUser(null);
 
-        // Préparation du mock pour la sauvegarde
-        // L'adresse sauvegardée doit contenir l'ID interne et le publicId de l'EXISTANT,
-        // et l'utilisateur existant si le payload était null.
         when(addressRepository.save(any(Address.class))).thenAnswer(invocation -> {
             Address savedAddress = invocation.getArgument(0);
-            assertEquals(existingAddress.getIdAddress(), savedAddress.getIdAddress()); // Doit garder l'ID interne
-            assertEquals(existingAddress.getPublicId(), savedAddress.getPublicId());   // Doit garder le publicId
-            assertEquals(existingAddress.getUser(), savedAddress.getUser());           // Doit garder l'utilisateur existant
+            assertEquals(existingAddress.getIdAddress(), savedAddress.getIdAddress());
+            assertEquals(existingAddress.getPublicId(), savedAddress.getPublicId());
+            assertEquals(existingAddress.getUser(), savedAddress.getUser());
             return savedAddress;
         });
 
@@ -321,42 +357,42 @@ public class AddressServiceTest {
         assertEquals(existingAddress.getPublicId(), result.getPublicId());
         assertEquals("Nouvelle Rue", result.getAddress());
         assertEquals("Nouvelle Ville", result.getCity());
-        assertEquals(testUser, result.getUser()); // L'utilisateur doit être l'utilisateur existant
+        assertEquals(testUser, result.getUser());
         verify(addressRepository, times(1)).findByPublicId(publicId1);
         verify(addressRepository, times(1)).save(any(Address.class));
     }
 
+    /**
+     * Teste la méthode updateAddress() du service AddressService en utilisant le publicId.
+     * Vérifie que l'adresse mise à jour est retournée correctement et que l'utilisateur est mis à jour si le payload utilisateur n'est pas null.
+     */
     @Test
     void updateAddress_byPublicId_shouldReturnUpdatedAddress_andUpdateUserIfPayloadUserIsNotNull() {
-        // Préparation du mock pour l'adresse existante
         Address existingAddress = new Address();
         existingAddress.setIdAddress(id1);
         existingAddress.setPublicId(publicId1);
         existingAddress.setAddress("Ancienne Rue");
         existingAddress.setCity("Ancienne Ville");
-        existingAddress.setUser(testUser); // L'utilisateur existant
+        existingAddress.setUser(testUser);
 
         when(addressRepository.findByPublicId(publicId1)).thenReturn(Optional.of(existingAddress));
 
-        // Création d'un nouvel utilisateur pour le payload
         User newUser = new User();
         newUser.setIdUser(2L);
         newUser.setFirstName("Jane");
         newUser.setSurnameUser("Doe");
         newUser.setEmailUser("jane.doe@example.com");
 
-        // Préparation du payload de mise à jour (l'utilisateur est non null)
         Address updatedAddressPayload = new Address();
         updatedAddressPayload.setAddress("Nouvelle Rue avec nouvel utilisateur");
         updatedAddressPayload.setCity("Nouvelle Ville avec nouvel utilisateur");
-        updatedAddressPayload.setUser(newUser); // L'utilisateur du payload est différent
+        updatedAddressPayload.setUser(newUser);
 
-        // Préparation du mock pour la sauvegarde
         when(addressRepository.save(any(Address.class))).thenAnswer(invocation -> {
             Address savedAddress = invocation.getArgument(0);
             assertEquals(existingAddress.getIdAddress(), savedAddress.getIdAddress());
             assertEquals(existingAddress.getPublicId(), savedAddress.getPublicId());
-            assertEquals(newUser, savedAddress.getUser()); // L'utilisateur doit être le NOUVEL utilisateur
+            assertEquals(newUser, savedAddress.getUser());
             return savedAddress;
         });
 
@@ -374,13 +410,14 @@ public class AddressServiceTest {
         verify(addressRepository, times(1)).save(any(Address.class));
     }
 
-
+    /**
+     * Teste la méthode updateAddress() du service AddressService en utilisant le publicId.
+     * Vérifie qu'une exception est lancée lorsque l'adresse n'est pas trouvée.
+     */
     @Test
     void updateAddress_byPublicId_shouldThrowExceptionWhenAddressNotFound() {
-        // Préparation du mock : l'adresse n'est pas trouvée
         when(addressRepository.findByPublicId(publicId1)).thenReturn(Optional.empty());
 
-        // Exécution et vérification de l'exception
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 addressService.updateAddress(publicId1, new Address()));
 
@@ -389,11 +426,15 @@ public class AddressServiceTest {
         verify(addressRepository, never()).save(any(Address.class)); // Vérifie que save n'a pas été appelé
     }
 
+    /**
+     * Teste la méthode getAddressDTOByPublicId() du service AddressService.
+     * Vérifie que la réponse HTTP est correcte lorsque l'adresse est trouvée.
+     */
     @Test
     void getAddressDTOByPublicId_shouldReturnOkWithDTOWhenAddressFound() {
         // Préparation du mock
         when(addressRepository.findByPublicId(publicId1)).thenReturn(Optional.of(address1));
-        when(entityMapper.toDTO(address1)).thenReturn(addressDTO1);
+        when(entityMapper.toAddressDTO(address1)).thenReturn(addressDTO1);
 
         // Exécution
         ResponseEntity<AddressDTO> response = addressService.getAddressDTOByPublicId(publicId1);
@@ -403,9 +444,13 @@ public class AddressServiceTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(addressDTO1, response.getBody());
         verify(addressRepository, times(1)).findByPublicId(publicId1);
-        verify(entityMapper, times(1)).toDTO(address1);
+        verify(entityMapper, times(1)).toAddressDTO(address1);
     }
 
+    /**
+     * Teste la méthode getAddressDTOByPublicId() du service AddressService.
+     * Vérifie que la réponse HTTP est correcte lorsque l'adresse n'est pas trouvée.
+     */
     @Test
     void getAddressDTOByPublicId_shouldReturnNotFoundWhenAddressNotFound() {
         // Préparation du mock
@@ -419,6 +464,6 @@ public class AddressServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(addressRepository, times(1)).findByPublicId(any(UUID.class));
-        verify(entityMapper, never()).toDTO(any(Address.class)); // Mapper ne doit pas être appelé
+        verify(entityMapper, never()).toAddressDTO(any(Address.class)); // Mapper ne doit pas être appelé
     }
 }

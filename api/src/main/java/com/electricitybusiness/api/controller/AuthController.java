@@ -28,7 +28,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailService customUserDetailService;
 
-    @PostMapping("/login")
+/*    @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest request, HttpServletResponse response) {
         try {
             // Authentification de l'utilisateur
@@ -60,12 +60,57 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Email ou mot de passe incorrect"));
         }
+    }*/
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticate(@RequestBody AuthRequest request, HttpServletResponse response) {
+        System.out.println("AuthController: Attempting authentication for user: " + request.emailUser());
+        try {
+            System.out.println("AuthController: Calling authenticationManager.authenticate() for user: " + request.emailUser());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.emailUser(), request.passwordUser())
+            );
+            System.out.println("AuthController: Authentication successful for user: " + request.emailUser());
+
+            System.out.println("AuthController: Loading UserDetails for user: " + request.emailUser());
+            final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.emailUser());
+            System.out.println("AuthController: UserDetails loaded: " + userDetails.getUsername());
+
+            System.out.println("AuthController: Generating Access Token for user: " + userDetails.getUsername());
+            final String jwt = jwtService.generateAccessToken(userDetails.getUsername());
+            System.out.println("AuthController: Access Token generated.");
+
+            System.out.println("AuthController: Generating Refresh Token in DB for user: " + userDetails.getUsername());
+            final RefreshToken refreshToken = jwtService.generateRefreshTokenBdd((User) userDetails);
+            System.out.println("AuthController: Refresh Token generated with ID: " + refreshToken.getIdRefreshToken());
+
+            System.out.println("AuthController: Creating HttpOnly cookie for refresh token.");
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getIdRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 jours
+                    .sameSite("None")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            System.out.println("AuthController: Authentication successful for user: " + request.emailUser() + ". Returning access token.");
+            return ResponseEntity.ok(Map.of("accessToken", jwt));
+
+        } catch (Exception e) {
+            System.err.println("AuthController: ERROR - Authentication failed for user: " + request.emailUser());
+            e.printStackTrace(); // Ceci est CRUCIAL pour voir la stack trace complète de l'erreur
+            System.err.println("AuthController: Returning UNAUTHORIZED response.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Email ou mot de passe incorrect"));
+        }
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(
             HttpServletRequest request,
-            HttpServletResponse response) {
+            HttpServletResponse response
+    ) {
 
         String refreshToken = extractRefreshTokenFromCookie(request, "refreshAccessToken");
 

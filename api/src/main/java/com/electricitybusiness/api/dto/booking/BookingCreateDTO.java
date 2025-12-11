@@ -4,6 +4,7 @@ import com.electricitybusiness.api.model.BookingStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,10 +15,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BookingCreateDTO {
-/*
-    @NotBlank(message = "Le numéro de réservation est obligatoire")
-*/
     private String numberBooking;
 
     @NotNull(message = "La date de début est obligatoire")

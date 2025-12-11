@@ -22,10 +22,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class OptionServiceTest {
     @Mock
-    private OptionRepository optionRepository; // Dépendance de OptionService
+    private OptionRepository optionRepository;
 
     @InjectMocks
-    private OptionService optionService; // Le service que nous allons tester
+    private OptionService optionService;
 
     // Données de test communes
     private User testUser;
@@ -69,6 +69,9 @@ public class OptionServiceTest {
         option2 = new Option(id2, publicId2, "Parking Reservation", BigDecimal.valueOf(2.00), "Reserves a parking spot", null, testPlace);
     }
 
+    /**
+     * Test de la méthode getAllOptions pour vérifier qu'elle retourne la liste correcte des options.
+     */
     @Test
     void getAllOptions_shouldReturnListOfOptions() {
         // Préparation du mock
@@ -86,6 +89,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findAll();
     }
 
+    /**
+     * Test de la méthode getAllOptions pour vérifier qu'elle retourne une liste vide lorsque
+     * aucune option n'existe.
+     */
     @Test
     void getAllOptions_shouldReturnEmptyList_whenNoOptionsExist() {
         // Préparation du mock
@@ -100,6 +107,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findAll();
     }
 
+    /**
+     * Test de la méthode getOptionById pour vérifier qu'elle retourne l'option correcte
+     * lorsqu'elle est trouvée.
+     */
     @Test
     void getOptionById_shouldReturnOption_whenFound() {
         // Préparation du mock
@@ -114,6 +125,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findById(id1);
     }
 
+    /**
+     * Test de la méthode getOptionById pour vérifier qu'elle retourne un Optional vide
+     * lorsque l'option n'est pas trouvée.
+     */
     @Test
     void getOptionById_shouldReturnEmptyOptional_whenNotFound() {
         // Préparation du mock
@@ -127,34 +142,48 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findById(99L);
     }
 
+    /**
+     * Test de la méthode saveOption pour vérifier qu'elle sauvegarde et retourne l'option correctement.
+     */
     @Test
     void saveOption_shouldReturnSavedOption() {
-        // Option sans ID pour simuler une nouvelle création
-        Option newOption = new Option(null, UUID.randomUUID(), "Premium Support", BigDecimal.valueOf(5.00), "24/7 technical support", null, testPlace);
-        // Le repository doit retourner l'option avec un ID après la sauvegarde
+        Option newOption = new Option(
+                null,
+                UUID.randomUUID(),
+                "Premium Support",
+                BigDecimal.valueOf(5.00),
+                "24/7 technical support",
+                null,
+                testPlace);
         when(optionRepository.save(any(Option.class))).thenReturn(new Option(3L, newOption.getPublicId(), newOption.getNameOption(), newOption.getPriceOption(), newOption.getDescriptionOption(), newOption.getMedias(), newOption.getPlace()));
 
         // Exécution
         Option savedOption = optionService.saveOption(newOption);
 
         // Vérification
-        assertNotNull(savedOption.getIdOption()); // L'ID doit avoir été assigné
+        assertNotNull(savedOption.getIdOption());
         assertEquals("Premium Support", savedOption.getNameOption());
         verify(optionRepository, times(1)).save(any(Option.class));
     }
 
+    /**
+     * Test de la méthode updateOption pour vérifier qu'elle met à jour et retourne l'option correctement.
+     */
     @Test
     void updateOption_byId_shouldReturnUpdatedOption() {
-        // Créer une version modifiée d'option1
-        Option updatedOptionDetails = new Option(id1, publicId1, "Super Fast Charging", BigDecimal.valueOf(1.00), "Ultra-fast charging speeds", null, testPlace);
+        Option updatedOptionDetails = new Option(
+                id1,
+                publicId1,
+                "Super Fast Charging",
+                BigDecimal.valueOf(1.00),
+                "Ultra-fast charging speeds",
+                null,
+                testPlace);
 
-        // Le repository doit retourner l'option mise à jour
         when(optionRepository.save(any(Option.class))).thenReturn(updatedOptionDetails);
 
-        // Exécution
         Option result = optionService.updateOption(id1, updatedOptionDetails);
 
-        // Vérification
         assertNotNull(result);
         assertEquals(id1, result.getIdOption());
         assertEquals("Super Fast Charging", result.getNameOption());
@@ -162,6 +191,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).save(any(Option.class));
     }
 
+    /**
+     * Test de la méthode deleteOptionById pour vérifier qu'elle appelle correctement le repository.
+     */
     @Test
     void deleteOptionById_shouldCallRepositoryDelete() {
         // Exécution
@@ -171,6 +203,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).deleteById(id1);
     }
 
+    /**
+     * Test de la méthode existsById pour vérifier qu'elle retourne true lorsque l'option existe.
+     */
     @Test
     void existsById_shouldReturnTrue_whenExists() {
         when(optionRepository.existsById(id1)).thenReturn(true);
@@ -181,6 +216,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).existsById(id1);
     }
 
+    /**
+     * Test de la méthode existsById pour vérifier qu'elle retourne false lorsque l'option n'existe pas.
+     */
     @Test
     void existsById_shouldReturnFalse_whenNotExists() {
         when(optionRepository.existsById(99L)).thenReturn(false);
@@ -191,8 +229,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).existsById(99L);
     }
 
-    // --- Tests pour les méthodes spécifiques aux relations (Place, User, Terminal) ---
-
+    /**
+     * Test de la méthode getOptionsByPlace pour vérifier qu'elle retourne la liste correcte des options pour une place donnée.
+     */
     @Test
     void getOptionsByPlace_shouldReturnListOfOptions_whenFound() {
         List<Option> optionsForPlace = Arrays.asList(option1, option2);
@@ -207,6 +246,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findOptionsByPlace_PublicId(testPlace.getPublicId());
     }
 
+    /**
+     * Test de la méthode getOptionsByPlace pour vérifier qu'elle retourne une liste vide lorsque
+     * aucune option n'existe pour la place donnée.
+     */
     @Test
     void getOptionsByPlace_shouldReturnEmptyList_whenNoOptionsForPlace() {
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -220,6 +263,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findOptionsByPlace_PublicId(any(UUID.class));
     }
 
+    /**
+     * Test de la méthode getOptionsByUser pour vérifier qu'elle retourne la liste correcte des options pour un utilisateur donné.
+     */
     @Test
     void getOptionsByUser_shouldReturnListOfOptions_whenFound() {
         List<Option> optionsForUser = Arrays.asList(option1, option2);
@@ -234,6 +280,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findOptionByPlace_User(testUser);
     }
 
+    /**
+     * Test de la méthode getOptionsByUser pour vérifier qu'elle retourne une liste vide lorsque
+     * aucune option n'existe pour l'utilisateur donné.
+     */
     @Test
     void getOptionsByUser_shouldReturnEmptyList_whenNoOptionsForUser() {
         User anotherUser = new User(11L, "Bob", "Client", "bobc", "bob.c@example.com", "pass", UserRole.USER, LocalDate.now(), "0987654321", "FR", false, null, null, null, null, null);
@@ -246,6 +296,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findOptionByPlace_User(anotherUser);
     }
 
+    /**
+     * Test de la méthode getOptionsByTerminal pour vérifier qu'elle retourne la liste correcte des options pour un terminal donné.
+     */
     @Test
     void getOptionsByTerminal_shouldReturnListOfOptions_whenFound() {
         List<Option> optionsForTerminal = Collections.singletonList(option1);
@@ -259,6 +312,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findByTerminalPublicId(testTerminalPublicId);
     }
 
+    /**
+     * Test de la méthode getOptionsByTerminal pour vérifier qu'elle retourne une liste vide lorsque
+     * aucune option n'existe pour le terminal donné.
+     */
     @Test
     void getOptionsByTerminal_shouldReturnEmptyList_whenNoOptionsForTerminal() {
         UUID nonExistentTerminalId = UUID.randomUUID();
@@ -271,8 +328,10 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findByTerminalPublicId(nonExistentTerminalId);
     }
 
-    // --- Tests pour les méthodes basées sur publicId ---
-
+    /**
+     * Test de la méthode getOptionByPublicId pour vérifier qu'elle retourne l'option correcte
+     * lorsqu'elle est trouvée.
+     */
     @Test
     void deleteOptionByPublicId_shouldCallRepositoryDelete() {
         // Exécution
@@ -282,6 +341,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).deleteOptionByPublicId(publicId1);
     }
 
+    /**
+     * Test de la méthode existsByPublicId pour vérifier qu'elle retourne true lorsque l'option existe.
+     */
     @Test
     void existsByPublicId_shouldReturnTrue_whenExists() {
         when(optionRepository.findByPublicId(publicId1)).thenReturn(Optional.of(option1));
@@ -292,6 +354,9 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findByPublicId(publicId1);
     }
 
+    /**
+     * Test de la méthode existsByPublicId pour vérifier qu'elle retourne false lorsque l'option n'existe pas.
+     */
     @Test
     void existsByPublicId_shouldReturnFalse_whenNotExists() {
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -304,11 +369,28 @@ public class OptionServiceTest {
         verify(optionRepository, times(1)).findByPublicId(any(UUID.class));
     }
 
+    /**
+     * Test de la méthode updateOption pour vérifier qu'elle met à jour et retourne l'option correctement en utilisant le publicId.
+     */
     @Test
     void updateOption_byPublicId_shouldReturnUpdatedOption() {
-        // Préparation d'une option existante et d'une option avec les détails de mise à jour
-        Option existingOption = new Option(id1, publicId1, "Original Name", BigDecimal.valueOf(10.0), "Original description", null, testPlace);
-        Option updatedDetails = new Option(null, null, "Updated Name", BigDecimal.valueOf(12.5), "New description", null, null); // publicId et idOption ne sont pas pertinents ici, ils seront copiés de l'existant. Place peut être null ou mis à jour si nécessaire.
+        // Préparation du mock
+        Option existingOption = new Option(
+                id1,
+                publicId1,
+                "Original Name",
+                BigDecimal.valueOf(10.0),
+                "Original description",
+                null,
+                testPlace);
+        Option updatedDetails = new Option(
+                null,
+                null,
+                "Updated Name",
+                BigDecimal.valueOf(12.5),
+                "New description",
+                null,
+                null);
 
         when(optionRepository.findByPublicId(publicId1)).thenReturn(Optional.of(existingOption));
         when(optionRepository.save(any(Option.class))).thenReturn(
@@ -322,18 +404,20 @@ public class OptionServiceTest {
 
         // Vérification
         assertNotNull(result);
-        assertEquals(id1, result.getIdOption()); // ID doit être conservé
-        assertEquals(publicId1, result.getPublicId()); // PublicId doit être conservé
+        assertEquals(id1, result.getIdOption());
+        assertEquals(publicId1, result.getPublicId());
         assertEquals("Updated Name", result.getNameOption());
         assertEquals(BigDecimal.valueOf(12.5), result.getPriceOption());
         assertEquals("New description", result.getDescriptionOption());
-        // Vérifiez que le place de l'option existante est conservé si non mis à jour
         assertEquals(testPlace, result.getPlace());
 
         verify(optionRepository, times(1)).findByPublicId(publicId1);
         verify(optionRepository, times(1)).save(any(Option.class));
     }
 
+    /**
+     * Test de la méthode updateOption pour vérifier qu'elle lance une exception lorsque l'option n'est pas trouvée en utilisant le publicId.
+     */
     @Test
     void updateOption_byPublicId_shouldThrowException_whenNotFound() {
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -348,6 +432,6 @@ public class OptionServiceTest {
 
         assertTrue(thrown.getMessage().contains("Option with publicId not found: " + nonExistentPublicId));
         verify(optionRepository, times(1)).findByPublicId(nonExistentPublicId);
-        verify(optionRepository, never()).save(any(Option.class)); // S'assurer que save n'est pas appelé
+        verify(optionRepository, never()).save(any(Option.class));
     }
 }

@@ -108,26 +108,36 @@ public class JwtServiceTest {
                 .compact();
     }
 
-    // Tests pour extractUsername
+    /**
+     * Tests pour la méthode validateAccessToken pour un token valide
+     */
     @Test
     void validateAccessToken_ValidToken_ReturnsTrue() {
         boolean isValid = jwtService.validateAccessToken(VALID_ACCESS_TOKEN);
         assertTrue(isValid);
     }
 
+    /**
+     * Tests pour la méthode validateAccessToken pour un token expiré
+     */
     @Test
     void validateAccessToken_ExpiredToken_ReturnsFalse() {
         boolean isValid = jwtService.validateAccessToken(EXPIRED_ACCESS_TOKEN);
         assertFalse(isValid);
     }
 
+    /**
+     * Tests pour la méthode validateAccessToken pour un token invalide
+     */
     @Test
     void validateAccessToken_InvalidToken_ReturnsFalse() {
         boolean isValid = jwtService.validateAccessToken(INVALID_TOKEN);
         assertFalse(isValid);
     }
 
-    //  Tests pour generateAccessToken
+    /**
+     * Tests pour la méthode generateAccessToken pour un nom d'utilisateur valide
+     */
     @Test
     void generateAccessToken_ValidUsername_ReturnsNonEmptyToken() {
         String token = jwtService.generateAccessToken("test@email.com");
@@ -135,6 +145,9 @@ public class JwtServiceTest {
         assertFalse(token.isEmpty());
     }
 
+    /**
+     * Tests pour la méthode generateAccessToken pour vérifier le sujet du token
+     */
     @Test
     void generateAccessToken_ValidUsername_ContainsCorrectSubject() {
         String token = jwtService.generateAccessToken("test@email.com");
@@ -142,7 +155,9 @@ public class JwtServiceTest {
         assertEquals("test@email.com", email);
     }
 
-    // Tests pour generateRefreshToken
+    /**
+     * Tests pour la méthode generateRefreshToken pour un nom d'utilisateur valide
+     */
     @Test
     void generateRefreshToken_ValidUsername_ReturnsNonEmptyToken() {
         String token = jwtService.generateRefreshToken("test@email.com");
@@ -150,6 +165,9 @@ public class JwtServiceTest {
         assertFalse(token.isEmpty());
     }
 
+    /**
+     * Tests pour la méthode generateRefreshToken pour vérifier le sujet du token
+     */
     @Test
     void generateRefreshToken_ValidUsername_ContainsCorrectSubject() {
         String token = jwtService.generateRefreshToken("test@email.com");
@@ -157,7 +175,9 @@ public class JwtServiceTest {
         assertEquals("test@email.com", email);
     }
 
-    // Tests pour generateRefreshTokenBdd
+    /**
+     * Test de la génération et sauvegarde d'un token de rafraîchissement pour un utilisateur valide
+     */
     @Test
     void generateRefreshTokenBdd_ValidUser_ReturnsSavedToken() {
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(MOCK_REFRESH_TOKEN);
@@ -170,26 +190,36 @@ public class JwtServiceTest {
         verify(refreshTokenRepository, times(1)).save(any(RefreshToken.class));
     }
 
-    // Tests pour extractUsername
+    /**
+     * Test de l'extraction du nom d'utilisateur à partir d'un token valide
+     */
     @Test
     void extractUsername_ValidToken_ReturnsEmail() {
         String email = jwtService.extractUsername(VALID_ACCESS_TOKEN, TEST_ACCESS_SECRET_KEY);
         assertEquals("test@email.com", email);
     }
 
+    /**
+     * Test de l'extraction du nom d'utilisateur à partir d'un token expiré
+     */
     @Test
     void extractUsername_ExpiredToken_ThrowsInvalidTokenException() {
         assertThrows(InvalidTokenException.class, () ->
                 jwtService.extractUsername(EXPIRED_ACCESS_TOKEN, TEST_ACCESS_SECRET_KEY));
     }
 
+    /**
+     * Test de l'extraction du nom d'utilisateur à partir d'un token invalide
+     */
     @Test
     void extractUsername_InvalidToken_ThrowsInvalidTokenException() {
         assertThrows(InvalidTokenException.class, () ->
                 jwtService.extractUsername(INVALID_TOKEN, TEST_ACCESS_SECRET_KEY));
     }
 
-    // Tests pour getUserByAccessToken
+    /**
+     * Test de la récupération de l'utilisateur à partir d'un token d'accès valide
+     */
     @Test
     void getUserByAccessToken_ValidTokenAndUserExists_ReturnsUser() {
         when(userService.getUserByEmail("test@email.com")).thenReturn(MOCK_USER);
@@ -200,6 +230,9 @@ public class JwtServiceTest {
         verify(userService, times(1)).getUserByEmail("test@email.com");
     }
 
+    /**
+     * Test de la récupération de l'utilisateur à partir d'un token d'accès valide mais utilisateur non trouvé
+     */
     @Test
     void getUserByAccessToken_ValidTokenButUserNotFound_ThrowsResourceNotFoundException() {
         when(userService.getUserByEmail(anyString())).thenReturn(null);
@@ -208,6 +241,9 @@ public class JwtServiceTest {
                 jwtService.getUserByAccessToken(VALID_ACCESS_TOKEN));
     }
 
+    /**
+     * Test de la récupération de l'utilisateur à partir d'un token d'accès expiré
+     */
     @Test
     void getUserByAccessToken_ExpiredToken_ThrowsInvalidTokenException() {
         assertThrows(InvalidTokenException.class, () ->
@@ -215,6 +251,9 @@ public class JwtServiceTest {
         verify(userService, never()).getUserByEmail(anyString());
     }
 
+    /**
+     * Test de la récupération de l'utilisateur à partir d'un token d'accès invalide
+     */
     @Test
     void getUserByAccessToken_InvalidToken_ThrowsInvalidTokenException() {
         assertThrows(InvalidTokenException.class, () ->
@@ -222,7 +261,9 @@ public class JwtServiceTest {
         verify(userService, never()).getUserByEmail(anyString());
     }
 
-    // Tests pour getUserDTOByAccessToken
+    /**
+     * Tests pour la méthode getUserDTOByAccessToken lorsque l'utilisateur est trouvé
+     */
     @Test
     void getUserDTOByAccessToken_ValidTokenAndUserExists_ReturnsUserDTO() {
         when(userService.getUserByEmail("test@email.com")).thenReturn(MOCK_USER);
@@ -234,6 +275,9 @@ public class JwtServiceTest {
         assertEquals(MOCK_USER_DTO, result.get());
     }
 
+    /**
+     * Tests pour la méthode getUserDTOByAccessToken lorsque l'utilisateur n'est pas trouvé
+     */
     @Test
     void getUserDTOByAccessToken_ValidTokenButUserNotFound_ReturnsEmptyOptional() {
         when(userService.getUserByEmail(anyString())).thenReturn(null);
@@ -243,6 +287,9 @@ public class JwtServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests pour la méthode getUserDTOByAccessToken avec un token expiré
+     */
     @Test
     void getUserDTOByAccessToken_ExpiredToken_ReturnsEmptyOptional() {
         Optional<UserDTO> result = jwtService.getUserDTOByAccessToken(EXPIRED_ACCESS_TOKEN);
@@ -250,6 +297,9 @@ public class JwtServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests pour la méthode getUserDTOByAccessToken avec un token invalide
+     */
     @Test
     void getUserDTOByAccessToken_InvalidToken_ReturnsEmptyOptional() {
         Optional<UserDTO> result = jwtService.getUserDTOByAccessToken(INVALID_TOKEN);
@@ -257,7 +307,9 @@ public class JwtServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    // Tests pour getRefreshTokenByToken
+    /**
+     * Tests pour la méthode getRefreshTokenByToken lorsque le token existe
+     */
     @Test
     void getRefreshTokenByToken_TokenExists_ReturnsRefreshToken() {
         when(refreshTokenRepository.findById("refresh-token-123")).thenReturn(Optional.of(MOCK_REFRESH_TOKEN));
@@ -269,6 +321,9 @@ public class JwtServiceTest {
         verify(refreshTokenRepository, times(1)).findById("refresh-token-123");
     }
 
+    /**
+     * Tests pour la méthode getRefreshTokenByToken lorsque le token n'existe pas
+     */
     @Test
     void getRefreshTokenByToken_TokenNotFound_ReturnsEmptyOptional() {
         when(refreshTokenRepository.findById("non-existent-token")).thenReturn(Optional.empty());
@@ -279,14 +334,18 @@ public class JwtServiceTest {
         verify(refreshTokenRepository, times(1)).findById("non-existent-token");
     }
 
-    // Tests pour deleteRefreshToken
+    /**
+     * Tests pour la méthode deleteRefreshToken pour supprimer un token existant
+     */
     @Test
     void deleteRefreshToken_ValidToken_DeletesToken() {
         jwtService.deleteRefreshToken("refresh-token-123");
         verify(refreshTokenRepository, times(1)).deleteById("refresh-token-123");
     }
 
-    //  Tests pour isTokenValid
+    /**
+     * Tests pour la méthode isTokenValid avec un token valide et un utilisateur correspondant
+     */
     @Test
     void isTokenValid_ValidTokenAndMatchingUser_ReturnsTrue() {
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
@@ -297,6 +356,9 @@ public class JwtServiceTest {
         assertTrue(isValid);
     }
 
+    /**
+     * Tests pour la méthode isTokenValid avec un token valide mais un utilisateur différent
+     */
     @Test
     void isTokenValid_ValidTokenButDifferentUser_ReturnsFalse() {
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
@@ -307,6 +369,9 @@ public class JwtServiceTest {
         assertFalse(isValid);
     }
 
+    /**
+     * Tests pour la méthode isTokenValid avec un token expiré
+     */
     @Test
     void isTokenValid_ExpiredToken_ReturnsFalse() {
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
@@ -317,6 +382,9 @@ public class JwtServiceTest {
         assertFalse(isValid);
     }
 
+    /**
+     * Tests pour la méthode isTokenExpired avec un token valide
+     */
     @Test
     void isTokenExpired_ExpiredToken_ReturnsTrue() throws Exception {
         Method isTokenExpiredMethod = JwtService.class.getDeclaredMethod("isTokenExpired", String.class, String.class);

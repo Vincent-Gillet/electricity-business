@@ -3,6 +3,7 @@ package com.electricitybusiness.api.controller;
 import com.electricitybusiness.api.dto.terminal.TerminalCreateDTO;
 import com.electricitybusiness.api.dto.terminal.TerminalDTO;
 import com.electricitybusiness.api.dto.terminal.TerminalSearchDTO;
+import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Terminal;
 import com.electricitybusiness.api.model.TerminalStatus;
@@ -50,7 +51,7 @@ public class TerminalController {
     public ResponseEntity<List<TerminalDTO>> getAllTerminals() {
         List<Terminal> terminals = terminalService.getAllTerminals();
         List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toTerminalDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(TerminalDTO);
     }
@@ -65,7 +66,7 @@ public class TerminalController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<TerminalDTO> getTerminalById (@PathVariable Long id) {
         return terminalService.getTerminalById(id)
-                .map(Terminal -> ResponseEntity.ok(mapper.toDTO(Terminal)))
+                .map(Terminal -> ResponseEntity.ok(mapper.toTerminalDTO(Terminal)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -81,7 +82,7 @@ public class TerminalController {
     public ResponseEntity<TerminalDTO> saveTerminal (@Valid @RequestBody TerminalDTO TerminalDTO) {
         Terminal Terminal = mapper.toEntity(TerminalDTO);
         Terminal savedTerminal = terminalService.saveTerminal(Terminal);
-        TerminalDTO savedDTO = mapper.toDTO(savedTerminal);
+        TerminalDTO savedDTO = mapper.toTerminalDTO(savedTerminal);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -100,7 +101,7 @@ public class TerminalController {
         }
         Terminal Terminal = mapper.toEntity(TerminalDTO);
         Terminal updatedTerminal = terminalService.updateTerminal(id, Terminal);
-        TerminalDTO updatedDTO = mapper.toDTO(updatedTerminal);
+        TerminalDTO updatedDTO = mapper.toTerminalDTO(updatedTerminal);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -120,101 +121,17 @@ public class TerminalController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-/*
-    Test désactivation pour voir utilité réelle plus tard
-
-    @GetMapping("/terminals-free")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TerminalDTO>> getAllTerminalsNoOccupieds() {
-        List<Terminal> terminals = terminalService.findAvailableTerminals();
-        List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(TerminalDTO);
-    }
-*/
-
-/*
-    Test désactivation pour voir utilité réelle plus tard
-
-    @GetMapping("/search-terminals-avaible-radius")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TerminalDTO>> findTerminalsAvaibleInRadius(
-            @RequestParam BigDecimal longitude,
-            @RequestParam BigDecimal latitude,
-            @RequestParam double radius,
-            @RequestParam(defaultValue = "false") boolean occupied
-    ) {
-        List<Terminal> terminals = terminalService.findTerminalsAvailableInRadius(longitude, latitude, radius, occupied);
-        List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(TerminalDTO);
-    }*/
-
-/*
-    Test désactivation pour voir utilité réelle plus tard
-
-    @GetMapping("/search-terminals-dates-avaible")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TerminalDTO>> findTerminalsAvaibleInRadiusAndPeriod(
-            @RequestParam(defaultValue = "false") boolean occupied,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startingDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endingDate
-    ) {
-        List<Terminal> terminals = terminalService.findTerminalsAvailableInPeriod(
-                occupied, startingDate, endingDate);
-        List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(TerminalDTO);
-    }*/
-
-/*
-    Test désactivation pour voir utilité réelle plus tard
-
-    @GetMapping("/recherche-terminals-dates-disponibilites-radius")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TerminalDTO>> findterminalsDisponiblesInRadiusAndPeriod(
-            @RequestParam BigDecimal longitude,
-            @RequestParam BigDecimal latitude,
-            @RequestParam double radius,
-            @RequestParam(defaultValue = "false") boolean occupied,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startingDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endingDate
-    ) {
-        List<Terminal> terminals = terminalService.findTerminalsAvailableInRadiusAndPeriod(
-                longitude, latitude, radius, occupied, startingDate, endingDate);
-        List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(TerminalDTO);
-    }
-*/
-
-
-/*    @PostMapping("/recherche")
-    public ResponseEntity<List<TerminalDTO>> searchTerminals(
-            @RequestParam(required = false) BigDecimal longitude,
-            @RequestParam(required = false) BigDecimal latitude,
-            @RequestParam(required = false) double radius,
-            @RequestParam(defaultValue = "false", required = false) boolean occupied,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startingDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endingDate
-    ) {
-        List<Terminal> terminals = terminalService.searchTerminals(
-                longitude, latitude, radius, occupied, startingDate, endingDate);
-        List<TerminalDTO> TerminalDTO = terminals.stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(TerminalDTO);
-    }*/
-
-
-
-
+    /**
+     * Recherche des Terminals de recharge en fonction de critères spécifiques.
+     * GET /api/terminals/search-terminals
+     * @param longitude La longitude du point central pour la recherche (optionnel)
+     * @param latitude La latitude du point central pour la recherche (optionnel)
+     * @param radius Le rayon de recherche en kilomètres (optionnel)
+     * @param occupied Le statut d'occupation des Terminals (optionnel)
+     * @param startingDate La date de début pour filtrer les Terminals (optionnel)
+     * @param endingDate La date de fin pour filtrer les Terminals (optionnel)
+     * @return Une liste de Terminals correspondant aux critères de recherche
+     */
     @GetMapping("/search-terminals")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TerminalDTO>> searchTerminals(
@@ -225,44 +142,19 @@ public class TerminalController {
             @RequestParam(required = false) LocalDateTime startingDate,
             @RequestParam(required = false) LocalDateTime endingDate
     ) {
-/*
-        List<Terminal> terminals = terminalService.searchTerminalsWithCriteria(
-                longitude, latitude, radius, occupied, startingDate, endingDate);
-*/
-
-        System.out.println("longitude terminal : " + longitude);
-        System.out.println("latitude terminal : " + latitude);
-        System.out.println("radius terminal : " + radius);
-        System.out.println("occupied terminal : " + occupied);
-        System.out.println("startingDate terminal : " + startingDate);
-        System.out.println("endingDate terminal : " + endingDate);
-
-/*
-        TerminalSearchDTO terminalSearchDTO = new TerminalSearchDTO(
-                longitude,
-                latitude,
-                radius,
-                occupied,
-                startingDate,
-                endingDate
-        );
-
-        List<Terminal> terminals = terminalService.searchTerminals(terminalSearchDTO);
-*/
-
+        if (longitude == null || latitude == null || radius == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         List<Terminal> terminals = terminalService.searchTerminals(
                 longitude, latitude, radius, occupied, startingDate, endingDate);
 
         List<TerminalDTO> terminalDTO = terminals.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toTerminalDTO)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(terminalDTO);
     }
-    
-    
-    
     
     // Requete pour le user connecté
 
@@ -279,7 +171,7 @@ public class TerminalController {
         // Récupérer les voitures de l'utilisateur
         List<Terminal> terminals = terminalService.getTerminalsByPlace(idPlace);
         List<TerminalDTO> terminalsDTO = terminals.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toTerminalDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(terminalsDTO);
     }
@@ -291,7 +183,7 @@ public class TerminalController {
             Terminal terminal = mapper.toEntityCreate(terminalDTO, terminalDTO.getPublicIdPlace());
             Terminal savedTerminal = terminalService.saveTerminal(terminal);
 
-            TerminalDTO savedDTO = mapper.toDTO(savedTerminal);
+            TerminalDTO savedDTO = mapper.toTerminalDTO(savedTerminal);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
         } catch (Exception e) {
@@ -330,7 +222,7 @@ public class TerminalController {
         // Mettre à jour le borne
         Terminal terminal = mapper.toEntityCreate(terminalDTO, publicId);
         Terminal updatedTerminal = terminalService.updateTerminal(publicId, terminal);
-        TerminalDTO updatedDTO = mapper.toDTO(updatedTerminal);
+        TerminalDTO updatedDTO = mapper.toTerminalDTO(updatedTerminal);
         return ResponseEntity.ok(updatedDTO);
     }
     

@@ -1,6 +1,6 @@
 package com.electricitybusiness.api.controller;
 
-import com.electricitybusiness.api.dto.MediaDTO;
+import com.electricitybusiness.api.dto.media.MediaDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Media;
 import com.electricitybusiness.api.model.User;
@@ -38,7 +38,7 @@ public class MediaController {
     public ResponseEntity<List<MediaDTO>> getAllMedias() {
         List<Media> medias = mediaService.getAllMedias();
         List<MediaDTO> mediasDTO = medias.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toMediaDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(mediasDTO);    }
 
@@ -52,7 +52,7 @@ public class MediaController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<MediaDTO> getMediaById(@PathVariable Long id) {
         return mediaService.getMediaById(id)
-                .map(medias -> ResponseEntity.ok(mapper.toDTO(medias)))
+                .map(medias -> ResponseEntity.ok(mapper.toMediaDTO(medias)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -67,7 +67,7 @@ public class MediaController {
     public ResponseEntity<MediaDTO> saveMedia(@Valid @RequestBody MediaDTO mediaDTO) {
         Media media = mapper.toEntity(mediaDTO);
         Media savedMedia = mediaService.saveMedia(media);
-        MediaDTO savedDTO = mapper.toDTO(savedMedia);
+        MediaDTO savedDTO = mapper.toMediaDTO(savedMedia);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -81,7 +81,7 @@ public class MediaController {
         Media media = mapper.toEntity(mediaDTO); // Convert DTO to entity
         media.setUser(user); // Associate with user
         Media savedMedia = mediaService.saveMedia(media); // Save entity
-        MediaDTO responseDTO = mapper.toDTO(savedMedia); // Convert back to DTO for response
+        MediaDTO responseDTO = mapper.toMediaDTO(savedMedia); // Convert back to DTO for response
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
@@ -99,7 +99,7 @@ public class MediaController {
         }
         Media media = mapper.toEntity(mediaDTO);
         Media updatedMedia = mediaService.updateMedia(id, media);
-        MediaDTO updatedDTO = mapper.toDTO(updatedMedia);
+        MediaDTO updatedDTO = mapper.toMediaDTO(updatedMedia);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -112,7 +112,7 @@ public class MediaController {
         Media updatedMediaEntity = mapper.toEntity(mediaDTO, existingMedia);
         // Do NOT set updatedMediaEntity.setUser(user);
         Media updatedMedia = mediaService.updateMedia(id, updatedMediaEntity);
-        MediaDTO responseDTO = mapper.toDTO(updatedMedia);
+        MediaDTO responseDTO = mapper.toMediaDTO(updatedMedia);
         return ResponseEntity.ok(responseDTO);
     }
 

@@ -1,4 +1,4 @@
-package com.electricitybusiness.api.dto;
+package com.electricitybusiness.api.dto.repairer;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

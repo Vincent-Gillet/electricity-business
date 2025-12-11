@@ -41,7 +41,7 @@ public class OptionController {
     public ResponseEntity<List<OptionDTO>> getAllOptions() {
         List<Option> options = optionService.getAllOptions();
         List<OptionDTO> optionsDTO = options.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toOptionDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(optionsDTO);
     }
@@ -56,7 +56,7 @@ public class OptionController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<OptionDTO> getOptionById(@PathVariable Long id) {
         return optionService.getOptionById(id)
-                .map(optionService -> ResponseEntity.ok(mapper.toDTO(optionService)))
+                .map(optionService -> ResponseEntity.ok(mapper.toOptionDTO(optionService)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -71,7 +71,7 @@ public class OptionController {
     public ResponseEntity<OptionDTO> saveOption(@Valid @RequestBody OptionDTO optionDTO) {
         Option option = mapper.toEntity(optionDTO);
         Option savedOption = optionService.saveOption(option);
-        OptionDTO savedDTO = mapper.toDTO(savedOption);
+        OptionDTO savedDTO = mapper.toOptionDTO(savedOption);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -90,7 +90,7 @@ public class OptionController {
         }
         Option option = mapper.toEntity(optionDTO);
         Option updatedOption = optionService.updateOption(id, option);
-        OptionDTO updatedDTO = mapper.toDTO(updatedOption);
+        OptionDTO updatedDTO = mapper.toOptionDTO(updatedOption);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -120,7 +120,7 @@ public class OptionController {
         // Récupérer les voitures de l'utilisateur
         List<Option> options = optionService.getOptionsByPlace(idPlace);
         List<OptionDTO> optionsDTO = options.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toOptionDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(optionsDTO);
     }
@@ -137,7 +137,7 @@ public class OptionController {
         // Récupérer les voitures de l'utilisateur
         List<Option> options = optionService.getOptionsByUser(user);
         List<OptionDTO> optionsDTO = options.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toOptionDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(optionsDTO);
     }
@@ -150,7 +150,7 @@ public class OptionController {
         // Récupérer les voitures de l'utilisateur
         List<Option> options = optionService.getOptionsByTerminal(idTerminal);
         List<OptionDTO> optionsDTO = options.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toOptionDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(optionsDTO);
     }
@@ -162,7 +162,7 @@ public class OptionController {
             Option option = mapper.toEntityCreate(optionDTO, optionDTO.getPublicIdPlace());
             Option savedOption = optionService.saveOption(option);
 
-            OptionDTO savedDTO = mapper.toDTO(savedOption);
+            OptionDTO savedDTO = mapper.toOptionDTO(savedOption);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
         } catch (Exception e) {
@@ -200,7 +200,7 @@ public class OptionController {
         // Mettre à jour le borne
         Option option = mapper.toEntityCreate(optionDTO, publicId);
         Option updatedOption = optionService.updateOption(publicId, option);
-        OptionDTO updatedDTO = mapper.toDTO(updatedOption);
+        OptionDTO updatedDTO = mapper.toOptionDTO(updatedOption);
         return ResponseEntity.ok(updatedDTO);
     }
 }
