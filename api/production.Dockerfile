@@ -3,7 +3,7 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn clean package -DskipTests --no-transfer-progress
+RUN mvn clean package -DskipTests -Pproduction --no-transfer-progress
 
 
 FROM eclipse-temurin:21-jre-alpine AS layertools_extractor

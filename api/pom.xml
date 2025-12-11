@@ -164,45 +164,6 @@
             <version>3.27.3</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- PDF Libraries -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>9.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>layout</artifactId>
-            <version>9.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>forms</artifactId>
-            <version>9.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>io</artifactId>
-            <version>9.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>3.0.6</version>
-        </dependency>
-
-        <!-- Excel Libraries -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>5.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.4.1</version>
-        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -229,11 +190,49 @@
                     <artifactId>spring-dotenv</artifactId>
                     <version>4.0.0</version>
                 </dependency>
+                <!-- PDF Libraries -->
+                <dependency>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>kernel</artifactId>
+                    <version>9.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>layout</artifactId>
+                    <version>9.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>forms</artifactId>
+                    <version>9.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.itextpdf</groupId>
+                    <artifactId>io</artifactId>
+                    <version>9.0.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.pdfbox</groupId>
+                    <artifactId>pdfbox</artifactId>
+                    <version>3.0.6</version>
+                </dependency>
+
+                <!-- Excel Libraries -->
+                <dependency>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>poi</artifactId>
+                    <version>5.4.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>poi-ooxml</artifactId>
+                    <version>5.4.1</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
             <id>production</id>
-        </profile>
+    </profile>
     </profiles>
 
 	<build>
