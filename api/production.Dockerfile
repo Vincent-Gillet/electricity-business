@@ -6,14 +6,14 @@ COPY src ./src
 RUN mvn clean package -DskipTests --no-transfer-progress
 
 
-FROM eclipse-temurin:21-jre AS layertools_extractor
+FROM eclipse-temurin:21-jre-alpine AS layertools_extractor
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
 COPY --from=build /app/${JAR_FILE} app.jar
 RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
 
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 COPY --from=layertools_extractor /app/extracted/dependencies/ /app/dependencies/
@@ -23,6 +23,7 @@ COPY --from=layertools_extractor /app/extracted/application/ /app/application/
 
 EXPOSE 8080
 
-ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
+# Sur Render
+# ENV JAVA_OPTS="-Xmx384m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m"
 
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp /app/spring-boot-loader:/app/dependencies/BOOT-INF/lib/*:/app/snapshot-dependencies/BOOT-INF/lib/*:/app/application/BOOT-INF/classes com.electricitybusiness.api.ApiApplication"]
