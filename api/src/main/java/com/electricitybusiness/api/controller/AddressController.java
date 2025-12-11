@@ -45,7 +45,7 @@ public class AddressController {
         List<Address> adresses = addressService.getAllAddresses();
         // Convertir les adresses en DTOs
         List<AddressDTO> adressesDTO = adresses.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toAddressDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(adressesDTO);
     }
@@ -60,7 +60,7 @@ public class AddressController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<AddressDTO> getAdresseById(@PathVariable Long id) {
         return addressService.getAddressById(id)
-                .map(adresse -> ResponseEntity.ok(mapper.toDTO(adresse)))
+                .map(adresse -> ResponseEntity.ok(mapper.toAddressDTO(adresse)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -74,7 +74,7 @@ public class AddressController {
     public ResponseEntity<AddressDTO> saveAdresse (@Valid @RequestBody AddressDTO addressDTO) {
         Address address = mapper.toEntity(addressDTO);
         Address savedAddress = addressService.saveAddress(address);
-        AddressDTO savedDTO = mapper.toDTO(savedAddress);
+        AddressDTO savedDTO = mapper.toAddressDTO(savedAddress);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }*/
     @PostMapping
@@ -89,7 +89,7 @@ public class AddressController {
             // Créer et enregistrer l'adresse
             Address address = mapper.toEntityCreate(addressDTO, idUser);
             Address savedAddress = addressService.saveAddress(address);
-            AddressDTO savedDTO = mapper.toDTO(savedAddress);
+            AddressDTO savedDTO = mapper.toAddressDTO(savedAddress);
 
             // Retourner la réponse avec le statut CREATED
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
@@ -117,7 +117,7 @@ public class AddressController {
         // Mettre à jour l'adresse
         Address address = mapper.toEntity(addressDTO);
         Address updatedAdresse = addressService.updateAddress(id, address);
-        AddressDTO updatedDTO = mapper.toDTO(updatedAdresse);
+        AddressDTO updatedDTO = mapper.toAddressDTO(updatedAdresse);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -156,7 +156,7 @@ public class AddressController {
         // Récupérer les adresses associées à l'utilisateur
         List<Address> addresss = addressService.getAddressesByUser(user);
         List<AddressDTO> AddresssDTO = addresss.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toAddressDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(AddresssDTO);
     }
@@ -204,7 +204,7 @@ public class AddressController {
         // Mettre à jour l'adresse
         Address address = mapper.toEntityCreate(addressDTO, idUser);
         Address updatedAddress = addressService.updateAddress(publicId, address);
-        AddressDTO updatedDTO = mapper.toDTO(updatedAddress);
+        AddressDTO updatedDTO = mapper.toAddressDTO(updatedAddress);
         return ResponseEntity.ok(updatedDTO);
     }
 

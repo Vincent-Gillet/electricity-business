@@ -1,14 +1,9 @@
 package com.electricitybusiness.api.config;
 
-import com.electricitybusiness.api.mapper.IEntityMapper;
-import com.electricitybusiness.api.repository.UserRepository;
-import com.electricitybusiness.api.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,11 +12,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -35,13 +33,27 @@ public class SecurityConfig {
 
     private final CustomUserDetailService userDetailsService;
 
-    private final JwtService jwtService;
-
     private final JwtAuthFilter jwtAuthFilter;
 
-    private final UserRepository userRepository;
+    private final PasswordEncoderConfig passwordEncoderConfig;
 
-    private final IEntityMapper entityMapper; // Interface, pas l'implémentation
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Reprend les allowedOrigins de WebConfig
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "https://electricity-business-angular-app.onrender.com"
+        ));
+        // Reprend les allowedMethods de WebConfig
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -90,37 +102,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoderConfig.passwordEncoder());
         return authProvider;
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Lazy
-    @Autowired
-    public SecurityConfig(
-        IEntityMapper entityMapper,
-        UserRepository userRepository,
-        CustomUserDetailService userDetailsService,
-        JwtService jwtService,
-        JwtAuthFilter jwtAuthFilter
-    ) {
-        this.entityMapper = entityMapper;
-        this.userRepository = userRepository;
-        this.userDetailsService = userDetailsService;
-        this.jwtService = jwtService;
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.corsConfigurationSource = null;
     }
 }

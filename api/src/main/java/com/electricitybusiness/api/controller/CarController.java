@@ -42,7 +42,7 @@ public class CarController {
     public ResponseEntity<List<CarDTO>> getAllCars() {
         List<Car> cars = carService.getAllCars();
         List<CarDTO> CarsDTO = cars.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toCarDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(CarsDTO);
     }
@@ -57,7 +57,7 @@ public class CarController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CarDTO> getCarById(@PathVariable Long id) {
         return carService.getCarById(id)
-                .map(Car -> ResponseEntity.ok(mapper.toDTO(Car)))
+                .map(Car -> ResponseEntity.ok(mapper.toCarDTO(Car)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -78,7 +78,7 @@ public class CarController {
             Car car = mapper.toEntityCreate(carDTO, idUser);
             Car savedCar = carService.saveCar(car);
 
-            CarDTO savedDTO = mapper.toDTO(savedCar);
+            CarDTO savedDTO = mapper.toCarDTO(savedCar);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class CarController {
         }
         Car car = mapper.toEntityCreate(carDTO, null);
         Car updatedCar = carService.updateCar(id, car);
-        CarDTO updatedDTO = mapper.toDTO(updatedCar);
+        CarDTO updatedDTO = mapper.toCarDTO(updatedCar);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -140,7 +140,7 @@ public class CarController {
         // Récupérer les voitures de l'utilisateur
         List<Car> cars = carService.getCarsByUser(user);
         List<CarDTO> CarsDTO = cars.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toCarDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(CarsDTO);
     }
@@ -185,7 +185,7 @@ public class CarController {
         // Mettre à jour la voiture
         Car car = mapper.toEntityCreate(carDTO, idUser);
         Car updatedCar = carService.updateCar(publicId, car);
-        CarDTO updatedDTO = mapper.toDTO(updatedCar);
+        CarDTO updatedDTO = mapper.toCarDTO(updatedCar);
         return ResponseEntity.ok(updatedDTO);
     }
 }

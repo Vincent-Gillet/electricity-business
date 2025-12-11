@@ -39,6 +39,9 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> userDTOList = userService.getAllUsers();
+        if (userDTOList.isEmpty()) {
+            throw new ResourceNotFoundException("Aucun utilisateur trouvé");
+        }
         return ResponseEntity.ok(userDTOList);
     }
 
@@ -52,6 +55,9 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
+        if (user == null) {
+            throw new ResourceNotFoundException("Utilisateur non trouvé avec l'ID : " + id);
+        }
         return ResponseEntity.ok(mapper.toDTO(user));
     }
 
@@ -187,6 +193,12 @@ public class UserController {
         return ResponseEntity.ok(mapper.toDTO(user));
     }
 
+    /**
+     * Récupère un utilisateur par son token d'accès.
+     * GET /api/users/me
+     * @param authHeader L'en-tête d'autorisation contenant le token d'accès
+     * @return L'utilisateur correspondant au token d'accès, ou un statut HTTP 401 Unauthorized si le token est invalide
+     */
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> getUserByTokenAccess(@RequestHeader("Authorization") String authHeader) {
@@ -257,8 +269,14 @@ public class UserController {
         }
     }
 
+    /**
+     * Supprime un utilisateur par son token d'accès.
+     * DELETE /api/users/delete/me
+     * @param authHeader L'en-tête d'autorisation contenant le token d'accès
+     * @return Une réponse vide avec le statut 204 No Content si l'utilisateur a été supprimé, ou 500 Internal Server Error en cas d'erreur
+     */
     @DeleteMapping("/delete/me")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> deleteUserByTokenAccess(@RequestHeader("Authorization") String authHeader) {
         try {
             if (!authHeader.startsWith("Bearer ")) {

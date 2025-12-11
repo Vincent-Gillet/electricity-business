@@ -3,13 +3,18 @@ package com.electricitybusiness.api.service;
 import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
 import com.electricitybusiness.api.model.*;
 import com.electricitybusiness.api.repository.BookingRepository;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.IElement;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Text;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,33 +33,42 @@ public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
 
+    @Mock
+    private BookingSchedulerService bookingSchedulerService;
+
     @InjectMocks
     private BookingService bookingService;
 
-    // Objets de test communs
     private User testUser;
     private Terminal testTerminal;
     private Booking testBooking;
+    private Booking validBooking;
     private UUID testPublicId;
 
     @BeforeEach
-        // Cette méthode s'exécutera avant chaque test
     void setUp() {
-        // Initialisation de l'utilisateur de test
         testUser = new User();
         testUser.setIdUser(1L);
         testUser.setFirstName("John");
         testUser.setSurnameUser("Doe");
         testUser.setEmailUser("john.doe@example.com");
 
-        // Initialisation du terminal de test (simplifié)
+        Address address = new Address();
+        address.setIdAddress(1L);
+        address.setAddress("123 Main St");
+
+        Place testPlace = new Place();
+        testPlace.setIdPlace(1L);
+        testPlace.setUser(testUser);
+        testPlace.setAddress(address);
+
         testTerminal = new Terminal();
         testTerminal.setIdTerminal(10L);
         testTerminal.setNameTerminal("Terminal_A");
         testTerminal.setPublicId(UUID.randomUUID());
         testTerminal.setUser(testUser);
+        testTerminal.setPlace(testPlace);
 
-        // Initialisation de la réservation de test
         testPublicId = UUID.randomUUID();
         testBooking = new Booking(
                 1L,
@@ -70,10 +84,27 @@ public class BookingServiceTest {
                 LocalDateTime.now().plusHours(1),
                 LocalDateTime.now().plusHours(3)
         );
+
+        validBooking = new Booking(
+                1L,
+                UUID.randomUUID(),
+                testUser,
+                null,
+                testTerminal,
+                null,
+                "123456789",
+                BookingStatus.EN_ATTENTE,
+                BigDecimal.valueOf(50.00),
+                LocalDateTime.now(),
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(8)
+        );
     }
 
+    /**
+     * Tests pour la classe BookingService
+     */
     @Test
-    @DisplayName("Devrait récupérer toutes les réservations")
     void shouldGetAllBookings() {
         // Préparation (Arrange)
         Booking booking2 = new Booking(2L, UUID.randomUUID(), testUser, null, testTerminal, null, "987654321", BookingStatus.ACCEPTEE, BigDecimal.valueOf(75.00), LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), LocalDateTime.now());
@@ -90,8 +121,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findAll();
     }
 
+    /**
+     * Tests pour la méthode getBookingById
+     */
     @Test
-    @DisplayName("Devrait récupérer une réservation par ID existant")
     void shouldGetBookingByIdWhenExists() {
         // Préparation
         when(bookingRepository.findById(testBooking.getIdBooking())).thenReturn(Optional.of(testBooking));
@@ -105,8 +138,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findById(testBooking.getIdBooking());
     }
 
+    /**
+     * Tests pour la méthode getBookingById lorsque la réservation n'existe pas
+     */
     @Test
-    @DisplayName("Ne devrait pas récupérer de réservation pour un ID non existant")
     void shouldNotGetBookingByIdWhenNotExists() {
         // Préparation
         Long nonExistentId = 99L;
@@ -120,8 +155,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findById(nonExistentId);
     }
 
+    /**
+     * Tests pour la méthode saveBooking
+     */
     @Test
-    @DisplayName("Devrait sauvegarder une nouvelle réservation")
     void shouldSaveBooking() {
         // Préparation
         LocalDateTime now = LocalDateTime.now();
@@ -165,8 +202,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).save(validBooking);
     }
 
+    /**
+     * Tests pour la méthode updateBooking
+     */
     @Test
-    @DisplayName("Devrait mettre à jour une réservation existante par ID")
     void shouldUpdateBookingById() {
         // Préparation
         Booking updatedInfo = new Booking();
@@ -192,8 +231,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).save(any(Booking.class));
     }
 
+    /**
+     * Tests pour la méthode deleteBookingById
+     */
     @Test
-    @DisplayName("Devrait supprimer une réservation par ID")
     void shouldDeleteBookingById() {
         // Préparation (on ne teste pas la logique de recherche ici, juste l'appel à deleteById)
         doNothing().when(bookingRepository).deleteById(testBooking.getIdBooking());
@@ -205,8 +246,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).deleteById(testBooking.getIdBooking());
     }
 
+    /**
+     * Tests pour la méthode existsById
+     */
     @Test
-    @DisplayName("Devrait vérifier l'existence d'une réservation par ID")
     void shouldCheckExistenceById() {
         // Préparation
         when(bookingRepository.existsById(testBooking.getIdBooking())).thenReturn(true);
@@ -219,8 +262,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).existsById(testBooking.getIdBooking());
     }
 
+    /**
+     * Tests pour la méthode findByUser
+     */
     @Test
-    @DisplayName("Devrait trouver les réservations par utilisateur")
     void shouldFindByUser() {
         // Préparation
         List<Booking> userBookings = Arrays.asList(testBooking);
@@ -237,8 +282,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByUser(testUser);
     }
 
+    /**
+     * Tests pour la méthode findByTerminal
+     */
     @Test
-    @DisplayName("Devrait trouver les réservations par terminal")
     void shouldFindByTerminal() {
         // Préparation
         List<Booking> terminalBookings = Arrays.asList(testBooking);
@@ -255,8 +302,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByTerminal(testTerminal);
     }
 
+    /**
+     * Tests pour la méthode findByStatusBooking
+     */
     @Test
-    @DisplayName("Devrait trouver les réservations par statut")
     void shouldFindByStatusBooking() {
         // Préparation
         List<Booking> pendingBookings = Arrays.asList(testBooking);
@@ -273,10 +322,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByStatusBooking(BookingStatus.EN_ATTENTE);
     }
 
-    // Méthodes avec PublicId
-
+    /**
+     * Tests pour la méthode getBookingByPublicId
+     */
     @Test
-    @DisplayName("Devrait supprimer une réservation par publicId")
     void shouldDeleteBookingByPublicId() {
         // Préparation
         doNothing().when(bookingRepository).deleteBookingByPublicId(testPublicId);
@@ -288,8 +337,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).deleteBookingByPublicId(testPublicId);
     }
 
+    /**
+     * Tests pour la méthode existsByPublicId
+     */
     @Test
-    @DisplayName("Devrait vérifier l'existence d'une réservation par publicId")
     void shouldCheckExistenceByPublicId() {
         // Préparation
         when(bookingRepository.findByPublicId(testPublicId)).thenReturn(Optional.of(testBooking));
@@ -302,8 +353,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByPublicId(testPublicId);
     }
 
+    /**
+     * Tests pour la méthode existsByPublicId lorsque la réservation n'existe pas
+     */
     @Test
-    @DisplayName("Ne devrait pas vérifier l'existence d'une réservation pour un publicId non existant")
     void shouldNotCheckExistenceByPublicIdWhenNotExists() {
         // Préparation
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -317,8 +370,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findByPublicId(nonExistentPublicId);
     }
 
+    /**
+     * Tests pour la méthode updateBooking par publicId
+     */
     @Test
-    @DisplayName("Devrait mettre à jour une réservation existante par publicId")
     void shouldUpdateBookingByPublicId() {
         Booking existingBooking = new Booking();
         existingBooking.setPublicId(testPublicId);
@@ -355,8 +410,10 @@ public class BookingServiceTest {
         assertEquals(fullyPopulatedExistingUser, actualResult.getUser());
     }
 
+    /**
+     * Tests pour la méthode updateBooking par publicId lorsque la réservation n'existe pas
+     */
     @Test
-    @DisplayName("Devrait lancer une exception lors de la mise à jour par publicId si la réservation n'existe pas")
     void shouldThrowExceptionWhenUpdateBookingByPublicIdNotFound() {
         // Préparation
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -373,8 +430,10 @@ public class BookingServiceTest {
         verify(bookingRepository, never()).save(any(Booking.class)); // S'assurer que save n'est jamais appelé
     }
 
+    /**
+     * Tests pour la méthode updateBookingStatus
+     */
     @Test
-    @DisplayName("Devrait mettre à jour le statut d'une réservation par publicId")
     void shouldUpdateBookingStatus() {
         // Préparation
         BookingStatusDTO dto = new BookingStatusDTO(BookingStatus.REFUSEE);
@@ -397,8 +456,10 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).saveAndFlush(any(Booking.class));
     }
 
+    /**
+     * Tests pour la méthode updateBookingStatus lorsque la réservation n'existe pas
+     */
     @Test
-    @DisplayName("Devrait lancer une exception lors de la mise à jour du statut si la réservation n'existe pas")
     void shouldThrowExceptionWhenUpdateBookingStatusNotFound() {
         // Préparation
         UUID nonExistentPublicId = UUID.randomUUID();
@@ -415,8 +476,10 @@ public class BookingServiceTest {
         verify(bookingRepository, never()).saveAndFlush(any(Booking.class));
     }
 
+    /**
+     * Tests pour la méthode getAllBookingStatus
+     */
     @Test
-    @DisplayName("Devrait récupérer les statuts de réservation disponibles")
     void shouldGetAllBookingStatus() {
         // Exécution
         List<BookingStatus> statuses = bookingService.getAllBookingStatus();
@@ -428,16 +491,17 @@ public class BookingServiceTest {
         assertTrue(statuses.contains(BookingStatus.EN_ATTENTE));
         assertTrue(statuses.contains(BookingStatus.ACCEPTEE));
         assertTrue(statuses.contains(BookingStatus.REFUSEE));
-        // Ajoutez d'autres statuts si votre enum en contient plus
     }
 
+    /**
+     * Tests pour la méthode getBookingsByUserClient avec filtres
+     */
     @Test
-    @DisplayName("Devrait récupérer les réservations d'un client avec filtres")
     void shouldGetBookingsByUserClientWithFilters() {
         // Préparation
         LocalDateTime startFilter = LocalDateTime.now().minusDays(1);
         LocalDateTime endFilter = LocalDateTime.now().plusDays(1);
-        String orderBooking = "startingDateAsc";
+        String orderBooking = "ASC";
         BookingStatus statusFilter = BookingStatus.EN_ATTENTE;
 
         List<Booking> expectedBookings = Arrays.asList(testBooking);
@@ -454,12 +518,13 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findBookingsByUserMyBookings(testUser, startFilter, endFilter, orderBooking, statusFilter);
     }
 
+    /**
+     * Tests pour la méthode getBookingsByUserOwner
+     */
     @Test
-    @DisplayName("Devrait récupérer les réservations d'un propriétaire")
     void shouldGetBookingsByUserOwner() {
         // Préparation
         Booking ownerBooking1 = new Booking(2L, UUID.randomUUID(), new User(), null, testTerminal, null, "OWNER1", BookingStatus.ACCEPTEE, BigDecimal.valueOf(100), LocalDateTime.now(), LocalDateTime.now().plusHours(2), LocalDateTime.now());
-        // testTerminal est lié à testUser en tant que propriétaire
         List<Booking> expectedBookings = Arrays.asList(ownerBooking1);
         when(bookingRepository.findBookingsByUserOwner(testUser)).thenReturn(expectedBookings);
 
@@ -473,11 +538,13 @@ public class BookingServiceTest {
         verify(bookingRepository, times(1)).findBookingsByUserOwner(testUser);
     }
 
+    /**
+     * Tests pour la méthode getBookingsByUserAndStatusBooking
+     */
     @Test
-    @DisplayName("Devrait récupérer les réservations par utilisateur et statut")
     void shouldGetBookingsByUserAndStatusBooking() {
         // Préparation
-        List<Booking> expectedBookings = Arrays.asList(testBooking); // testBooking est EN_ATTENTE
+        List<Booking> expectedBookings = Arrays.asList(testBooking);
         when(bookingRepository.findBookingsByUserAndStatusBooking(testUser, BookingStatus.EN_ATTENTE))
                 .thenReturn(expectedBookings);
 
@@ -489,5 +556,91 @@ public class BookingServiceTest {
         assertEquals(1, actualBookings.size());
         assertEquals(expectedBookings, actualBookings);
         verify(bookingRepository, times(1)).findBookingsByUserAndStatusBooking(testUser, BookingStatus.EN_ATTENTE);
+    }
+
+    /**
+     * Tests pour la méthode saveBooking avec une réservation valide
+     */
+    @Test
+    void testSaveBooking_ValidBooking() {
+        when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
+        doNothing().when(bookingSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+
+        Booking savedBooking = bookingService.saveBooking(validBooking);
+
+        assertNotNull(savedBooking);
+        assertEquals(validBooking.getIdBooking(), savedBooking.getIdBooking());
+        assertEquals(validBooking.getStatusBooking(), savedBooking.getStatusBooking());
+        assertEquals(validBooking.getTerminal(), savedBooking.getTerminal());
+        verify(bookingRepository, times(1)).save(validBooking);
+        verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+    }
+
+    /**
+     * Tests pour la méthode generateBookingPdf avec une réservation valide
+     */
+    @Test
+    void testGenerateBookingPdf_ValidBooking() throws Exception {
+        when(bookingRepository.findByPublicId(validBooking.getPublicId())).thenReturn(Optional.of(validBooking));
+
+        byte[] pdf = bookingService.generateBookingPdf(validBooking.getPublicId());
+
+        assertThat(pdf).isNotNull();
+        assertThat(pdf.length).isGreaterThan(0);
+        verify(bookingRepository).findByPublicId(validBooking.getPublicId());
+    }
+
+    /**
+     * Tests pour la méthode generateBookingExcel avec des réservations pour un utilisateur
+     */
+    @Test
+    void testGenerateBookingExcel_WithBookings() throws Exception {
+        User user = new User();
+        List<Booking> bookings = List.of(validBooking, validBooking);
+        when(bookingRepository.findByUser(user)).thenReturn(bookings);
+
+        byte[] excel = bookingService.generateBookingExcel(user);
+
+        assertThat(excel).isNotNull();
+        assertThat(excel.length).isGreaterThan(0);
+    }
+
+    /**
+     * Tests pour la méthode createCell (méthode privée) utilisée dans la génération de PDF
+     */
+    @Test
+    void testCreateCell_WithParameters() throws Exception {
+        PdfFont mockFont = mock(PdfFont.class);
+
+        Cell cell = (Cell) ReflectionTestUtils.invokeMethod(
+                bookingService,
+                "createCell",
+                "Test",
+                mockFont,
+                12f
+        );
+
+        assertNotNull(cell);
+        assertFalse(cell.getChildren().isEmpty());
+
+        // First child should be a Paragraph
+        IElement firstChild = cell.getChildren().get(0);
+        assertTrue(firstChild instanceof Paragraph);
+        Paragraph paragraph = (Paragraph) firstChild;
+
+        // Paragraph should have children (Text elements)
+        assertFalse(paragraph.getChildren().isEmpty());
+
+        // Collect text from Text children and assert it contains "Test"
+        StringBuilder combined = new StringBuilder();
+        for (IElement element : paragraph.getChildren()) {
+            if (element instanceof Text) {
+                combined.append(((Text) element).getText());
+            } else {
+                combined.append(element.toString());
+            }
+        }
+
+        assertThat(combined.toString()).contains("Test");
     }
 }

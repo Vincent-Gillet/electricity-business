@@ -2,7 +2,6 @@ package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.dto.user.UserCreateDTO;
 import com.electricitybusiness.api.dto.user.UserDTO;
-import com.electricitybusiness.api.dto.user.UserUpdateDTO;
 import com.electricitybusiness.api.exception.ConflictException;
 import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.mapper.EntityMapper;
@@ -32,11 +31,6 @@ public class UserService {
      * Récupère tous les Users.
      * @return Une liste de tous les Users
      */
-/*    @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }*/
-
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -63,9 +57,6 @@ public class UserService {
      * @param userDTO L'User à enregistrer
      * @return L'User enregistré
      */
-/*    public User saveUser(User user) {
-        return userRepository.save(user);
-    }*/
     public UserDTO saveUser(UserCreateDTO userDTO) {
         User user = entityMapper.toEntity(userDTO);
         User savedUser = userRepository.save(user);
@@ -154,16 +145,6 @@ public class UserService {
     /**
      * Récupère l'identifiant d'un User par son adresse email.
      * @param emailUser L'adresse email de l'User
-     * @return L'identifiant de l'User si trouvé, sinon null
-     */
-/*    @Transactional(readOnly = true)
-    public Long getIdByEmailUser(String emailUser) {
-        return userRepository.findIdByEmailUser(emailUser);
-    }*/
-
-    /**
-     * Récupère l'identifiant d'un User par son adresse email.
-     * @param emailUser L'adresse email de l'User
      * @return L'identifiant de l'User
      * @throws ResourceNotFoundException si l'User n'est pas trouvé
      */
@@ -183,32 +164,6 @@ public class UserService {
      * @throws ResourceNotFoundException si l'User n'est pas trouvé
      * @throws ConflictException si l'adresse email est déjà utilisée par un autre User
      */
-    @Transactional
-/*    public User updateUserToken(Long id, User incoming) {
-        User existing = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + id));
-
-        if (incoming.getSurnameUser() != null) existing.setSurnameUser(incoming.getSurnameUser());
-        if (incoming.getFirstName() != null) existing.setFirstName(incoming.getFirstName());
-        if (incoming.getPseudo() != null) existing.setPseudo(incoming.getPseudo());
-        if (incoming.getDateOfBirth() != null) existing.setDateOfBirth(incoming.getDateOfBirth());
-        if (incoming.getPhone() != null) existing.setPhone(incoming.getPhone());
-        if (incoming.getIban() != null) existing.setIban(incoming.getIban());
-
-        String newEmail = incoming.getEmailUser();
-        if (newEmail != null && !newEmail.equals(existing.getEmailUser())) {
-            if (userRepository.existsByEmailUser(newEmail)) {
-                throw new ConflictException("Email already in use : " + newEmail);
-            }
-            existing.setEmailUser(newEmail);
-        }
-
-        if (incoming.getPasswordUser() != null && !incoming.getPasswordUser().isBlank()) {
-            existing.setPasswordUser(incoming.getPasswordUser());
-        }
-
-        return userRepository.save(existing);
-    }*/
     public User updateUserToken(Long id, User incoming) {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id : " + id));

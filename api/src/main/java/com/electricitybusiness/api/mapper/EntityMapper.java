@@ -1,6 +1,5 @@
 package com.electricitybusiness.api.mapper;
 
-import com.electricitybusiness.api.dto.*;
 import com.electricitybusiness.api.dto.address.AddressCreateDTO;
 import com.electricitybusiness.api.dto.address.AddressDTO;
 import com.electricitybusiness.api.dto.booking.BookingCreateDTO;
@@ -8,11 +7,13 @@ import com.electricitybusiness.api.dto.booking.BookingDTO;
 import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
 import com.electricitybusiness.api.dto.car.CarCreateDTO;
 import com.electricitybusiness.api.dto.car.CarDTO;
+import com.electricitybusiness.api.dto.media.MediaDTO;
 import com.electricitybusiness.api.dto.option.OptionCreateDTO;
 import com.electricitybusiness.api.dto.option.OptionDTO;
 import com.electricitybusiness.api.dto.place.PlaceCreateDTO;
 import com.electricitybusiness.api.dto.place.PlaceDTO;
 import com.electricitybusiness.api.dto.place.PlaceUpdateDTO;
+import com.electricitybusiness.api.dto.repairer.RepairerDTO;
 import com.electricitybusiness.api.dto.terminal.TerminalCreateDTO;
 import com.electricitybusiness.api.dto.terminal.TerminalDTO;
 import com.electricitybusiness.api.dto.user.*;
@@ -39,7 +40,7 @@ public class EntityMapper implements IEntityMapper {
     private final PasswordEncoder passwordEncoder;
 
     BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
-    
+
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final PlaceRepository placeRepository;
@@ -163,7 +164,7 @@ public class EntityMapper implements IEntityMapper {
 
 
     // === address ===
-    public AddressDTO toDTO(Address address) {
+    public AddressDTO toAddressDTO(Address address) {
         if (address == null) return null;
         return new AddressDTO(
                 address.getPublicId(),
@@ -176,7 +177,7 @@ public class EntityMapper implements IEntityMapper {
                 address.getComplement(),
                 address.getFloor(),
                 address.getMainAddress(),
-                toDTO(address.getPlaces())
+                toListPLaceDTO(address.getPlaces())
         );
     }
 
@@ -206,18 +207,14 @@ public class EntityMapper implements IEntityMapper {
         address.setRegion(dto.getRegion());
         address.setComplement(dto.getComplement());
         address.setFloor(dto.getFloor());
-/*
-        address.setPlaces(toEntity(dto.getPlaces()));
-*/
-        System.out.println("Long idUser : " + idUser);
         address.setUser(idUser != null ? userRepository.getReferenceById(idUser) : null);
         return address;
     }
 
-    public List<PlaceDTO> toDTO(List<Place> places) {
+    public List<PlaceDTO> toListPLaceDTO(List<Place> places) {
         if (places == null) return null;
         return places.stream()
-                .map(this::toDTO)
+                .map(this::toPlaceDTO)
                 .collect(java.util.stream.Collectors.toList());
     }
 
@@ -246,7 +243,7 @@ public class EntityMapper implements IEntityMapper {
 
 
     // === LIEU ===
-    public PlaceDTO toDTO(Place place) {
+    public PlaceDTO toPlaceDTO(Place place) {
         if (place == null) return null;
         String addressName = place.getAddress() != null ? place.getAddress().getNameAddress() : null;
         return new PlaceDTO(
@@ -287,7 +284,7 @@ public class EntityMapper implements IEntityMapper {
 
 
     // === MEDIA ===
-    public MediaDTO toDTO(Media media) {
+    public MediaDTO toMediaDTO(Media media) {
         if (media == null) return null;
         return new MediaDTO(
                 media.getNameMedia(),
@@ -328,7 +325,7 @@ public class EntityMapper implements IEntityMapper {
 
     // === Car ===
 
-    public CarDTO toDTO(Car car) {
+    public CarDTO toCarDTO(Car car) {
         if (car == null) return null;
         return new CarDTO(
                 car.getPublicId(),
@@ -382,7 +379,7 @@ public class EntityMapper implements IEntityMapper {
 
 
     // === terminal ===
-    public TerminalDTO toDTO(Terminal terminal) {
+    public TerminalDTO toTerminalDTO(Terminal terminal) {
         if (terminal == null) return null;
         return new TerminalDTO(
                 terminal.getPublicId(),
@@ -443,7 +440,7 @@ public class EntityMapper implements IEntityMapper {
 
     // === SERVICE SUPPLEMENTAIRE ===
 
-    public OptionDTO toDTO(Option option) {
+    public OptionDTO toOptionDTO(Option option) {
         if (option == null) return null;
         String addressName = option.getPlace() != null ? option.getPlace().getAddress().getNameAddress() : null;
         return new OptionDTO(
@@ -476,13 +473,13 @@ public class EntityMapper implements IEntityMapper {
     }
 
     // === booking ===
-    public BookingDTO toDTO(Booking booking) {
+    public BookingDTO toBookingDTO(Booking booking) {
         if (booking == null) return null;
         UserDTO userClientDTO = booking.getUser() != null ? toDTO(booking.getUser()) : null;
         UserDTO userOwnerDTO = booking.getTerminal() != null ? toDTO(booking.getTerminal().getPlace().getUser()) : null;
         AddressDTO addressDTO = booking.getTerminal() != null ?
-                toDTO(booking.getTerminal().getPlace().getAddress()) : null;
-        TerminalDTO terminalDTO = booking.getTerminal() != null ? toDTO(booking.getTerminal()) : null;
+                toAddressDTO(booking.getTerminal().getPlace().getAddress()) : null;
+        TerminalDTO terminalDTO = booking.getTerminal() != null ? toTerminalDTO(booking.getTerminal()) : null;
         return new BookingDTO(
                 booking.getPublicId(),
                 booking.getNumberBooking(),
@@ -552,7 +549,7 @@ public class EntityMapper implements IEntityMapper {
 
     // === REPARATEUR ===
 
-    public RepairerDTO toDTO(Repairer repairer) {
+    public RepairerDTO toRepairerDTO(Repairer repairer) {
         if (repairer == null) return null;
         return new RepairerDTO(
                 repairer.getNameRepairer(),

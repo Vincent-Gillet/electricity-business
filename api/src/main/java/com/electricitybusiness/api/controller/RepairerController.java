@@ -1,6 +1,6 @@
 package com.electricitybusiness.api.controller;
 
-import com.electricitybusiness.api.dto.RepairerDTO;
+import com.electricitybusiness.api.dto.repairer.RepairerDTO;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.Repairer;
 import com.electricitybusiness.api.service.RepairerService;
@@ -36,7 +36,7 @@ public class RepairerController {
     public ResponseEntity<List<RepairerDTO>> getAllRepairers() {
         List<Repairer> repairers = repairerService.getAllRepairers();
         List<RepairerDTO> repairersDTO = repairers.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toRepairerDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(repairersDTO);
     }
@@ -50,7 +50,7 @@ public class RepairerController {
     @GetMapping("/{id}")
     public ResponseEntity<RepairerDTO> getRepaireById(@PathVariable Long id) {
         return repairerService.getRepairerById(id)
-                .map(reparateur -> ResponseEntity.ok(mapper.toDTO(reparateur)))
+                .map(reparateur -> ResponseEntity.ok(mapper.toRepairerDTO(reparateur)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -64,7 +64,7 @@ public class RepairerController {
     public ResponseEntity<RepairerDTO> saveRepaire(@Valid @RequestBody RepairerDTO repairerDTO) {
         Repairer repairer = mapper.toEntity(repairerDTO);
         Repairer savedRepairer = repairerService.saveRepairer(repairer);
-        RepairerDTO savedDTO = mapper.toDTO(savedRepairer);
+        RepairerDTO savedDTO = mapper.toRepairerDTO(savedRepairer);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -82,7 +82,7 @@ public class RepairerController {
         }
         Repairer repairer = mapper.toEntity(repairerDTO);
         Repairer updatedRepairer = repairerService.updateRepairer(id, repairer);
-        RepairerDTO updatedDTO = mapper.toDTO(updatedRepairer);
+        RepairerDTO updatedDTO = mapper.toRepairerDTO(updatedRepairer);
         return ResponseEntity.ok(updatedDTO);
     }
 

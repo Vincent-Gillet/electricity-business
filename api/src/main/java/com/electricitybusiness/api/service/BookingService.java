@@ -2,7 +2,6 @@ package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
 import com.electricitybusiness.api.exception.ConflictException;
-import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.*;
 import com.electricitybusiness.api.repository.BookingRepository;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -57,47 +56,6 @@ public class BookingService {
      * @param booking La réservation à enregistrer
      * @return La réservation enregistrée
      */
-/*    public Booking saveBooking(Booking booking) {
-        return bookingRepository.save(booking);
-    }*/
-/*    public Booking saveBooking(Booking booking) {
-        // Validation de l'ordre des dates
-        if (booking.getStartingDate().isAfter(booking.getEndingDate())) {
-            throw new IllegalArgumentException("La date de début de réservation ne peut pas être après la date de fin.");
-        }
-
-        // Validation que la date de début n'est pas dans le passé
-        if (booking.getStartingDate().isBefore(LocalDateTime.now().minusMinutes(5))) {
-            throw new IllegalArgumentException("La date de début de réservation ne peut pas être dans le passé.");
-        }
-
-        // Validation de chevauchement
-        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
-                booking.getTerminal(),
-                booking.getStartingDate(),
-                booking.getEndingDate()
-        );
-
-        if (!overlappingBookings.isEmpty()) {
-            throw new ConflictException("Le terminal est déjà réservé pour la période spécifiée.");
-        }
-
-        LocalDateTime startingDateTime = booking.getStartingDate();
-        Instant bookingStartInstant = startingDateTime.toInstant(ZoneOffset.UTC);
-        Instant now = Instant.now();
-        Duration timeUntilBooking = Duration.between(now, bookingStartInstant);
-        Duration thirtyMinutes = Duration.ofMinutes(30);
-
-        if (timeUntilBooking.isNegative() || timeUntilBooking.compareTo(thirtyMinutes) < 0) {
-            System.out.println("Réservation pour un démarrage imminent (moins de 30 minutes). Procédure de validation automatique.");
-            booking.setStatusBooking(BookingStatus.ACCEPTEE);
-            Booking savedBooking = bookingRepository.save(booking);
-            bookingSchedulerService.scheduleBookingTasks(savedBooking);
-        }
-
-        return bookingRepository.save(booking);
-    }*/
-
     public Booking saveBooking(Booking booking) {
         if (booking.getStartingDate().isAfter(booking.getEndingDate())) {
             throw new IllegalArgumentException("La date de début de réservation ne peut pas être après la date de fin.");
@@ -240,6 +198,9 @@ public class BookingService {
             String orderBooking,
             BookingStatus statusBooking
     ) {
+        if (orderBooking != null && !orderBooking.equalsIgnoreCase("ASC") && !orderBooking.equalsIgnoreCase("DESC")) {
+            orderBooking = "ASC";
+        }
         return bookingRepository.findBookingsByUserMyBookings(user, startingDate, endingDate, orderBooking, statusBooking);
     }
 
@@ -418,10 +379,13 @@ public class BookingService {
         return out.toByteArray();
     }
 
-
-
-
-    /** Méthode utilitaire pour créer une cellule de tableau PDF */
+    /**
+     * Crée une cellule de tableau avec du texte formaté.
+     * @param text Le texte à afficher dans la cellule
+     * @param font La police à utiliser pour le texte
+     * @param fontSize La taille de la police
+     * @return La cellule formatée
+     */
     private com.itextpdf.layout.element.Cell createCell(String text, PdfFont font, float fontSize) {
         return new com.itextpdf.layout.element.Cell()
                 .setBorder(null)
@@ -429,7 +393,12 @@ public class BookingService {
                 .add(new Paragraph(text).setFont(font).setFontSize(fontSize));
     }
 
-
+    /**
+     * Génère un fichier Excel des réservations pour un utilisateur donné.
+     * @param user L'utilisateur dont les réservations doivent être exportées
+     * @return Un tableau d'octets représentant le fichier Excel généré
+     * @throws Exception En cas d'erreur lors de la génération du fichier Excel
+     */
     public byte[] generateBookingExcel(User user) throws Exception {
         List<Booking> bookings = bookingRepository.findByUser(user);
 
@@ -496,6 +465,10 @@ public class BookingService {
         return outputStream.toByteArray();
     }
 
+    /**
+     * Récupère tous les statuts de réservation disponibles.
+     * @return Une liste de tous les statuts de réservation
+     */
     public List<BookingStatus> getAllBookingStatus() {
         return Arrays.asList(BookingStatus.values());
     }

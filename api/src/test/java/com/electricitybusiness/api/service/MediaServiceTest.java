@@ -1,7 +1,6 @@
 package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.model.Media;
-import com.electricitybusiness.api.repository.CarRepository;
 import com.electricitybusiness.api.repository.MediaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +21,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MediaServiceTest {
     @Mock
-    private MediaRepository mediaRepository; // Dépendance de MediaService
+    private MediaRepository mediaRepository;
 
     @Mock
     private CarService carService;
 
     @InjectMocks
-    private MediaService mediaService; // Le service que nous allons tester
+    private MediaService mediaService;
 
     // Données de test communes
     private Media media1;
@@ -67,6 +66,9 @@ public class MediaServiceTest {
         );
     }
 
+    /**
+     * Teste la méthode getAllMedias du MediaService.
+     */
     @Test
     void getAllMedias_shouldReturnListOfMedias() {
         // Préparation du mock: quand findAll() est appelé, il doit retourner nos médias de test
@@ -81,10 +83,12 @@ public class MediaServiceTest {
         assertEquals(2, result.size());
         assertEquals(media1, result.get(0));
         assertEquals(media2, result.get(1));
-        // Vérifie que la méthode findAll du repository a été appelée exactement une fois
         verify(mediaRepository, times(1)).findAll();
     }
 
+    /**
+     * Teste la méthode getAllMedias du MediaService lorsque aucun média n'existe.
+     */
     @Test
     void getAllMedias_shouldReturnEmptyList_whenNoMediasExist() {
         // Préparation du mock: quand findAll() est appelé, il doit retourner une liste vide
@@ -99,6 +103,9 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).findAll();
     }
 
+    /**
+     * Teste la méthode getMediaById du MediaService lorsque le média est trouvé.
+     */
     @Test
     void getMediaById_shouldReturnMedia_whenFound() {
         // Préparation du mock: quand findById(id1) est appelé, il doit retourner un Optional contenant media1
@@ -113,6 +120,9 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).findById(id1);
     }
 
+    /**
+     * Teste la méthode getMediaById du MediaService lorsque le média n'est pas trouvé.
+     */
     @Test
     void getMediaById_shouldReturnEmptyOptional_whenNotFound() {
         // Préparation du mock: quand findById(unIdInexistant) est appelé, il doit retourner un Optional vide
@@ -126,28 +136,63 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).findById(99L);
     }
 
+    /**
+     * Teste la méthode saveMedia du MediaService.
+     */
     @Test
     void saveMedia_shouldReturnSavedMedia() {
-        // Média sans ID pour simuler une nouvelle création
-        Media newMedia = new Media(null, "DocumentPDF", "http://example.com/doc.pdf", "application/pdf", "Fiche technique", "1MB", LocalDateTime.now(), null, null, null, null);
-        // Le repository doit retourner le média avec un ID après la sauvegarde
-        when(mediaRepository.save(any(Media.class))).thenReturn(new Media(3L, newMedia.getNameMedia(), newMedia.getUrl(), newMedia.getType(), newMedia.getDescriptionMedia(), newMedia.getSize(), newMedia.getDateCreation(), null, null, null, null));
+        Media newMedia = new Media(
+                null,
+                "DocumentPDF",
+                "http://example.com/doc.pdf",
+                "application/pdf",
+                "Fiche technique",
+                "1MB",
+                LocalDateTime.now(),
+                null,
+                null,
+                null,
+                null);
+        when(mediaRepository.save(any(Media.class))).thenReturn(new Media(
+                3L,
+                newMedia.getNameMedia(),
+                newMedia.getUrl(),
+                newMedia.getType(),
+                newMedia.getDescriptionMedia(),
+                newMedia.getSize(),
+                newMedia.getDateCreation(),
+                null,
+                null,
+                null,
+                null));
 
         // Exécution
         Media savedMedia = mediaService.saveMedia(newMedia);
 
         // Vérification
-        assertNotNull(savedMedia.getIdMedia()); // L'ID doit avoir été assigné
+        assertNotNull(savedMedia.getIdMedia());
         assertEquals("DocumentPDF", savedMedia.getNameMedia());
         verify(mediaRepository, times(1)).save(any(Media.class));
     }
 
+    /**
+     * Teste la méthode updateMedia du MediaService.
+     */
     @Test
     void updateMedia_shouldReturnUpdatedMedia() {
-        // Créer une version modifiée de media1
-        Media updatedMediaDetails = new Media(id1, "ImageProfilV2", "http://example.com/profile_v2.jpg", "image/png", "Nouvelle photo de profil", "200KB", LocalDateTime.now(), null, null, null, null);
+        Media updatedMediaDetails = new Media(
+                id1,
+                "ImageProfilV2",
+                "http://example.com/profile_v2.jpg",
+                "image/png",
+                "Nouvelle photo de profil",
+                "200KB",
+                LocalDateTime.now(),
+                null,
+                null,
+                null,
+                null);
 
-        // Le repository doit retourner le média mis à jour
         when(mediaRepository.save(any(Media.class))).thenReturn(updatedMediaDetails);
 
         // Exécution
@@ -161,18 +206,22 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).save(any(Media.class));
     }
 
+    /**
+     * Teste la méthode deleteMediaById du MediaService.
+     */
     @Test
     void deleteMediaById_shouldCallRepositoryDelete() {
         // Exécution
-        carService.deleteCarById(id1); // Correction: Doit appeler mediaService
-
-        // Exécution corrigée
+        carService.deleteCarById(id1);
         mediaService.deleteMediaById(id1);
 
-        // Vérification: s'assure que la méthode deleteById du repository a été appelée
+        // Vérification
         verify(mediaRepository, times(1)).deleteById(id1);
     }
 
+    /**
+     * Teste la méthode existsById du MediaService lorsque le média existe.
+     */
     @Test
     void existsById_shouldReturnTrue_whenExists() {
         when(mediaRepository.existsById(id1)).thenReturn(true);
@@ -183,6 +232,9 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).existsById(id1);
     }
 
+    /**
+     * Teste la méthode existsById du MediaService lorsque le média n'existe pas.
+     */
     @Test
     void existsById_shouldReturnFalse_whenNotExists() {
         when(mediaRepository.existsById(99L)).thenReturn(false);
@@ -193,6 +245,9 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).existsById(99L);
     }
 
+    /**
+     * Teste la méthode findByType du MediaService.
+     */
     @Test
     void findByType_shouldReturnListOfMedias_whenFound() {
         List<Media> imageMedias = Collections.singletonList(media1);
@@ -206,6 +261,9 @@ public class MediaServiceTest {
         verify(mediaRepository, times(1)).findByType("image/jpeg");
     }
 
+    /**
+     * Teste la méthode findByType du MediaService lorsque aucun média n'est trouvé.
+     */
     @Test
     void findByType_shouldReturnEmptyList_whenNotFound() {
         when(mediaRepository.findByType("application/json")).thenReturn(Collections.emptyList());

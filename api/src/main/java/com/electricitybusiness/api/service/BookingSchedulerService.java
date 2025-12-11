@@ -38,8 +38,17 @@ public class BookingSchedulerService {
         UUID terminalPublicId = booking.getTerminal() != null ? booking.getTerminal().getPublicId() : null;
         if (terminalPublicId == null) return;
 
-        // cancel any existing tasks for this booking
+        // Annuler les tâches existantes pour cette réservation
         cancelBookingTasks(bookingId);
+
+        Instant nowIf = Instant.now();
+        Instant startDateIf = booking.getStartingDate().atZone(ZoneId.systemDefault()).toInstant();
+        Instant endDateIf = booking.getEndingDate().atZone(ZoneId.systemDefault()).toInstant();
+
+        // Vérifier si les dates sont dans le futur
+        if (startDateIf.isBefore(nowIf) || endDateIf.isBefore(nowIf)) {
+            return;
+        }
 
         Date startDate = Date.from(booking.getStartingDate().atZone(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(booking.getEndingDate().atZone(ZoneId.systemDefault()).toInstant());
@@ -69,36 +78,40 @@ public class BookingSchedulerService {
      * @param bookingStartInstant L'instant de début de la réservation (en UTC).
      */
     public void scheduleAutoValidationTask(UUID bookingPublicId, Instant bookingStartInstant) {
+        Instant now = Instant.now();
         Instant scheduleTime = bookingStartInstant.minus(Duration.ofMinutes(30));
 
-        // Ne pas planifier si l'heure est déjà passée (ce cas est géré par la création immédiate)
-        if (scheduleTime.isBefore(Instant.now())) {
-            System.out.println("L'heure de planification de l'auto-validation est déjà passée pour la réservation " + bookingPublicId + ". Aucune action nécessaire.");
+        // Ne pas planifier si l'heure est déjà passée
+        if (scheduleTime.isBefore(now)) {
             return;
         }
 
         // La tâche à exécuter
         Runnable autoValidationRunnable = () -> {
-            bookingRepository.findByPublicId(bookingPublicId).ifPresent(booking -> {
-                // Vérifier si le statut est toujours EN_ATTENTE_VALIDATION
+            Optional<Booking> bookingOpt = bookingRepository.findByPublicId(bookingPublicId);
+            bookingOpt.ifPresent(booking -> {
+                // Vérifier si le statut est toujours EN_ATTENTE
                 if (booking.getStatusBooking() == BookingStatus.EN_ATTENTE) {
-                    System.out.println("Validation automatique de la réservation : " + bookingPublicId + " (30 min avant le début).");
                     booking.setStatusBooking(BookingStatus.ACCEPTEE);
-                    bookingRepository.save(booking); // Sauvegarder le nouveau statut
-                    // Optionnel: si le changement de statut impacte d'autres tâches, vous pouvez les replanifier ici.
-                    // scheduleBookingTasks(booking);
+                    bookingRepository.save(booking);
+
+                    // Planifier les tâches d'occupation et de libération du terminal
+                    scheduleBookingTasks(booking);
                 } else {
                     System.out.println("La réservation " + bookingPublicId + " n'est plus en attente, l'auto-validation est ignorée.");
                 }
             });
-            autoValidationTasks.remove(bookingPublicId); // La tâche est exécutée, on peut la retirer de la map
+
+            // Retirer la tâche de la map après exécution
+            autoValidationTasks.remove(bookingPublicId);
         };
 
         // Planifier la tâche
         ScheduledFuture<?> future = taskScheduler.schedule(autoValidationRunnable, scheduleTime);
-        autoValidationTasks.put(bookingPublicId, future); // Stocker la référence pour une éventuelle annulation
-        System.out.println("Tâche d'auto-validation planifiée pour la réservation " + bookingPublicId + " à : " + scheduleTime);
+        autoValidationTasks.put(bookingPublicId, future);
     }
+
+
 
     /**
      * Annule toutes les tâches planifiées pour une réservation spécifique.
@@ -120,7 +133,7 @@ public class BookingSchedulerService {
     public void cancelAutoValidationTask(UUID bookingPublicId) {
         ScheduledFuture<?> future = autoValidationTasks.remove(bookingPublicId);
         if (future != null) {
-            future.cancel(false); // false signifie ne pas interrompre si elle est déjà en cours (peu probable ici)
+            future.cancel(false);
             System.out.println("Tâche d'auto-validation annulée pour la réservation : " + bookingPublicId);
         }
     }

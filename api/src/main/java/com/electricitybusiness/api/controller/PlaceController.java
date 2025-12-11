@@ -44,7 +44,7 @@ public class PlaceController {
     public ResponseEntity<List<PlaceDTO>> getAllLieux() {
         List<Place> places = placeService.getAllPlaces();
         List<PlaceDTO> lieuxDTO = places.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toPlaceDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(lieuxDTO);
     }
@@ -59,7 +59,7 @@ public class PlaceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<PlaceDTO> getLieuById(@PathVariable Long id) {
         return placeService.getPlaceById(id)
-                .map(lieu -> ResponseEntity.ok(mapper.toDTO(lieu)))
+                .map(lieu -> ResponseEntity.ok(mapper.toPlaceDTO(lieu)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -74,7 +74,7 @@ public class PlaceController {
     public ResponseEntity<PlaceDTO> saveLieu(@Valid @RequestBody PlaceDTO placeDTO) {
         Place place = mapper.toEntity(placeDTO);
         Place savedPlace = placeService.savePlace(place);
-        PlaceDTO savedDTO = mapper.toDTO(savedPlace);
+        PlaceDTO savedDTO = mapper.toPlaceDTO(savedPlace);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
     }
 
@@ -93,7 +93,7 @@ public class PlaceController {
         }
         Place place = mapper.toEntity(placeDTO);
         Place updatedPlace = placeService.updatePlace(id, place);
-        PlaceDTO updatedDTO = mapper.toDTO(updatedPlace);
+        PlaceDTO updatedDTO = mapper.toPlaceDTO(updatedPlace);
         return ResponseEntity.ok(updatedDTO);
     }
 
@@ -130,7 +130,7 @@ public class PlaceController {
         // Récupérer les voitures de l'utilisateur
         List<Place> places = placeService.getPlacesByUser(user);
         List<PlaceDTO> PlacesDTO = places.stream()
-                .map(mapper::toDTO)
+                .map(mapper::toPlaceDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(PlacesDTO);
     }
@@ -146,7 +146,7 @@ public class PlaceController {
             Place place = mapper.toEntityCreate(placeDTO, idUser, placeDTO.getPublicIdAddress());
             Place savedPlace = placeService.savePlace(place);
 
-            PlaceDTO savedDTO = mapper.toDTO(savedPlace);
+            PlaceDTO savedDTO = mapper.toPlaceDTO(savedPlace);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
         } catch (Exception e) {
@@ -189,7 +189,7 @@ public class PlaceController {
         // Mettre à jour la voiture
         Place place = mapper.toEntityUpdate(placeDTO, idUser, placeDTO.getPublicIdAddress());
         Place updatedPlace = placeService.updatePlace(publicId, place);
-        PlaceDTO updatedDTO = mapper.toDTO(updatedPlace);
+        PlaceDTO updatedDTO = mapper.toPlaceDTO(updatedPlace);
         return ResponseEntity.ok(updatedDTO);
     }
 

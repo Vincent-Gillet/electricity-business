@@ -1,6 +1,5 @@
-package com.electricitybusiness.api.dto;
+package com.electricitybusiness.api.dto.media;
 
-import com.electricitybusiness.api.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
