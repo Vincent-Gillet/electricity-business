@@ -5,7 +5,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests --no-transfer-progress
 
-FROM eclipse-temurin:21-jre-slim AS layertools_extractor
+FROM eclipse-temurin:21-jre AS layertools_extractor
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
 COPY --from=build /app/${JAR_FILE} app.jar
@@ -14,7 +14,7 @@ RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
 
 
 #FROM eclipse-temurin:21-jre-jammy
-FROM eclipse-temurin:21-jre-slim
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 #COPY --from=build /app/target/*.jar app.jar
