@@ -42,7 +42,7 @@ export const routes: Routes = [
   },
   { path: 'inscription', component: SubscriptionComponent, canActivate: [() => true] },
   { path: 'connexion', component: LoginComponent, canActivate: [() => true] },
-  { path: 'cgu', component: CguComponent },
-  { path: 'mention-legales', component: LegalNoticesComponent },
+  { path: 'cgu', component: CguComponent, canActivate: [() => true] },
+  { path: 'mention-legales', component: LegalNoticesComponent, canActivate: [() => true] },
   { path: '**', redirectTo: '' }
 ];
