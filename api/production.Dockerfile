@@ -25,14 +25,14 @@ WORKDIR /app
 #ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app/app.jar"]
 
 
-COPY --from=layertools_extractor /app/extracted/dependencies/ ./
-COPY --from=layertools_extractor /app/extracted/spring-boot-loader/ ./
-COPY --from=layertools_extractor /app/extracted/snapshot-dependencies/ ./
-COPY --from=layertools_extractor /app/extracted/application/ ./
+COPY --from=layertools_extractor /app/extracted/dependencies/ /app/dependencies/
+COPY --from=layertools_extractor /app/extracted/spring-boot-loader/ /app/spring-boot-loader/
+COPY --from=layertools_extractor /app/extracted/snapshot-dependencies/ /app/snapshot-dependencies/
+COPY --from=layertools_extractor /app/extracted/application/ /app/application/
 
 EXPOSE 8080
 
 ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
 
 #ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher"]
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp ./dependencies/*:./spring-boot-loader/*:./snapshot-dependencies/*:./application/* org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp /app/spring-boot-loader org.springframework.boot.loader.JarLauncher"]
