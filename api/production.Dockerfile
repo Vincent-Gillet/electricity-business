@@ -5,6 +5,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests --no-transfer-progress
 
+
 FROM eclipse-temurin:21-jre AS layertools_extractor
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
@@ -12,18 +13,8 @@ COPY --from=build /app/${JAR_FILE} app.jar
 RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
 
 
-
-#FROM eclipse-temurin:21-jre-jammy
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-
-#COPY --from=build /app/target/*.jar app.jar
-
-#ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
-
-#EXPOSE 8080
-#ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app/app.jar"]
-
 
 COPY --from=layertools_extractor /app/extracted/dependencies/ /app/dependencies/
 COPY --from=layertools_extractor /app/extracted/spring-boot-loader/ /app/spring-boot-loader/
@@ -34,5 +25,4 @@ EXPOSE 8080
 
 ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
 
-#ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher"]
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp /app/spring-boot-loader org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp /app/spring-boot-loader:/app/dependencies/BOOT-INF/lib/*:/app/snapshot-dependencies/BOOT-INF/lib/*:/app/application/BOOT-INF/classes com.electricitybusiness.api.ApiApplication"]
