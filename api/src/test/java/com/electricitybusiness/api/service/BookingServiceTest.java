@@ -14,15 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -159,6 +158,7 @@ public class BookingServiceTest {
      * Tests pour la méthode saveBooking
      */
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void shouldSaveBooking() {
         // Préparation
         LocalDateTime now = LocalDateTime.now();
@@ -182,16 +182,11 @@ public class BookingServiceTest {
         );
 
         // Mock du BookingSchedulerService
-        BookingSchedulerService mockSchedulerService = mock(BookingSchedulerService.class);
-        doNothing().when(mockSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
-
-        // Injection des dépendances
-        BookingService bookingService = new BookingService(
-                bookingRepository,
-                mockSchedulerService
-        );
+        doNothing().when(bookingSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+        doNothing().when(bookingSchedulerService).scheduleBookingTasks(any(Booking.class));
 
         when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
+        when(bookingRepository.findOverlappingBookings(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Exécution
         Booking savedBooking = bookingService.saveBooking(validBooking);
@@ -200,6 +195,8 @@ public class BookingServiceTest {
         assertNotNull(savedBooking);
         assertEquals(validBooking, savedBooking);
         verify(bookingRepository, times(1)).save(validBooking);
+        verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+        verify(bookingSchedulerService, times(1)).scheduleBookingTasks(any(Booking.class));
     }
 
     /**
