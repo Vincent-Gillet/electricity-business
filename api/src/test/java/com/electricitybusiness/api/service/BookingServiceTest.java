@@ -20,8 +20,10 @@ import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,9 @@ public class BookingServiceTest {
 
     @InjectMocks
     private BookingService bookingService;
+
+    @Mock
+    private Clock clock;
 
     private User testUser;
     private Terminal testTerminal;
@@ -162,10 +167,22 @@ public class BookingServiceTest {
     @MockitoSettings(strictness = Strictness.LENIENT)
     void shouldSaveBookingWithPendingStatusWhenStartDateIsFarInFuture() {
         // Préparation
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime paymentDate = now;
-        LocalDateTime startDate = now.plusHours(1);
-        LocalDateTime endDate = now.plusHours(3);
+        ZoneId serviceProcessingZone = ZoneId.of("Europe/Paris");
+
+        LocalDateTime testExecutionBaseNow = LocalDateTime.now();
+
+        Instant fixedMockInstant = testExecutionBaseNow
+                .atZone(serviceProcessingZone)
+                .toInstant();
+
+        when(clock.instant()).thenReturn(fixedMockInstant);
+        when(clock.getZone()).thenReturn(serviceProcessingZone);
+
+        LocalDateTime servicePerceivedNow = LocalDateTime.ofInstant(fixedMockInstant, serviceProcessingZone);
+
+        LocalDateTime paymentDate = servicePerceivedNow;
+        LocalDateTime startDate = servicePerceivedNow.plusDays(1);
+        LocalDateTime endDate = servicePerceivedNow.plusDays(1).plusHours(3);
 
         Booking initialBooking = new Booking(
                 1L,
