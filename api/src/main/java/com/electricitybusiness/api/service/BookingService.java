@@ -91,14 +91,13 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-
         if (savedBooking.getStatusBooking() == BookingStatus.EN_ATTENTE) {
             bookingSchedulerService.scheduleAutoValidationTask(savedBooking.getPublicId(), bookingStartInstant);
         }
 
         bookingSchedulerService.scheduleBookingTasks(savedBooking);
 
-        return savedBooking; // Retourner la réservation persistée
+        return savedBooking;
     }
 
 
