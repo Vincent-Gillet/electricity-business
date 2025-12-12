@@ -11,6 +11,7 @@ import com.itextpdf.layout.element.Text;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -155,18 +156,18 @@ public class BookingServiceTest {
     }
 
     /**
-     * Tests pour la méthode saveBooking
+     * Tests pour la méthode saveBooking lorsque la date de début est loin dans le futur
      */
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    void shouldSaveBooking() {
+    void shouldSaveBookingWithPendingStatusWhenStartDateIsFarInFuture() {
         // Préparation
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime paymentDate = now;
         LocalDateTime startDate = now.plusHours(1);
         LocalDateTime endDate = now.plusHours(3);
 
-        Booking validBooking = new Booking(
+        Booking initialBooking = new Booking(
                 1L,
                 UUID.randomUUID(),
                 testUser,
@@ -185,18 +186,24 @@ public class BookingServiceTest {
         doNothing().when(bookingSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
         doNothing().when(bookingSchedulerService).scheduleBookingTasks(any(Booking.class));
 
-        when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(initialBooking);
         when(bookingRepository.findOverlappingBookings(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Exécution
-        Booking savedBooking = bookingService.saveBooking(validBooking);
+        Booking savedBooking = bookingService.saveBooking(initialBooking);
 
         // Vérification
-        assertNotNull(savedBooking);
-        assertEquals(validBooking, savedBooking);
-        verify(bookingRepository, times(1)).save(validBooking);
+        assertEquals(initialBooking, savedBooking);
+        assertEquals(BookingStatus.EN_ATTENTE, savedBooking.getStatusBooking());
+
+        ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
+        verify(bookingRepository, times(1)).save(bookingCaptor.capture());
+        Booking capturedBooking = bookingCaptor.getValue();
+
+        assertEquals(BookingStatus.EN_ATTENTE, capturedBooking.getStatusBooking());
+
         verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
-        verify(bookingSchedulerService, times(1)).scheduleBookingTasks(any(Booking.class));
+        verify(bookingSchedulerService, times(1)).scheduleBookingTasks(initialBooking);
     }
 
     /**
