@@ -18,6 +18,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,12 @@ import java.util.List;
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingSchedulerService bookingSchedulerService;
+    private final Clock clock;
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
+    }
 
     /**
      * Récupère toutes les réservations.
@@ -61,7 +68,10 @@ public class BookingService {
             throw new IllegalArgumentException("La date de début de réservation ne peut pas être après la date de fin.");
         }
 
-        if (booking.getStartingDate().isBefore(LocalDateTime.now().minusMinutes(5))) {
+        ZoneId serviceProcessingZone = ZoneId.of("Europe/Paris");
+        LocalDateTime currentDateTime = LocalDateTime.ofInstant(Instant.now(clock), serviceProcessingZone);
+
+        if (booking.getStartingDate().isBefore(currentDateTime.minusMinutes(5))) {
             throw new IllegalArgumentException("La date de début de réservation ne peut pas être dans le passé.");
         }
 
@@ -75,13 +85,13 @@ public class BookingService {
             throw new ConflictException("Le terminal est déjà réservé pour la période spécifiée.");
         }
 
-        LocalDateTime startingDateTime = booking.getStartingDate();
-        ZoneId userTimeZone = ZoneId.of("Europe/Paris");
-        ZonedDateTime zonedBookingStart = startingDateTime.atZone(userTimeZone);
-        Instant bookingStartInstant = zonedBookingStart.toInstant();
-        Instant now = Instant.now();
+        Instant nowInstant = Instant.now(clock);
+        Instant bookingStartInstant = booking.getStartingDate()
+                .atZone(serviceProcessingZone)
+                .toInstant();
+
+        Duration timeUntilBooking = Duration.between(nowInstant, bookingStartInstant);
         Duration thirtyMinutes = Duration.ofMinutes(30);
-        Duration timeUntilBooking = Duration.between(now, bookingStartInstant);
 
         if (timeUntilBooking.isNegative() || timeUntilBooking.compareTo(thirtyMinutes) < 0) {
             booking.setStatusBooking(BookingStatus.ACCEPTEE);
@@ -91,14 +101,13 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-
         if (savedBooking.getStatusBooking() == BookingStatus.EN_ATTENTE) {
             bookingSchedulerService.scheduleAutoValidationTask(savedBooking.getPublicId(), bookingStartInstant);
         }
 
         bookingSchedulerService.scheduleBookingTasks(savedBooking);
 
-        return savedBooking; // Retourner la réservation persistée
+        return savedBooking;
     }
 
 

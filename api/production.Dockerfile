@@ -1,16 +1,29 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn clean package -DskipTests --no-transfer-progress
+RUN mvn clean package -DskipTests -Pproduction --no-transfer-progress
 
-FROM eclipse-temurin:21-jre-jammy
+
+FROM eclipse-temurin:21-jre-alpine AS layertools_extractor
+WORKDIR /app
+ARG JAR_FILE=target/*.jar
+COPY --from=build /app/${JAR_FILE} app.jar
+RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
+
+
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
-
-ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m -Dspring.profiles.active=render"
+COPY --from=layertools_extractor /app/extracted/dependencies/ /app/dependencies/
+COPY --from=layertools_extractor /app/extracted/spring-boot-loader/ /app/spring-boot-loader/
+COPY --from=layertools_extractor /app/extracted/snapshot-dependencies/ /app/snapshot-dependencies/
+COPY --from=layertools_extractor /app/extracted/application/ /app/application/
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app/app.jar"]
+# Sur Render
+# ENV JAVA_OPTS="-Xmx400m -Xms200m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:CompressedClassSpaceSize=32m"
+
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -cp /app/spring-boot-loader:/app/dependencies/BOOT-INF/lib/*:/app/snapshot-dependencies/BOOT-INF/lib/*:/app/application/BOOT-INF/classes com.electricitybusiness.api.ApiApplication"]

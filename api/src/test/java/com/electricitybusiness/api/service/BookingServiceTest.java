@@ -11,18 +11,21 @@ import com.itextpdf.layout.element.Text;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.ZoneId;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +41,9 @@ public class BookingServiceTest {
 
     @InjectMocks
     private BookingService bookingService;
+
+    @Mock
+    private Clock clock;
 
     private User testUser;
     private Terminal testTerminal;
@@ -156,17 +162,30 @@ public class BookingServiceTest {
     }
 
     /**
-     * Tests pour la méthode saveBooking
+     * Tests pour la méthode saveBooking lorsque la date de début est loin dans le futur
      */
     @Test
-    void shouldSaveBooking() {
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void shouldSaveBookingWithPendingStatusWhenStartDateIsFarInFuture() {
         // Préparation
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime paymentDate = now;
-        LocalDateTime startDate = now.plusHours(1);
-        LocalDateTime endDate = now.plusHours(3);
+        ZoneId serviceProcessingZone = ZoneId.of("Europe/Paris");
 
-        Booking validBooking = new Booking(
+        LocalDateTime testExecutionBaseNow = LocalDateTime.now();
+
+        Instant fixedMockInstant = testExecutionBaseNow
+                .atZone(serviceProcessingZone)
+                .toInstant();
+
+        when(clock.instant()).thenReturn(fixedMockInstant);
+        when(clock.getZone()).thenReturn(serviceProcessingZone);
+
+        LocalDateTime servicePerceivedNow = LocalDateTime.ofInstant(fixedMockInstant, serviceProcessingZone);
+
+        LocalDateTime paymentDate = servicePerceivedNow;
+        LocalDateTime startDate = servicePerceivedNow.plusDays(1);
+        LocalDateTime endDate = servicePerceivedNow.plusDays(1).plusHours(3);
+
+        Booking initialBooking = new Booking(
                 1L,
                 UUID.randomUUID(),
                 testUser,
@@ -182,24 +201,27 @@ public class BookingServiceTest {
         );
 
         // Mock du BookingSchedulerService
-        BookingSchedulerService mockSchedulerService = mock(BookingSchedulerService.class);
-        doNothing().when(mockSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+        doNothing().when(bookingSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+        doNothing().when(bookingSchedulerService).scheduleBookingTasks(any(Booking.class));
 
-        // Injection des dépendances
-        BookingService bookingService = new BookingService(
-                bookingRepository,
-                mockSchedulerService
-        );
-
-        when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(initialBooking);
+        when(bookingRepository.findOverlappingBookings(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Exécution
-        Booking savedBooking = bookingService.saveBooking(validBooking);
+        Booking savedBooking = bookingService.saveBooking(initialBooking);
 
         // Vérification
-        assertNotNull(savedBooking);
-        assertEquals(validBooking, savedBooking);
-        verify(bookingRepository, times(1)).save(validBooking);
+        assertEquals(initialBooking, savedBooking);
+        assertEquals(BookingStatus.EN_ATTENTE, savedBooking.getStatusBooking());
+
+        ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
+        verify(bookingRepository, times(1)).save(bookingCaptor.capture());
+        Booking capturedBooking = bookingCaptor.getValue();
+
+        assertEquals(BookingStatus.EN_ATTENTE, capturedBooking.getStatusBooking());
+
+        verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+        verify(bookingSchedulerService, times(1)).scheduleBookingTasks(initialBooking);
     }
 
     /**
@@ -563,17 +585,43 @@ public class BookingServiceTest {
      */
     @Test
     void testSaveBooking_ValidBooking() {
-        when(bookingRepository.save(any(Booking.class))).thenReturn(validBooking);
+        ZoneId serviceProcessingZone = ZoneId.of("Europe/Paris");
+        Instant fixedInstantForTest = LocalDateTime.now()
+                .plusMinutes(10)
+                .atZone(serviceProcessingZone)
+                .toInstant();
+
+        when(clock.instant()).thenReturn(fixedInstantForTest);
+
+        LocalDateTime servicePerceivedNow = LocalDateTime.ofInstant(fixedInstantForTest, serviceProcessingZone);
+        LocalDateTime paymentDate = servicePerceivedNow;
+        LocalDateTime futureStartDate = servicePerceivedNow.plusHours(1);
+        LocalDateTime futureEndDate = futureStartDate.plusHours(3);
+
+        validBooking.setPaymentDate(paymentDate);
+        validBooking.setStartingDate(futureStartDate);
+        validBooking.setEndingDate(futureEndDate);
+
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(AdditionalAnswers.returnsFirstArg());
         doNothing().when(bookingSchedulerService).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
 
         Booking savedBooking = bookingService.saveBooking(validBooking);
 
         assertNotNull(savedBooking);
+        assertEquals(BookingStatus.EN_ATTENTE, savedBooking.getStatusBooking());
         assertEquals(validBooking.getIdBooking(), savedBooking.getIdBooking());
-        assertEquals(validBooking.getStatusBooking(), savedBooking.getStatusBooking());
         assertEquals(validBooking.getTerminal(), savedBooking.getTerminal());
-        verify(bookingRepository, times(1)).save(validBooking);
-        verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(any(UUID.class), any(Instant.class));
+
+        verify(bookingRepository, times(1)).save(argThat(booking ->
+                booking.getStartingDate().equals(futureStartDate) &&
+                        booking.getEndingDate().equals(futureEndDate) &&
+                        booking.getStatusBooking().equals(BookingStatus.EN_ATTENTE)
+        ));
+
+        verify(bookingSchedulerService, times(1)).scheduleAutoValidationTask(
+                eq(savedBooking.getPublicId()),
+                eq(futureStartDate.atZone(serviceProcessingZone).toInstant())
+        );
     }
 
     /**

@@ -27,7 +27,7 @@ pipeline {
         stage('Build Spring Boot') {
             steps {
                 dir('api') {
-                    sh 'mvn clean package -DskipTests'
+                    sh 'mvn clean package'
                 }
             }
         }
