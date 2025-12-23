@@ -44,7 +44,7 @@ public class Repairer implements UserDetails {
 
     @Enumerated
     @NotNull
-    private UserRole role = UserRole.USER;
+    private UserRole role = UserRole.RAPAIRER;
 
     @ManyToMany(mappedBy = "repairers")
     private Set<Terminal> terminals = new HashSet<>();
