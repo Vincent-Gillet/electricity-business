@@ -1,13 +1,11 @@
 package com.electricitybusiness.api.model;
 
+import com.electricitybusiness.api.annotation.MinAge;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,6 +65,8 @@ public class User implements UserDetails {
     @Column(name = "date_of_birth")
     @NotNull(message = "La date de naissance est obligatoire")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "La date de naissance doit être dans le passé")
+    @MinAge(minAge = 18, message = "L'utilisateur doit avoir au moins 18 ans")
     private LocalDate dateOfBirth;
 
     @Column(name = "phone")
