@@ -18,9 +18,14 @@ export interface Booking {
   userClientDTO?: User;
   userOwnerDTO?: User;
   addressDTO?: Address;
-  publicIdCar?: Car;
-  publicIdTerminal?: Terminal;
-  publicIdOption?: Option;
+
+  publicIdCar?: string;
+  publicIdTerminal?: string;
+  publicIdOption?: string;
+
+  car?: Car;
+  terminal?: Terminal;
+  option?: Option;
 
   orderBooking?: string;
 }
