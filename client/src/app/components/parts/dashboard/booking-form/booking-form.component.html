@@ -5,11 +5,6 @@
       <input [min]="minDateTimeString" [max]="maxDateTimeString" type="datetime-local" class="form-control" id="startingDatePostBooking" formControlName="startingDate" placeholder="AB123CD" required>
       <app-error-from [fieldName]="'startingDate'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
-<!--    <div class="mb-3">
-      <label for="endingDatePostBooking" class="form-label">Fin Réservation *</label>
-      <input [min]="minDateTimeString" [max]="maxDateTimeString" [value]="booking?.endingDate || ''" type="datetime-local" class="form-control" id="endingDatePost" formControlName="endingDate" placeholder="Renault" required>
-      <app-error-from [fieldName]="'endingDate'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
-    </div>-->
     <div class="mb-3">
       <label for="endingDatePostBooking" class="form-label">Durée de la réservation *</label>
       <select class="form-control" id="endingDatePost" formControlName="endingDate" required>
@@ -18,50 +13,32 @@
         <option value="45" [selected]="endingDateSearch === 45">45 minutes</option>
         <option value="60" [selected]="endingDateSearch === 60">1 heure</option>
       </select>
-<!--
-      <input [min]="minDateTimeString" [max]="maxDateTimeString" type="datetime-local" class="form-control" id="endingDatePost" formControlName="endingDate" placeholder="Renault" required>
--->
       <app-error-from [fieldName]="'endingDate'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
-
-<!--    <div class="mb-3">
-      <label for="modelPostBooking" class="form-label">Modele *</label>
-      <input [value]="booking?.model || ''" type="text" class="form-control" id="modelPostCar" formControlName="model" placeholder="Zoe" required>
-      <app-error-from [fieldName]="'model'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
-    </div>
-    <div class="mb-3">
-      <label for="yearPostBooking" class="form-label">Année *</label>
-      <input [value]="booking?.year || ''" type="number" class="form-control" id="yearPostCar" formControlName="year" placeholder="2000" required>
-      <app-error-from [fieldName]="'year'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
-    </div>
-    <div class="mb-3">
-      <label for="batteryCapacityPostBooking" class="form-label">Capacite batterie</label>
-      <input [value]="booking?.batteryCapacity || ''" type="number" class="form-control" id="batteryCapacityPostCar" formControlName="batteryCapacity" placeholder="22" required>
-      <app-error-from [fieldName]="'batteryCapacity'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
-    </div>-->
     <div class="mb-3">
       <label for="carPostBooking" class="form-label">Voiture *</label>
-      <select class="form-control" id="statusTerminalPostPlace" formControlName="publicIdCar" required>
+      <select class="form-control" id="carPostBooking" formControlName="publicIdCar" required>
         @for (car of cars; track car.publicId) {
-          <option [value]="car.publicId" [selected]="booking?.publicIdCar === car.publicId">{{ car.brand }} {{ car.model }} ({{ car.licensePlate }})</option>
+          <option [value]="car.publicId">{{ car.brand }} {{ car.model }} ({{ car.licensePlate }})</option>
         }
       </select>
-      <app-error-from [fieldName]="'statusTerminal'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
+      <app-error-from [fieldName]="'publicIdCar'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
     </div>
-    @if (cars.length > 0) {
+    @if (options.length > 0) {
       <div class="mb-3">
         <label for="optionPostBooking" class="form-label">Service Supplémentaire</label>
-        <select class="form-control" id="statusTerminalPostPlace" formControlName="publicIdOption">
+        <select class="form-control" id="optionPostBooking" formControlName="publicIdOption">
+          <option [value]="">Aucune</option>
           @for (option of options; track option.publicId) {
-            <option [value]="option.publicId" [selected]="booking?.publicIdOption === option.publicId">{{ option.nameOption }}</option>
+            <option [value]="option.publicId">{{ option.nameOption }}</option>
           }
         </select>
-        <app-error-from [fieldName]="'statusTerminal'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
+        <app-error-from [fieldName]="'publicIdOption'" [nameFormGroup]="postBookingForm" [isSubmitted]="isSubmitted"></app-error-from>
       </div>
     }
     <div class="col-12 d-flex justify-content-around">
       <button class="btn button-style" type="submit">Valider</button>
-      <button class="btn button-style" (click)="onNoClick()">Annuler</button>
+      <button class="btn button-style" type="button" (click)="onNoClick()" [disabled]="isLoading">Annuler</button>
     </div>
   </form>
 </div>
