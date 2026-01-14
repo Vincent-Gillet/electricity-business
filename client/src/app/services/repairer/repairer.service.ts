@@ -10,15 +10,15 @@ export class RepairerService {
 
   private apiUrl: string = environment.apiUrl + '/repairers';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getRepairers(): Observable<any> {
     let repairers = this.http.get(this.apiUrl)
     console.log(repairers);
     return repairers;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getRepairer(id: number): Observable<any> {

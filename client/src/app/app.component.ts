@@ -27,6 +27,8 @@ export class AppComponent implements OnInit {
 
   currentError$ = this.globalError.error$;
 
+  cookieResponse = localStorage.getItem('cookieResponse') || '';
+
   ngOnInit() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
@@ -39,5 +41,11 @@ export class AppComponent implements OnInit {
     this.globalError.clearError();
     window.location.reload();
   }
+
+  validateCookie(response: boolean) {
+    localStorage.setItem('cookieResponse', response?'true':'false');
+    this.cookieResponse = localStorage.getItem('cookieResponse') || '';
+  }
+
 
 }

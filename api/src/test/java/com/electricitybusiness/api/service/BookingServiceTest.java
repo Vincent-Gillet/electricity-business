@@ -183,7 +183,7 @@ public class BookingServiceTest {
 
         LocalDateTime paymentDate = servicePerceivedNow;
         LocalDateTime startDate = servicePerceivedNow.plusDays(1);
-        LocalDateTime endDate = servicePerceivedNow.plusDays(1).plusHours(3);
+        LocalDateTime endDate = servicePerceivedNow.plusDays(1).plusHours(1);
 
         Booking initialBooking = new Booking(
                 1L,
@@ -596,7 +596,7 @@ public class BookingServiceTest {
         LocalDateTime servicePerceivedNow = LocalDateTime.ofInstant(fixedInstantForTest, serviceProcessingZone);
         LocalDateTime paymentDate = servicePerceivedNow;
         LocalDateTime futureStartDate = servicePerceivedNow.plusHours(1);
-        LocalDateTime futureEndDate = futureStartDate.plusHours(3);
+        LocalDateTime futureEndDate = futureStartDate.plusHours(1).plusMinutes(30);
 
         validBooking.setPaymentDate(paymentDate);
         validBooking.setStartingDate(futureStartDate);

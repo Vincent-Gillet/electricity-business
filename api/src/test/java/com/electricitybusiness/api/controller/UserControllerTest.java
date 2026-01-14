@@ -100,7 +100,7 @@ class UserControllerTest {
                 "John",
                 "testUser",
                 "test@example.com",
-                "passwordHash",
+                "passwordHash*1",
                 UserRole.USER,
                 LocalDate.of(1990, 1, 1),
                 "0123456789",
@@ -115,7 +115,7 @@ class UserControllerTest {
                 "Doe",
                 "John",
                 "testUser",
-                "passwordHash",
+                "passwordHash*1",
                 "test@example.com",
                 LocalDate.of(1990, 1, 1),
                 "0123456789"
@@ -219,7 +219,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users/{id}", 99L)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isUnauthorized());
 
         verify(userService, times(1)).getUserById(99L);
     }
@@ -539,7 +539,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users/email/{email}", "unknown@example.com")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError()); // Ou NotFound si géré spécifiquement
+                .andExpect(status().isUnauthorized());
 
         verify(userService, times(1)).getUserByEmail("unknown@example.com");
     }

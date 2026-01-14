@@ -192,7 +192,7 @@ public class AuthControllerTest {
      * Teste le cas d'échec d'authentification avec des identifiants invalides.
      */
     @Test
-    void authenticate_Failure_InvalidCredentials() throws Exception {
+    void login_Failure_InvalidCredentials() throws Exception {
         AuthController.AuthRequest authRequest = new AuthController.AuthRequest("wrong@example.com", "wrongpassword");
 
         doThrow(new BadCredentialsException("Bad credentials"))
@@ -202,7 +202,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Email ou mot de passe incorrect"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Authentication Failed"));
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verifyNoInteractions(customUserDetailService);
@@ -339,7 +339,7 @@ public class AuthControllerTest {
         mockMvc.perform(post("/api/auth/refresh")
                         .cookie(refreshTokenCookie))
                 .andExpect(status().isUnauthorized())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Erreur lors du rafraîchissement du token."));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Token Processing Error"));
 
         verify(jwtService).getRefreshTokenByToken(testRefreshTokenJwt);
         verify(jwtService).isTokenValid(eq(testRefreshTokenJwt), anyString(), eq(testUser));
@@ -411,8 +411,8 @@ public class AuthControllerTest {
         // Exécute la requête de déconnexion
         mockMvc.perform(post("/api/auth/logout")
                         .cookie(refreshTokenCookie))
-                .andExpect(status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Une erreur est survenue lors de la déconnexion."));
+                .andExpect(status().isUnauthorized())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Token Processing Error"));
 
         // Vérifie que la méthode de suppression a été appelée malgré l'erreur
         verify(jwtService).deleteRefreshToken(testRefreshTokenJwt);

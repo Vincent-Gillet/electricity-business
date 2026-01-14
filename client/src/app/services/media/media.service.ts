@@ -10,15 +10,15 @@ export class MediaService {
 
     private apiUrl: string = environment.apiUrl + '/medias';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getMedias(): Observable<any> {
     let medias = this.http.get(this.apiUrl)
     console.log(medias);
     return medias;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getMedia(id: number): Observable<any> {

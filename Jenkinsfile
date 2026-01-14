@@ -35,7 +35,7 @@ pipeline {
             steps {
                 dir('api') {
                     sh '''
-                        mvn sonar:sonar \
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                           -Dsonar.organization=${SONAR_ORGANIZATION} \
                           -Dsonar.host.url=${SONAR_HOST_URL} \
@@ -89,7 +89,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline succeeded! Angular: https://electricity-business-angular-app-4eyi.onrender.com/, Spring: https://electricity-business-spring-app.onrender.com/'
+            echo 'Pipeline succeeded! Angular: https://electricity-business-angular-app.onrender.com/, Spring: https://electricity-business-spring-app.onrender.com/'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'

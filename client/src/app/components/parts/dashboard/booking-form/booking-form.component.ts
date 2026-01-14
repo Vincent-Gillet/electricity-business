@@ -9,7 +9,6 @@ import {CarService} from '../../../../services/car/car.service';
 import {Terminal} from '../../../../models/terminal';
 import {forkJoin} from 'rxjs';
 import {OptionService} from '../../../../services/option/option.service';
-import {BOOKING_STATUS_LABELS} from '../../../../constants/booking-status-labels';
 import {Option} from '../../../../models/option';
 import {Car} from '../../../../models/car';
 
@@ -144,6 +143,4 @@ export class BookingFormComponent implements OnInit {
       });
     }
   }
-
-  protected readonly bookingStatusLabels = BOOKING_STATUS_LABELS;
 }

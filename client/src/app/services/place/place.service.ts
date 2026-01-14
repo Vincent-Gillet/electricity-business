@@ -10,15 +10,15 @@ export class PlaceService {
 
   private apiUrl: string = environment.apiUrl + '/places';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getPlaces(): Observable<any> {
     let places = this.http.get(this.apiUrl)
     console.log(places);
     return places;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getPlace(id: number): Observable<any> {

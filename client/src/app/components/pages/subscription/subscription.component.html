@@ -32,27 +32,6 @@
         <input type="email" class="form-control" id="emailUserSubscription" formControlName="emailUser" placeholder="adresse@gmail.com" required>
         <app-error-from [fieldName]="'emailUser'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-from>
       </div>
-  <!--      <div class="col-md-6">
-          <label for="validationCustom06" class="form-label">Adresse *</label>
-          <input type="text" class="form-control" id="validationCustom06" placeholder="10 Rue Philippe Marcombes" required>
-          <div class="invalid-feedback">
-            Veuillez entrer une adresse valide.
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label for="validationCustom07" class="form-label">Code postal *</label>
-          <input type="number" class="form-control" id="validationCustom07" placeholder="63100" required>
-          <div class="invalid-feedback">
-            Veuillez entrer un code postal valide.
-        </div>
-        </div>
-        <div class="col-md-6">
-          <label for="validationCustom08" class="form-label">Ville *</label>
-          <input type="text" class="form-control" id="validationCustom08" placeholder="Clermont-Ferrand" required>
-          <div class="invalid-feedback">
-            Veuillez entrer une ville valide.
-          </div>
-        </div>-->
       <div class="col-md-6">
         <label for="passwordUserSubscription" class="form-label">Mot de passe *</label>
         <input type="password" class="form-control" id="passwordUserSubscription" formControlName="passwordUser" placeholder="mot de passe" required>
@@ -76,7 +55,7 @@
         </div>
       </div>
       <div class="col-12 div-center">
-        <button class="btn button-style" type="submit" [disabled]="!subscirbeForm.valid">S'incrire</button>
+        <button class="btn button-style" type="submit">S'incrire</button>
       </div>
       <div class="col-12 div-center">
         <div class="">Vous avez déjà un compte ?</div>

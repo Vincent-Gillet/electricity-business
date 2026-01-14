@@ -1,9 +1,7 @@
 package com.electricitybusiness.api.dto.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import com.electricitybusiness.api.annotation.MinAge;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +26,10 @@ public class UserCreateDTO {
 
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial"
+    )
     private String passwordUser;
 
     @NotBlank(message = "L'adresse email est obligatoire")
@@ -35,6 +37,7 @@ public class UserCreateDTO {
     private String emailUser;
 
     @Past(message = "La date de naissance doit être dans le passé")
+    @MinAge(minAge = 18, message = "L'utilisateur doit avoir au moins 18 ans")
     private LocalDate dateOfBirth;
 
     @NotBlank(message = "Le numéro de téléphone est obligatoire")

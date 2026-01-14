@@ -18,7 +18,9 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings", indexes = {
+        @Index(name = "idx_booking_public_id", columnList = "public_id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {

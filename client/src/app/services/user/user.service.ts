@@ -11,13 +11,13 @@ export class UserService {
 
   private apiUrl: string = environment.apiUrl + '/users';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getUsers(): Observable<any> {
     return this.http.get(this.apiUrl);
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getUser(id: number): Observable<any> {
@@ -26,9 +26,7 @@ export class UserService {
 
   createUser(user: any): Observable<any> {
     return this.http.post(this.apiUrl, user
-/*
       , {headers : { 'Content-Type': 'application/json' }, withCredentials: true}
-*/
     );
   }
 
@@ -84,9 +82,5 @@ export class UserService {
 
   deleteAccount(): Observable<any> {
     return this.http.delete(`${this.apiUrl}/delete/me`);
-  }
-
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/me`);
   }
 }

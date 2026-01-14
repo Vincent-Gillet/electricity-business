@@ -17,10 +17,7 @@ export class ErrorFromComponent {
 
     const field = this.nameFormGroup.get(fieldName);
 
-    // Retourne true si TOUTES ces conditions sont vraies :
-    //    champ existe ET champ invalide ET (champ dirty OU touched OU formulaire est soumis)
     return Boolean(field && field.invalid && this.isSubmitted);
-    // Boolean() créer un booléen d'après une donnée flasy ou truthy
   }
 
   renameInput: Record<string, string> = {
@@ -51,8 +48,6 @@ export class ErrorFromComponent {
 
     // Vérifier si le champ existe et a des erreurs
     if (field && field.errors) {
-      // field.errors est un objet avec les types d'erreurs comme clés
-      // Ex: { required: true, email: true, minlength: { requiredLength: 6, actualLength: 3 } }
       if (field.errors['required']){
         const displayName = this.renameInput[fieldName] || fieldName;
         return `${displayName} obligatoire`;
@@ -61,8 +56,19 @@ export class ErrorFromComponent {
         return 'Format email invalide';
       }
       if (field.errors['minlength']) {
-        // L'erreur minlength contient des infos détaillées
         return `Minimum ${field.errors['minlength'].requiredLength} caractères`;
+      }
+
+      if (field.errors['pattern']) {
+        return 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial';
+      }
+
+      if (field.errors['passwordMismatch']) {
+        return 'Les mots de passe ne correspondent pas';
+      }
+
+      if (field.errors['majorityValidator']) {
+        return `Vous devez avoir au moins ${field.errors['majorityValidator'].requiredAge} ans`;
       }
 
     }

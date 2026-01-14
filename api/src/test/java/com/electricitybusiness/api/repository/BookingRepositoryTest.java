@@ -52,7 +52,7 @@ public class BookingRepositoryTest {
                 .dateOfBirth(LocalDate.of(1990, 5, 15))
                 .phone("1234567890")
                 .emailUser("john.doe@example.com")
-                .passwordUser("password123")
+                .passwordUser("passworD123*")
                 .role(UserRole.USER)
                 .banished(false)
                 .build();
@@ -64,7 +64,7 @@ public class BookingRepositoryTest {
                 .dateOfBirth(LocalDate.of(1985, 8, 20))
                 .phone("0987654321")
                 .emailUser("john.smith@example.com")
-                .passwordUser("password456")
+                .passwordUser("passworD456*")
                 .role(UserRole.USER)
                 .banished(false)
                 .build();

@@ -83,7 +83,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * @param user L'utilisateur propriétaire des lieux.
      * @return Une liste de réservations associées aux lieux de l'utilisateur.
      */
-    @Query("SELECT b FROM Booking b JOIN b.terminal t JOIN t.place p JOIN p.user WHERE p.user = :user")
+    @Query("SELECT b FROM Booking b JOIN b.terminal t JOIN t.place p JOIN p.user WHERE p.user = :user ORDER BY b.startingDate DESC")
     List<Booking> findBookingsByUserOwner(User user);
 
     /** Recherche des réservations d'un utilisateur avec un statut spécifique.
@@ -135,7 +135,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "WHERE b.terminal = :terminal " +
             "AND b.statusBooking IN ('EN_ATTENTE', 'ACCEPTEE') " +
             "AND ( " +
-            "    (:newStartingDate < b.endingDate AND :newEndingDate > b.startingDate) " + // Conditions de chevauchement
+            "    (:newStartingDate < b.endingDate AND :newEndingDate > b.startingDate) " +
             ")")
     List<Booking> findOverlappingBookings(
             @Param("terminal") Terminal terminal,

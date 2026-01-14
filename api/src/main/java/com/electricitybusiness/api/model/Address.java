@@ -17,7 +17,9 @@ import java.util.UUID;
  */
 @Data
 @Entity
-@Table(name = "addresses")
+@Table(name = "addresses", indexes = {
+    @Index(name = "idx_address_public_id", columnList = "public_id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address {

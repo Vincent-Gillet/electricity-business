@@ -25,16 +25,15 @@ export class MyInformationsComponent implements OnInit {
   private userService : UserService = inject(UserService);
   router: Router = inject(Router);
   user: User = null;
+  pseudo: string = null;
 
   ngOnInit() {
     const accessToken = localStorage.getItem('access_token');
-/*
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-*/
     this.userService.getUserWithToken(accessToken).subscribe({
       next: data => {
         this.user = data;
         console.log(this.user);
+        localStorage.setItem('pseudo', this.user.pseudo);
       },
       error: err => {
         console.error("Erreur lors de la récupération des informations utilisateur :", err);

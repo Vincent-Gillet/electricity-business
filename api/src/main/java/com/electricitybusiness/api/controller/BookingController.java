@@ -3,11 +3,6 @@ package com.electricitybusiness.api.controller;
 import com.electricitybusiness.api.dto.booking.BookingCreateDTO;
 import com.electricitybusiness.api.dto.booking.BookingDTO;
 import com.electricitybusiness.api.dto.booking.BookingStatusDTO;
-import com.electricitybusiness.api.dto.car.CarCreateDTO;
-import com.electricitybusiness.api.dto.car.CarDTO;
-import com.electricitybusiness.api.dto.terminal.TerminalCreateDTO;
-import com.electricitybusiness.api.dto.terminal.TerminalDTO;
-import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.mapper.EntityMapper;
 import com.electricitybusiness.api.model.*;
 import com.electricitybusiness.api.service.BookingService;
@@ -15,6 +10,7 @@ import com.electricitybusiness.api.service.TerminalService;
 import com.electricitybusiness.api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,11 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.swing.text.Document;
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -64,37 +57,6 @@ public class BookingController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(bookingDTO);
     }
-/*    @GetMapping
-    public ResponseEntity<List<BookingDTO>> getAllBookings() {
-        try {
-            List<Booking> Bookings = bookingService.getAllBookings();
-            List<BookingDTO> dtos = Bookings.stream()
-                    .map(this::converttoBookingDTO)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            e.printStackTrace(); // Log the exception properly
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    private BookingDTO converttoBookingDTO(Booking Booking) {
-        BookingDTO dto = new BookingDTO();
-        dto.setIdBooking(Booking.getIdBooking());
-        dto.setIdUtilisateur(Booking.getIdUtilisateur());
-        dto.setIdVehicule(Booking.getIdVehicule());
-        dto.setIdBorne(Booking.getIdBorne());
-        dto.setIdOption(Booking.getIdOption());
-        dto.setNumBooking(Booking.getNumBooking());
-        dto.setstatus(Booking.getstatus().toString());
-        dto.setMontantPaye(Booking.getMontantPaye());
-        dto.setDatePaiement(Booking.getDatePaiement());
-        dto.setDateDebut(Booking.getDateDebut());
-        dto.setDateFin(Booking.getDateFin());
-        return dto;
-    }*/
-
-
 
     /**
      * Récupère une réservation par son ID.
@@ -164,22 +126,6 @@ public class BookingController {
         bookingService.deleteBookingById(id);
         return ResponseEntity.noContent().build();
     }
-
-    /**
-     * Récupère les réservations par utilisateur.
-     * GET /api/bookings/user/{user}
-     * @param user L'utilisateur associé aux réservations
-     * @return Une liste de réservations correspondant à l'utilisateur
-     */
-/*    @GetMapping("/user/{user}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<BookingDTO>> getBookingsByUser(@PathVariable User user) {
-        List<Booking> bookings = bookingService.findByUser(user);
-        List<BookingDTO> bookingDTO = bookings.stream()
-                .map(mapper::toBookingDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(bookingDTO);
-    }*/
 
     /**
      * Récupère les réservations par borne.
@@ -263,22 +209,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingDTOs);
     }
 
-    /**
-     * Récupère les réservations actives par borne.
-     * GET /api/bookings/{borne}/{actif}
-     *  borne La borne associée aux réservations
-     *  actif L'état actif des réservations à récupérer
-     * @return Une liste de réservations actives correspondant à la borne
-     */
-/*    @GetMapping("/{borne}/{actif}")
-    public ResponseEntity<List<BookingDTO>> getBookingsByBorneAndActif(@PathVariable Borne borne, Boolean actif) {
-        List<Booking> Bookings = bookingService.findByBorneAndActif(borne, actif);
-        List<BookingDTO> BookingDTO = Bookings.stream()
-                .map(mapper::toBookingDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(BookingDTO);
-    }*/
-
     // requête user
 
     /**
@@ -346,8 +276,6 @@ public class BookingController {
     @PostMapping("/user")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<BookingDTO> saveBookingByToken(@Valid @RequestBody BookingCreateDTO bookingDTO) {
-        OffsetDateTime now = OffsetDateTime.now();
-
         // Récupérer l'utilisateur authentifié
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -355,9 +283,6 @@ public class BookingController {
 
         if (idUser == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
-/*
-            return ResponseEntity.notFound().build();
-*/
         }
 
         Booking booking = mapper.toEntityCreate(bookingDTO, idUser, bookingDTO.getPublicIdTerminal(), bookingDTO.getPublicIdCar(), bookingDTO.getPublicIdOption());

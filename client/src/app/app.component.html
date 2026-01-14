@@ -11,4 +11,13 @@
     <router-outlet></router-outlet>
   }
   <app-footer></app-footer>
+  @if(cookieResponse !== 'true' && cookieResponse !== 'false') {
+    <div class="alert alert-primary d-flex justify-content-between align-items-center fixed-bottom" role="alert" style="bottom: 10px; width: 90%; left: 5%; z-index: 1000">
+      <p>Nous utilisons des cookies pour améliorer notre site web et votre expérience d'achat. En continuant à naviguer, vous acceptez notre politique en matière de cookies.
+      <div class="d-flex justify-content-end align-items-center gap-2">
+        <button type="button" class="btn btn-light" (click)="validateCookie(true)">Accepter</button>
+        <button type="button" class="btn btn-light" (click)="validateCookie(false)">Refuser</button>
+      </div>
+    </div>
+  }
 </main>

@@ -10,15 +10,15 @@ export class VehiculeService {
 
   private apiUrl: string = environment.apiUrl + '/cars';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getVehicules(): Observable<any> {
     let vehicules = this.http.get(this.apiUrl)
     console.log(vehicules);
     return vehicules;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getVehicule(id: number): Observable<any> {

@@ -10,15 +10,15 @@ export class OptionService {
 
   private apiUrl: string = environment.apiUrl + '/options';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getOptions(): Observable<any> {
     let options = this.http.get(this.apiUrl)
     console.log(options);
     return options;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getOption(id: number): Observable<any> {

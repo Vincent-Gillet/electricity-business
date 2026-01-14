@@ -2,7 +2,6 @@ package com.electricitybusiness.api.service;
 
 import com.electricitybusiness.api.exception.ResourceNotFoundException;
 import com.electricitybusiness.api.model.*;
-import com.electricitybusiness.api.repository.BookingRepository;
 import com.electricitybusiness.api.repository.TerminalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import java.util.UUID;
 public class TerminalService {
 
     private final TerminalRepository terminalRepository;
-    private final BookingRepository bookingRepository;
 
     /**
      * Récupère tous les Terminals.

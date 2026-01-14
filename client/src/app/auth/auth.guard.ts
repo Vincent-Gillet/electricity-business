@@ -7,7 +7,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  const publicRoutes = ['/connexion', '/inscription', '/mot-de-passe-oublie'];
+  const publicRoutes = ['/connexion', '/inscription'];
   const isPublicRoute = publicRoutes.some(publicRoute =>
     state.url.startsWith(publicRoute)
   );
@@ -18,7 +18,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
 
   return authService.initialized$.pipe(
-    take(1), // Prend la première émission et se désabonne
+    // Prend la première émission et se désabonne
+    take(1),
     switchMap(() => {
       // Si l'utilisateur est déjà chargé en mémoire
       if (authService.user) {

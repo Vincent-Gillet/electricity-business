@@ -10,10 +10,10 @@ export class BookingService {
 
   private apiUrl: string = environment.apiUrl + '/bookings';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getBookings(): Observable<any> {
     let bookings = this.http.get(this.apiUrl)
     console.log(bookings);
@@ -55,21 +55,6 @@ export class BookingService {
     return this.http.delete(`${this.apiUrl}/publicId/${publicId}`);
   }
 
-  // Récupérer les réservations d'un utilisateur spécifique
-/*  getBookingsByUser(): Observable<any> {
-    const token = localStorage.getItem('access_token');
-    const accessToken = token ? JSON.parse(token).accessToken : null;
-    return this.http.get(`${this.apiUrl}/user/client`,
-      {
-        headers: {
-          accept: 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-  }*/
-
   // Récupérer les réservations d'un utilisateur spécifique avec paramètre
   getBookingsByUser(param: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/user/client?${param}`);
@@ -87,14 +72,17 @@ export class BookingService {
 
   // Télécharger le PDF de la réservation
   downloadBookingPdf(publicId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/publicId/${publicId}/pdf`);
+    return this.http.get(`${this.apiUrl}/publicId/${publicId}/pdf`, {
+      responseType: 'blob'
+    });
   }
 
   // Télécharger le PDF de la réservation
   downloadBookingsExcel(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/excel`);
+    return this.http.get(`${this.apiUrl}/excel`, {
+      responseType: 'blob'
+    });
   }
-
 
   getStatusBooking(): Observable<any> {
     return this.http.get(`${this.apiUrl}/booking-status`);

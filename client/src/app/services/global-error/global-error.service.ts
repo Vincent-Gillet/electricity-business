@@ -30,9 +30,6 @@ export class GlobalErrorService {
 
     // Personnalisation des messages en fonction du statut
     switch (status) {
-      /*      case 401:
-              message = 'Votre session a expiré. Veuillez vous reconnecter.';
-              break;*/
       case 404:
         message = `La ressource demandée (${url?.split('/').pop()}) est introuvable.`;
         details = errorDetails;

@@ -55,6 +55,10 @@ public class User implements UserDetails {
     @Column(name = "password_user", length = 60)
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial"
+    )
     private String passwordUser;
 
     @Column(name = "role")
@@ -81,15 +85,6 @@ public class User implements UserDetails {
     @Column(name = "banished")
     @NotNull(message = "Le statut de bannissement est obligatoire")
     private Boolean banished = false;
-
-/*    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private Media media;*/
-
-/*    @OneToOne
-    @JoinColumn(name = "id_media")
-    @ToString.Exclude
-    private Media media;*/
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_media", referencedColumnName = "id_media")

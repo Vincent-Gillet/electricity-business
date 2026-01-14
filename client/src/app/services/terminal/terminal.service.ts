@@ -10,15 +10,15 @@ export class TerminalService {
 
     private apiUrl: string = environment.apiUrl + '/terminals';
 
-// 1️⃣ INJECTION HttpClient
+// INJECTION HttpClient
   constructor(private http: HttpClient) {}
 
-// 2️⃣ MÉTHODES IMPLÉMENTÉES
+// MÉTHODES IMPLÉMENTÉES
   getTerminals(): Observable<any> {
     let terminals = this.http.get(this.apiUrl)
     console.log(terminals);
     return terminals;
-// ↳ Retourne un Observable
+// Retourne un Observable
   }
 
   getTerminal(id: number): Observable<any> {
@@ -39,15 +39,6 @@ export class TerminalService {
 
   getTerminalsNearby(param: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/search-terminals?${param}`);
-
-/*    return this.http.get(`${this.apiUrl}/search-terminals?${param}` , {
-        headers: {
-          accept: 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );*/
   }
 
   // Méthode publicId

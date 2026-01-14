@@ -29,7 +29,7 @@ import static org.springframework.http.HttpMethod.POST;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final CorsConfigurationSource corsConfigurationSource; // Injectez votre source CORS
+    private final CorsConfigurationSource corsConfigurationSource;
 
     private final CustomUserDetailService userDetailsService;
 
@@ -44,7 +44,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
                 "https://localhost:4200",
-                "https://electricity-business-angular-app.onrender.com"
+                "https://electricity-business-angular-app.onrender.com",
+                "https://localhost:8443/swagger-ui/index.html",
+                "/swagger-ui.html", "/swagger-ui/**"
         ));
         // Reprend les allowedMethods de WebConfig
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -61,15 +63,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/auth/login"
-                        ).permitAll()
-                        .requestMatchers(OPTIONS, "/**").permitAll()
                         .requestMatchers(POST,
                                 "/api/auth/login",
                                 "/api/users"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/auth/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers(OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/addresses/**",
                                 "/api/places/**",

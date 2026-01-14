@@ -21,6 +21,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   authService: AuthService = inject(AuthService);
   user:User|null = null;
   authInitialized: boolean = false;
+  pseudoUser: string = localStorage.getItem('pseudo') || '';
 
   links: any[] = [
     { name: 'Trouver une borne', path: '/tableau-de-bord/trouver-bornes', ariaLabel: 'Trouver une borne' },
@@ -30,18 +31,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { name: 'Mes voitures', path: '/tableau-de-bord/mes-voitures', ariaLabel: 'Voir mes voitures' },
     { name: 'Mes options', path: '/tableau-de-bord/mes-options', ariaLabel: 'Voir mes options' },
   ]
-
-/*  ngOnInit(): void {
-   this.authService.initialized$.subscribe(initialized => {
-      this.authInitialized = initialized;
-    });
-
-    this.authService.user$.subscribe(user => {
-      this.user = user;
-      console.log('User loaded:', this.user);
-      this.authInitialized = true;
-    });
-  }*/
 
   ngOnInit(): void {
     combineLatest([

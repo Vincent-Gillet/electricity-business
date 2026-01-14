@@ -36,6 +36,7 @@ public class UserUpdateDTO {
     @Length(min = 10, max = 15)
     private String phone;
 
+    @Length(min = 27, max = 27)
     private String iban;
 
 }

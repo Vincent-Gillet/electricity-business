@@ -4,6 +4,7 @@ import {UserService} from '../../../services/user/user.service';
 import {ErrorFromComponent} from '../../parts/error-from/error-from.component';
 
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {majorityValidator} from '../../../validator/majority.validator';
 
 @Component({
   selector: 'app-subscription',
@@ -34,11 +35,11 @@ export class SubscriptionComponent {
         firstName: ['', [Validators.required]],
         surnameUser: ['', [Validators.required]],
         pseudo: ['', [Validators.required]],
-        dateOfBirth: ['', [Validators.required]],
+        dateOfBirth: ['', [Validators.required, majorityValidator(18)]],
         phone: ['', [Validators.required]],
         emailUser: ['', [Validators.required, Validators.email]],  // Champ nommé email, requis, contrainte EMAIL
-        passwordUser: ['', [Validators.required, Validators.minLength(4)]], // Champ nommé email, requis, contrainte longueur
-        passwordUserValidation: ['', [Validators.required]],
+        passwordUser: ['', [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')]], // contrainte MINLENGTH 8 et pattern (au moins une majuscule, une minuscule, un chiffre et un caractère spécial)
+        passwordUserValidation: ['', [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')]],
         termsOfUse: ['', [Validators.required]]
       }, {
         validators: this.passwordMatchValidator
@@ -50,15 +51,18 @@ export class SubscriptionComponent {
     const password = form.get('passwordUser')?.value;
     const confirmPassword = form.get('passwordUserValidation')?.value;
     if (password !== confirmPassword) {
-      return { passwordMismatch: true };
+      // Ajouter l'erreur au champ "passwordUserValidation"
+      form.get('passwordUserValidation')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true }; // Erreur au niveau du groupe (optionnel)
+    } else {
+      // Supprimer l'erreur si les mots de passe correspondent
+      form.get('passwordUserValidation')?.setErrors(null);
+      return null;
     }
     return null;
   }
 
   onSubmit():void {
-    // TODO: Use EventEmitter with form value
-    console.warn(this.subscirbeForm.value);
-
     this.isSubmitted = true;
 
     console.log("MON FORM EST SOUMIS");
@@ -71,36 +75,29 @@ export class SubscriptionComponent {
 
 
     if (this.subscirbeForm.valid) {
-      // 3. Activer le state de chargement
+      // Activer le state de chargement
       this.isLoading = true;
 
-      // 4. Récupérer les données du formulaire
+      // Récupérer les données du formulaire
       const loginData = { ...this.subscirbeForm.value };
-      delete loginData.utilisateurMotDePasseValidation;
-      delete loginData.conditionsUtilisation;
+      delete loginData.passwordUserValidation;
+      delete loginData.termsOfUse;
 
       console.log('Données de connexion:', loginData);
 
-      // 5. Simuler un appel API avec setTimeout
-      // (Dans un vrai projet, ça serait un appel HTTP)
-      setTimeout(() => {
 
-        this.userService.createUser(loginData).subscribe(
-          {
-            next: (response) => {
-              console.log('User login successfully:', response);
-              const localArray = [];
-              localArray.push(response);
-              localStorage.setItem("access_token", JSON.stringify(localArray));
-              this.router.navigate(['/connexion']);
-            },
-            error: (error) => {
-              console.error('Error login user:', error);
-            }
+      this.userService.createUser(loginData).subscribe(
+        {
+          next: (response) => {
+            console.log('User login successfully:', response);
+            this.router.navigate(['/connexion']);
+          },
+          error: (error) => {
+            console.error('Error login user:', error);
           }
-        );
+        }
+      );
 
-      }, 2000);
 
     }
 

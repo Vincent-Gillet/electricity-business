@@ -20,7 +20,9 @@ import java.util.UUID;
  */
 @Data
 @Entity
-@Table(name = "terminals")
+@Table(name = "terminals", indexes = {
+        @Index(name = "idx_terminal_public_id", columnList = "public_id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Terminal {

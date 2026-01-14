@@ -79,7 +79,7 @@ public class TerminalRepositoryTest {
                 .dateOfBirth(LocalDate.of(1990, 5, 15))
                 .phone("1234567890")
                 .emailUser("john.doe@example.com")
-                .passwordUser("password123")
+                .passwordUser("passworD123*")
                 .role(UserRole.USER)
                 .banished(false)
                 .media(media1)

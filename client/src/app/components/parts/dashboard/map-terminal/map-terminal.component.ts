@@ -25,13 +25,6 @@ import {TerminalFormComponent} from '../terminal-form/terminal-form.component';
 })
 export class MapTerminalComponent implements OnInit{
 
-/*  long: number = 2.287592;*/
-/*  lat: number = 48.862725;*/
-
-
-/*  @Input() long: number = 2.287592;
-  @Input() lat: number = 48.862725;*/
-
   bookingService: BookingService = inject(BookingService);
 
   @Input() long: number;
@@ -59,9 +52,6 @@ export class MapTerminalComponent implements OnInit{
 
   // Map configuration (street map style)
   styleMap: string = 'https://api.maptiler.com/maps/streets-v2/style.json?key=y3jKHE3LdL8zZlzLZ1CY';
-/*  // Coordonnées par défaut pour centrer la carte (Paris)
-  long = 2.287592;
-  lat = 48.862725;*/
 
   // Fonctionnalité de la carte
   onMapLoad(map: maplibregl.Map): void {
